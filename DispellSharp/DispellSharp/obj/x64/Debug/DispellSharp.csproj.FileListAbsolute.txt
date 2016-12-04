@@ -1,0 +1,12 @@
+C:\Users\Emir\Documents\GitHub\Ensagebeminee\DispellSharp\DispellSharp\obj\x64\Debug\DispellSharp.csprojResolveAssemblyReference.cache
+C:\Users\Emir\Documents\GitHub\Ensagebeminee\DispellSharp\DispellSharp\bin\Debug\DispellSharp.exe.config
+C:\Users\Emir\Documents\GitHub\Ensagebeminee\DispellSharp\DispellSharp\bin\Debug\DispellSharp.exe
+C:\Users\Emir\Documents\GitHub\Ensagebeminee\DispellSharp\DispellSharp\bin\Debug\DispellSharp.pdb
+C:\Users\Emir\Documents\GitHub\Ensagebeminee\DispellSharp\DispellSharp\bin\Debug\Ensage.Common.dll
+C:\Users\Emir\Documents\GitHub\Ensagebeminee\DispellSharp\DispellSharp\bin\Debug\Ensage.dll
+C:\Users\Emir\Documents\GitHub\Ensagebeminee\DispellSharp\DispellSharp\bin\Debug\SharpDX.dll
+C:\Users\Emir\Documents\GitHub\Ensagebeminee\DispellSharp\DispellSharp\bin\Debug\SharpDX.Direct3D9.dll
+C:\Users\Emir\Documents\GitHub\Ensagebeminee\DispellSharp\DispellSharp\bin\Debug\Newtonsoft.Json.dll
+C:\Users\Emir\Documents\GitHub\Ensagebeminee\DispellSharp\DispellSharp\bin\Debug\Ensage.Common.pdb
+C:\Users\Emir\Documents\GitHub\Ensagebeminee\DispellSharp\DispellSharp\obj\x64\Debug\DispellSharp.exe
+C:\Users\Emir\Documents\GitHub\Ensagebeminee\DispellSharp\DispellSharp\obj\x64\Debug\DispellSharp.pdb
