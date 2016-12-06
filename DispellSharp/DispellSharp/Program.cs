@@ -1,161 +1,115 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
-
-using Ensage;
-using Ensage.Common;
-using Ensage.Common.Extensions;
-using Ensage.Common.Menu;
-using Ensage.Common.Objects;
-using SharpDX;
-
-namespace DispellSharp
+﻿namespace DispellSharp
 {
+    using System;
+    using System.Linq;
+
+    using Ensage;
+    using Ensage.Common;
+    using Ensage.Common.Extensions;
+    using Ensage.Common.Menu;
 
     internal class Program
     {
+        #region Static Fields
 
-        private static Item manta, diff, dust, orchid, ghost, repel, ga, As;
-        private static readonly Menu Menu = new Menu("DispellSharp", "dispellsharp", true, "item_diffusal_blade", true);
-        private static Hero me;
-        private static bool enable;
+        private static readonly string[] EnemyCleans =
+            {
+                "modifier_ghost_state", "modifier_item_ethereal_blade_ethereal",
+                "modifier_omniknight_repel",
+                "modifier_omninight_guardian_angel"
+            };
 
+        private static readonly string[] OwnCleans =
+            {
+                "modifier_item_dustofappearance",
+                "modifier_orchid_malevolence_debuff",
+                "modifier_bloodthorn_debuff",
+                "modifier_skywrath_mage_ancient_seal"
+            };
 
-        private static void Main()
-        {
-            Game.OnUpdate += Game_OnUpdate;
-            Game.OnWndProc += Game_OnWndProc;
-            Console.WriteLine("DispellSharp Loaded");
+        private static MenuItem EnabledItem;
 
-            var options = new Menu("Options", "opt");
-            options.AddItem(new MenuItem("enable", "Active?").SetValue(true));
+        private static bool loaded;
 
-            Menu.AddSubMenu(options);
-            Menu.AddToMainMenu();
+        private static Menu Menu;
 
-        }
+        #endregion
+
+        #region Public Methods and Operators
+
         public static void Game_OnUpdate(EventArgs args)
         {
-            if (!Game.IsInGame || Game.IsPaused || Game.IsWatchingGame)
-                return;
+            if (!loaded || !Game.IsInGame || Game.IsPaused || Game.IsWatchingGame || !EnabledItem.GetValue<bool>()) return;
 
-            me = ObjectManager.LocalHero;
+            var me = ObjectManager.LocalHero;
             if (me == null) return;
 
-            if (manta == null)
-                manta = me.FindItem("item_manta");
+            var manta = me.FindItem("item_manta");
 
-            if (diff == null)
-                diff = me.Inventory.Items.FirstOrDefault(item => item.Name.Contains("item_diffusal_blade"));
+            var diff = me.Inventory.Items.FirstOrDefault(item => item.Name.Contains("item_diffusal_blade"));
 
-
-            if (enable)
+            if (diff != null && Utils.SleepCheck("diff") && !me.IsChanneling() && me.CanAttack()
+                && diff.CurrentCharges > 0 && diff.Cooldown <= 0)
             {
                 var enemies =
-                ObjectManager.GetEntities<Hero>()
-                    .Where(y => y.Team != me.Team && y.IsAlive && y.IsVisible && !y.IsIllusion)
-                    .ToList();
+                    ObjectManager.GetEntitiesParallel<Hero>()
+                        .Where(
+                            y =>
+                                y.Team != me.Team && y.IsAlive && y.IsVisible && !y.IsIllusion
+                                && me.Distance2D(y) < 500 && y.HasModifiers(EnemyCleans, false))
+                        .ToList();
 
                 foreach (var enemy in enemies)
                 {
-
-                    if (enemy.Modifiers.Any(x => x.Name == "modifier_ghost_state") || enemy.Modifiers.Any(x => x.Name == "modifier_item_ethereal_blade_ethereal"))
-                    {
-
-                        if (diff != null && diff.CurrentCharges > 0 && diff.Cooldown <= 0 && me.Distance2D(enemy) < 500 && !me.IsChanneling() && me.CanAttack() && Utils.SleepCheck("diff"))
-                        {
-                            diff.UseAbility(enemy);
-                            Utils.Sleep(200, "diff");
-                        }
-                    }
-
-                    if (enemy.Modifiers.Any(x => x.Name == "modifier_omniknight_repel"))
-                    {
-                        if (diff != null && diff.CurrentCharges > 0 && diff.Cooldown <= 0 && me.Distance2D(enemy) < 500 && !me.IsChanneling() && me.CanAttack() && Utils.SleepCheck("diff"))
-                        {
-                            diff.UseAbility(enemy);
-                            Utils.Sleep(200, "diff");
-                        }
-                    }
-
-                    if (enemy.Modifiers.Any(x => x.Name == "modifier_omninight_guardian_angel"))
-                    {
-                        if (diff != null && diff.CurrentCharges > 0 && diff.Cooldown <= 0 && me.Distance2D(enemy) < 500 && !me.IsChanneling() && me.CanAttack() && Utils.SleepCheck("diff"))
-                        {
-                            diff.UseAbility(enemy);
-                            Utils.Sleep(200, "diff");
-                        }
-                    }
-
-                    if (me.Modifiers.Any(x => x.Name == "modifier_item_dustofappearance"))
-                    {
-
-                        if (manta != null && manta.Cooldown <= 0 && !me.IsChanneling() && Utils.SleepCheck("manta"))
-                        {
-                            manta.UseAbility();
-                            Utils.Sleep(200, "manta");
-                            Utils.Sleep(400, "diff");
-                        }
-
-                        else if ((manta == null || manta.Cooldown > 0) && diff != null && diff.CurrentCharges > 0 && diff.Cooldown <= 0 && !me.IsChanneling() && Utils.SleepCheck("diff"))
-                        {
-                            diff.UseAbility(me);
-                            Utils.Sleep(200, "diff");
-                        }
-                    }
-
-                    if (me.Modifiers.Any(x => x.Name == "modifier_item_orchid_malevolence"))
-                    {
-
-                        if (manta != null && manta.Cooldown <= 0 && !me.IsChanneling() && Utils.SleepCheck("manta"))
-                        {
-                            manta.UseAbility();
-                            Utils.Sleep(200, "manta");
-                            Utils.Sleep(400, "diff");
-                        }
-
-                        else if ((manta == null || manta.Cooldown > 0) && diff != null && me.CanCast() && diff.CurrentCharges > 0 && diff.Cooldown <= 0 && !me.IsChanneling() && Utils.SleepCheck("diff"))
-                        {
-                            diff.UseAbility(me);
-                            Utils.Sleep(200, "diff");
-                        }
-                    }
-
-                    if (me.Modifiers.Any(x => x.Name == "modifier_skywrath_mage_ancient_seal"))
-                    {
-
-                        if (manta != null && manta.Cooldown <= 0 && !me.IsChanneling() && Utils.SleepCheck("manta"))
-                        {
-                            manta.UseAbility();
-                            Utils.Sleep(200, "manta");
-                            Utils.Sleep(400, "diff");
-                        }
-
-                        else if ((manta == null || manta.Cooldown > 0) && diff != null && diff.CurrentCharges > 0 && diff.Cooldown <= 0 && !me.IsChanneling() && Utils.SleepCheck("diff"))
-                        {
-                            diff.UseAbility(me);
-                            Utils.Sleep(200, "diff");
-                        }
-                    }
+                    diff.UseAbility(enemy);
+                    Utils.Sleep(200, "diff");
+                    return;
                 }
             }
-        }
 
-        private static void Game_OnWndProc(WndEventArgs args)
-        {
-            if (!Game.IsChatOpen)
+            if (me.HasModifiers(OwnCleans, false))
             {
-
-                if (Menu.Item("enable").GetValue<bool>())
+                if (manta != null && Utils.SleepCheck("manta") && manta.Cooldown <= 0 && !me.IsChanneling() )
                 {
-                    enable = true;
+                    manta.UseAbility();
+                    Utils.Sleep(200, "manta");
+                    Utils.Sleep(400, "diff");
+                    return;
                 }
-                else
+
+                if (diff != null && Utils.SleepCheck("diff") && diff.CurrentCharges > 0
+                         && diff.Cooldown <= 0 && !me.IsChanneling() )
                 {
-                    enable = false;
+                    diff.UseAbility(me);
+                    Utils.Sleep(200, "diff");
                 }
             }
         }
+
+        #endregion
+
+        #region Methods
+
+        private static void Events_OnLoad(object sender, EventArgs e)
+        {
+            if (loaded) return;
+            loaded = true;
+
+            Menu = new Menu("DispellSharp", "dispellsharp", true, "item_diffusal_blade", true);
+            var options = new Menu("Options", "opt");
+            EnabledItem = new MenuItem("enable", "Active?").SetValue(true);
+            options.AddItem(EnabledItem);
+            Menu.AddSubMenu(options);
+            Menu.AddToMainMenu();
+        }
+
+        private static void Main()
+        {
+            Events.OnLoad += Events_OnLoad;
+            Game.OnUpdate += Game_OnUpdate;
+            Console.WriteLine("DispellSharp Loaded");
+        }
+
+        #endregion
     }
 }
