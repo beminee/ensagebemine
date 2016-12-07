@@ -77,7 +77,10 @@ namespace HuskarSharp.Features
                         {
                             "modifier_axe_battle_hunger", "modifier_queenofpain_shadow_strike",
                             "modifier_phoenix_fire_spirit_burn", "modifier_venomancer_poison_nova",
-                            "modifier_venomancer_venomous_gale", "modifier_item_urn_damage"
+                            "modifier_venomancer_venomous_gale", "modifier_item_urn_damage",
+							"modifier_necrolyte_heartstopper_aura_effect", "modifier_pudge_rot",
+							"modifier_death_prophet_spirit_siphon_slow", "modifier_disruptor_static_storm",
+							"modifier_ice_blast"
                         },
                     false))
             {

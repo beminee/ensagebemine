@@ -213,13 +213,13 @@ namespace HuskarSharp.Features.Orbwalk
                     Math.Abs(target.FindAngleR() -
                              Utils.DegreeToRadian(target.FindAngleForTurnTime(Hero.NetworkPosition)));
 
-            if (followTarget && Unit.Distance2D(target) >= 400 && Utils.SleepCheck("xd"))
+            if (followTarget && Unit.Distance2D(target) >= 300 && Utils.SleepCheck("xd"))
             {
                 this.Unit.Move(Prediction.InFront(this.Unit, 100));
             }
                 
                 
-            else if (Unit.Distance2D(target) <= 400 || angle <= 0.03)
+            else if (Unit.Distance2D(target) <= 300 || angle <= 0.03)
             {
                 this.Unit.Move(Behind(this.Unit, 400));
                 Utils.Sleep(100, "xd");
