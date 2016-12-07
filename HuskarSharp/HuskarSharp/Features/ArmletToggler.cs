@@ -22,8 +22,33 @@ namespace HuskarSharp.Features
 
         public bool CanToggle
         {
+
             get
             {
+                var position = Variables.Hero.IsMoving && Math.Abs(Variables.Hero.RotationDifference) < 60
+                               ? Variables.Hero.InFront(100)
+                               : Variables.Hero.NetworkPosition;
+
+                var heroProjectiles =
+                ObjectManager.TrackingProjectiles.Where(
+                    x => x?.Target is Hero && x.Source is Unit && x.Target.Equals(Variables.Hero)).ToList();
+
+                var noProjectiles =
+                heroProjectiles.All(
+                    x =>
+                        x.Position.Distance2D(position) / x.Speed > 0.30
+                        || x.Position.Distance2D(position) / x.Speed < Game.Ping / 1000);
+
+                var nearEnemies =
+                ObjectManager.GetEntitiesParallel<Unit>()
+                    .Where(
+                        x =>
+                            x.IsValid && x.IsAlive && x.IsSpawned && x.AttackCapability != AttackCapability.None
+                            && x.Team == Variables.EnemyTeam && x.Distance2D(Variables.Hero) < x.GetAttackRange() + 200);
+
+                var noAutoAttacks = nearEnemies.All(x => x.FindRelativeAngle(Variables.Hero.Position) > 0.5 || !x.IsAttacking());
+
+                if (noProjectiles && noAutoAttacks) return this.Armlet.IsValid;
                 return this.Armlet.IsValid;
             }
         }
@@ -86,6 +111,7 @@ namespace HuskarSharp.Features
             {
                 return;
             }
+
 
             if (Variables.Hero.HasModifier("modifier_item_armlet_unholy_strength") || this.Armlet.IsToggled)
             {

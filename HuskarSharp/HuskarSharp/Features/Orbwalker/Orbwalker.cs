@@ -202,37 +202,30 @@ namespace HuskarSharp.Features.Orbwalk
             }
 
             var canCancel = (this.CanCancelAttack() && !this.CanAttack(target, bonusWindupMs))
-                            || (!isValid && !this.Unit.IsAttacking() && this.CanCancelAttack());
+                                        || (!isValid && !this.Unit.IsAttacking() && this.CanCancelAttack());
             if (!canCancel || this.moveSleeper.Sleeping || this.attackSleeper.Sleeping
                 || (this.hero && (!Utils.SleepCheck("Orbwalk.Move") || !Utils.SleepCheck("Orbwalk.Attack"))))
             {
                 return;
             }
 
-            var angle =
-                    Math.Abs(target.FindAngleR() -
-                             Utils.DegreeToRadian(target.FindAngleForTurnTime(Hero.NetworkPosition)));
-
-            if (followTarget && Unit.Distance2D(target) >= 300 && Utils.SleepCheck("xd"))
+            if (followTarget)
             {
                 this.Unit.Move(Prediction.InFront(this.Unit, 100));
             }
-                
-                
-            else if (Unit.Distance2D(target) <= 300 || angle <= 0.03)
+            else
             {
-                this.Unit.Move(Behind(this.Unit, 400));
-                Utils.Sleep(100, "xd");
+                this.Unit.Move(movePosition);
             }
 
             this.moveSleeper.Sleep(100);
         }
 
-        public static Vector3 Behind(Unit unit, float distance)
+        /*public static Vector3 Behind(Unit unit, float distance)
         {
             var v = unit.Position + unit.Vector3FromPolarAngle() * distance;
             return new Vector3(-v.X, -v.Y, 0);
-        }
+        }*/
         #endregion
     }
 }
