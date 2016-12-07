@@ -48,7 +48,8 @@ namespace HuskarSharp.Features
 
                 var noAutoAttacks = nearEnemies.All(x => x.FindRelativeAngle(Variables.Hero.Position) > 0.5 || !x.IsAttacking());
 
-                if (noProjectiles && noAutoAttacks) return this.Armlet.IsValid;
+                if (!noProjectiles && !noAutoAttacks) return false;
+
                 return this.Armlet.IsValid;
             }
         }
