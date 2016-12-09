@@ -34,7 +34,7 @@ namespace HuskarSharp.Features
         public void Events_OnUpdate()
         {
             if (ObjectManager.LocalHero == null) return;
-            Orbwalk.Orbwalking.Orbwalk(target, 0, 0, false, true);
+            Orbwalk.Orbwalking.Orbwalk(target, 0, 0, false, false);
             foreach (var i in Illusions)
             {
                 Orbwalk.Orbwalker orbwalker;
@@ -43,7 +43,7 @@ namespace HuskarSharp.Features
                     orbwalker = new Orbwalk.Orbwalker(i);
                     orbwalkerDictionary.Add(i.Handle, orbwalker);
                 }
-                orbwalker.OrbwalkOn(target, 0, 0, false, true);
+                orbwalker.OrbwalkOn(target, 0, 0, false, false);
             }
         }
 

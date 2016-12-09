@@ -57,6 +57,7 @@
     <Compile Include="Abilities\LifeBreak.cs" />
     <Compile Include="Abilities\Pike.cs" />
     <Compile Include="Bootstrap.cs" />
+    <Compile Include="Features\Orbwalker\MultiSleeper.cs" />
     <Compile Include="HuskarSharp.cs" />
     <Compile Include="Features\ArmletToggler.cs" />
     <Compile Include="Features\AutoArmlet.cs" />

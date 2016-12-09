@@ -64,7 +64,7 @@ namespace HuskarSharp.Features.Orbwalk
         /// <returns>
         ///     The <see cref="bool" />.
         /// </returns>
-        public static bool AttackOnCooldown(Entity target = null, float bonusWindupMs = 0)
+        public static bool AttackOnCooldown(Unit target = null, float bonusWindupMs = 0)
         {
             return !orbwalker.CanAttack(target, bonusWindupMs);
         }

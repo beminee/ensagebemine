@@ -47,7 +47,7 @@ namespace HuskarSharp
 
         private AutoPike autoPike;
 
-        private TargetFind targetFind;
+        public TargetFind targetFind;
 
         private DrawText drawText;
 
