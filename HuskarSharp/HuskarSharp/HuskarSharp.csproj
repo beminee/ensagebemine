@@ -56,7 +56,9 @@
     <Compile Include="Abilities\BurningSpear.cs" />
     <Compile Include="Abilities\LifeBreak.cs" />
     <Compile Include="Abilities\Pike.cs" />
+    <Compile Include="Abilities\Satanic.cs" />
     <Compile Include="Bootstrap.cs" />
+    <Compile Include="Features\AutoSatanic.cs" />
     <Compile Include="Features\Orbwalker\MultiSleeper.cs" />
     <Compile Include="HuskarSharp.cs" />
     <Compile Include="Features\ArmletToggler.cs" />

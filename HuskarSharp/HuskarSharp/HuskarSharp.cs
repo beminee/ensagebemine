@@ -47,6 +47,8 @@ namespace HuskarSharp
 
         private AutoPike autoPike;
 
+        private AutoSatanic autoSatanic;
+
         public TargetFind targetFind;
 
         private DrawText drawText;
@@ -84,6 +86,7 @@ namespace HuskarSharp
             Variables.MenuManager.Menu.AddToMainMenu();
             Variables.EnemyTeam = Me.GetEnemyTeam();
             Variables.LifeBreak = new LifeBreak(Me.Spellbook.SpellR);
+            Variables.Satanic = new Satanic(Me.FindItem("item_satanic"));
             Variables.Pike = new Pike(Me.FindItem("item_hurricane_pike"));
             Variables.Illusions = ObjectManager.GetEntities<Unit>().Where(unit => unit.Name == "npc_dota_hero_huskar").ToList();
             this.targetFind = new TargetFind();
@@ -134,6 +137,15 @@ namespace HuskarSharp
                 return;
             }
             autoPike.Execute();
+        }
+
+        public void OnUpdate_AutoSatanic()
+        {
+            if (this.pause || Variables.Hero == null || !Variables.Hero.IsValid || !Variables.Hero.IsAlive)
+            {
+                return;
+            }
+            autoSatanic.Execute();
         }
 
         public void Player_OnExecuteOrder(Player sender, ExecuteOrderEventArgs args)

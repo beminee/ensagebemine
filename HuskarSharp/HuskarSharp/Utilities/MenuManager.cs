@@ -18,12 +18,15 @@ namespace HuskarSharp.Utilities
 
         public readonly MenuItem LifeBreakThreshold;
 
+        public readonly MenuItem SatanicThreshold;
+
         public MenuManager(string heroName)
         {
             this.Menu = new Menu("HuskarSharp", "HuskarSharp", true, heroName, true);
             this.ComboMenu = new MenuItem("ComboMenu", "ComboMenu").SetValue(new KeyBind('D', KeyBindType.Press));
-            this.ArmletThresholdMenu = new MenuItem("ArmletThreshold", "Armlet Threshold").SetValue(new Slider(150, 0, 500)).SetTooltip("Toggle Armlet when below X% HP");
+            this.ArmletThresholdMenu = new MenuItem("ArmletThreshold", "Armlet Threshold").SetValue(new Slider(150, 0, 500)).SetTooltip("Toggle Armlet when below X HP");
             this.LifeBreakThreshold = new MenuItem("LifeBreakThreshold", "Life Break Threshold").SetValue(new Slider(200, 0, 900)).SetTooltip("Don't use Life Break is below X HP");
+            this.SatanicThreshold = new MenuItem("SatanicThreshold", "Satanic Threshold").SetValue(new Slider(10, 0, 100)).SetTooltip("Turn on Satanic when below X HP");
             this.Menu.AddItem(LifeBreakThreshold);
             this.Menu.AddItem(ArmletThresholdMenu);
             this.Menu.AddItem(this.ComboMenu);
@@ -51,6 +54,14 @@ namespace HuskarSharp.Utilities
             get
             {
                 return this.LifeBreakThreshold.GetValue<Slider>().Value;
+            }
+        }
+
+        public int SThreshold
+        {
+            get
+            {
+                return this.SatanicThreshold.GetValue<Slider>().Value;
             }
         }
 

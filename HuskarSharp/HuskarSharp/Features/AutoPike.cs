@@ -43,7 +43,6 @@ namespace HuskarSharp.Features
                 if (this.pikeTarget.Distance2D(me) <= 400)
                     if (Utils.SleepCheck("pike"))
                     {
-                        Console.WriteLine("1");
                         pike.UseOn(this.pikeTarget);
                         Utils.Sleep(300, "pike");
                     }
@@ -54,7 +53,7 @@ namespace HuskarSharp.Features
         {
             var target = ObjectManager.GetEntities<Hero>().Where(x =>
                                        x.Team != Variables.Hero.Team && x.IsAlive
-                                        && x.Distance2D(me) <= 900)
+                                        && x.Distance2D(me) <= 200)
                                        .OrderByDescending(x => x.Distance2D(me)).FirstOrDefault();
             if (target == null) return;
             this.pikeTarget = target;

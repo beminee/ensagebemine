@@ -39,6 +39,14 @@ namespace HuskarSharp
             }
         }
 
+        public static int SatanicThreshold
+        {
+            get
+            {
+                return MenuManager.SThreshold;
+            }
+        }
+
 
 
 
@@ -51,6 +59,8 @@ namespace HuskarSharp
         public static LifeBreak LifeBreak;
 
         public static Pike Pike;
+
+        public static Satanic Satanic;
 
         public static Team EnemyTeam { get; set; }
 
