@@ -15,7 +15,6 @@
         private static readonly string[] EnemyCleans =
             {
                 "modifier_ghost_state", "modifier_item_ethereal_blade_ethereal",
-                "modifier_omniknight_repel",
                 "modifier_omninight_guardian_angel"
             };
 
@@ -73,15 +72,6 @@
                 {
                     manta.UseAbility();
                     Utils.Sleep(200, "manta");
-                    Utils.Sleep(400, "diff");
-                    return;
-                }
-
-                if (diff != null && Utils.SleepCheck("diff") && diff.CurrentCharges > 0
-                         && diff.Cooldown <= 0 && !me.IsChanneling() )
-                {
-                    diff.UseAbility(me);
-                    Utils.Sleep(200, "diff");
                 }
             }
         }
@@ -95,7 +85,7 @@
             if (loaded) return;
             loaded = true;
 
-            Menu = new Menu("DispellSharp", "dispellsharp", true, "item_diffusal_blade", true);
+            Menu = new Menu("DispellSharp", "dispellsharp", true, "item_manta", true);
             var options = new Menu("Options", "opt");
             EnabledItem = new MenuItem("enable", "Active?").SetValue(true);
             options.AddItem(EnabledItem);
