@@ -26,13 +26,13 @@ namespace EzGoldSharp.UnitManager
 
         public static void GetBuildings()
         {
-            Towers = ObjectManager.GetEntities<Unit>().Where(x => x.IsAlive && (x.ClassID == ClassID.CDOTA_BaseNPC_Tower)).ToList();
+            Towers = ObjectManager.GetEntitiesParallel<Unit>().Where(x => x.IsAlive && (x.ClassID == ClassID.CDOTA_BaseNPC_Tower)).ToList();
 
-            if (ObjectManager.GetEntities<Unit>().Any(x => x.ClassID == ClassID.CDOTA_Unit_Fountain && x.Team == Variables.Me.Team))
-                AllyFountain = ObjectManager.GetEntities<Unit>().First(x => x.ClassID == ClassID.CDOTA_Unit_Fountain && x.Team == Variables.Me.Team);
+            if (ObjectManager.GetEntitiesParallel<Unit>().Any(x => x.ClassID == ClassID.CDOTA_Unit_Fountain && x.Team == Variables.Me.Team))
+                AllyFountain = ObjectManager.GetEntitiesParallel<Unit>().First(x => x.ClassID == ClassID.CDOTA_Unit_Fountain && x.Team == Variables.Me.Team);
 
-            if (ObjectManager.GetEntities<Unit>().Any(x => x.ClassID == ClassID.CDOTA_Unit_Fountain && x.Team != Variables.Me.Team))
-                EnemyFountain = ObjectManager.GetEntities<Unit>().First(x => x.ClassID == ClassID.CDOTA_Unit_Fountain && x.Team != Variables.Me.Team);
+            if (ObjectManager.GetEntitiesParallel<Unit>().Any(x => x.ClassID == ClassID.CDOTA_Unit_Fountain && x.Team != Variables.Me.Team))
+                EnemyFountain = ObjectManager.GetEntitiesParallel<Unit>().First(x => x.ClassID == ClassID.CDOTA_Unit_Fountain && x.Team != Variables.Me.Team);
         }
 
         #endregion Methods

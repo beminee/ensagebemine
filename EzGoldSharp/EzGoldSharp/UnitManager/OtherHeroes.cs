@@ -63,7 +63,7 @@ namespace EzGoldSharp.UnitManager
 
         public static void UpdateHeroes()
         {
-            var list = ObjectManager.GetEntities<Hero>().Where(x => x.Team == Variables.Me.Team && x.IsValid && !x.IsIllusion && x.IsVisible).ToList();
+            var list = ObjectManager.GetEntitiesParallel<Hero>().Where(x => x.Team == Variables.Me.Team && x.IsValid && !x.IsIllusion && x.IsVisible).ToList();
             var herolist = new List<Hero>(Heroes);
             foreach (var hero in list)
             {
@@ -147,7 +147,7 @@ namespace EzGoldSharp.UnitManager
             {
                 try
                 {
-                    var list = ObjectManager.GetEntities<Hero>().Where(x => x.Team != Variables.Me.Team).ToList();
+                    var list = ObjectManager.GetEntitiesParallel<Hero>().Where(x => x.Team != Variables.Me.Team).ToList();
                     //if (list.Count < Heroes.Count) Heroes.Clear();
                     var heroeslist = new List<Hero>(Heroes);
                     foreach (var hero in list.Where(x => x.Team != Variables.Me.Team && x.IsValid && x.IsVisible && !x.IsIllusion))
@@ -182,7 +182,7 @@ namespace EzGoldSharp.UnitManager
                     var illusionslist = Illusions.Where(illusion => !illusion.IsAlive).ToList();
                     illusionslist.ForEach(x => Illusions.Remove(x));
                     illusionslist = new List<Hero>(Illusions);
-                    var list = ObjectManager.GetEntities<Hero>()
+                    var list = ObjectManager.GetEntitiesParallel<Hero>()
                         .Where(x => x.Team != Variables.Me.Team && x.IsValid && x.IsVisible && x.IsIllusion && x.IsAlive).ToList();
                     foreach (var illusion in list)
                     {
