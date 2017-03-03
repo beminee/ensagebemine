@@ -469,7 +469,7 @@ namespace EzGoldSharp
             if (unit.Modifiers.Any(x => x.Name == "modifier_bloodseeker_bloodrage"))
             {
                 modif = modif *
-                        (ObjectManager.GetEntities<Hero>()
+                        (ObjectManager.GetEntitiesParallel<Hero>()
                             .First(x => x.ClassID == ClassID.CDOTA_Unit_Hero_Bloodseeker)
                             .Spellbook.Spell1.Level - 1) * 0.05 + 1.25;
             }
@@ -627,12 +627,12 @@ namespace EzGoldSharp
                         case ClassID.CDOTA_Unit_Hero_Zuus:
                             if (Variables.Q.Level > 0 && Variables.Q.CanBeCasted() && Variables.Me.Distance2D(creep) > MyHero.AttackRange())
                             {
-                                damage = Variables.Q.GetAbilityData("AbilityDamage") * (1 - creep.MagicDamageResist);
+                                damage = Variables.Q.GetDamage(Variables.Q.Level - 1) * (1 - creep.MagicDamageResist);
+                                //Console.WriteLine(damage);
                                 if (damage > creep.Health && Variables.Me.CanCast())
                                 {
                                     Variables.Q.UseAbility(creep);
                                     Utils.Sleep(Variables.GetAbilityDelay(creep, Variables.Q), "Lasthit.Cast");
-                                    Utils.Sleep(Variables.Q.GetCooldown(Variables.Q.Level) * 1000 + 50 + Game.Ping, "Lasthit.Cooldown");
                                 }
                             }
                             break;
@@ -665,9 +665,9 @@ namespace EzGoldSharp
                             break;
 
                         case ClassID.CDOTA_Unit_Hero_PhantomAssassin:
-                            if (Variables.Q.CanBeCasted() && Variables.Me.Distance2D(creep) > MyHero.AttackRange())
+                            if (Variables.Q.CanBeCasted() && Variables.Me.Distance2D(creep) > MyHero.AttackRange() + 100)
                             {
-                                var stifflingdaggercastRange = Variables.Q.GetAbilityData("AbilityCastRange");
+                                //var stifflingdaggercastRange = Variables.Q.GetAbilityData("AbilityCastRange");
                                 var stifflingdaggerSpeed = Variables.Q.GetAbilityData("dagger_speed");
                                 var stifflingdaggerbaseDamage = Variables.Q.GetAbilityData("base_damage");
                                 var stifflingdaggerattackFactor = Variables.Q.GetAbilityData("attack_factor_tooltip") / 100;
