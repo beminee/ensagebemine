@@ -15,14 +15,14 @@ namespace EzGoldSharp.MenuLoader
 
         public static void Load()
         {
-            MenuLoader.Menu.AddItem(new MenuItem("enableLasthit", "Enabled").SetValue(false));
+            MenuLoader.Menu.AddItem(new MenuItem("enableLasthit", "Enabled").SetValue(true));
             MenuLoader.Menu.AddItem(new MenuItem("autoAttackMode", "Auto Attack Settings").SetValue(Attack));
             MenuLoader.Menu.AddItem(new MenuItem("sup", "Support").SetValue(false));
             MenuLoader.Menu.AddItem(new MenuItem("usespell", "Use spell for lasthitting").SetValue(true));
             //MenuLoader.Menu.AddItem(new MenuItem("harassheroes", "Harass enemy in farming mode").SetValue(true));
             MenuLoader.Menu.AddItem(new MenuItem("denied", "Try to deny creeps").SetValue(true));
             MenuLoader.Menu.AddItem(new MenuItem("AOC", "Attack own creeps").SetValue(false));
-            MenuLoader.Menu.AddItem(new MenuItem("test", "Alpha Test Calculation").SetValue(false));
+            MenuLoader.Menu.AddItem(new MenuItem("test", "Alpha Test Calculation").SetValue(true));
             MenuLoader.Menu.AddItem(new MenuItem("outrange", "Bonus range").SetValue(BonusRange));
             MenuLoader.Menu.AddToMainMenu();
 
