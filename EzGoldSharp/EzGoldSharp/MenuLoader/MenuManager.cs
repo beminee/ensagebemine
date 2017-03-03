@@ -21,7 +21,7 @@ namespace EzGoldSharp.MenuLoader
             MenuLoader.Menu.AddItem(new MenuItem("usespell", "Use spell for lasthitting").SetValue(true));
             //MenuLoader.Menu.AddItem(new MenuItem("harassheroes", "Harass enemy in farming mode").SetValue(true));
             MenuLoader.Menu.AddItem(new MenuItem("denied", "Try to deny creeps").SetValue(true));
-            MenuLoader.Menu.AddItem(new MenuItem("AOC", "Attack own creeps?").SetValue(false));
+            MenuLoader.Menu.AddItem(new MenuItem("AOC", "Attack own creeps").SetValue(false));
             MenuLoader.Menu.AddItem(new MenuItem("test", "Alpha Test Calculation").SetValue(false));
             MenuLoader.Menu.AddItem(new MenuItem("outrange", "Bonus range").SetValue(BonusRange));
             MenuLoader.Menu.AddToMainMenu();

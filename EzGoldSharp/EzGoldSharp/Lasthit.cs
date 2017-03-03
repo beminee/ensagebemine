@@ -20,7 +20,7 @@ namespace EzGoldSharp
 
     internal class Lasthit
     {
-        #region TEST
+        #region PreDICKtionStuff
 
         public static int Attack(Entity unit)
         {
@@ -61,12 +61,13 @@ namespace EzGoldSharp
                     Variables.CreepsDic.Add(new UnitDictionary { Unit = creep, KillableCreeps = new List<KillableCreeps>() });
                 }
             }
+            Clear();
 
                      foreach (var creep in Variables.CreepsDic)
                      {
                          if (Variables.CreeptargetH != null && creep.Unit != null)
                          { 
-                         if (!creep.Unit.IsRanged && creep.Unit.Team == Variables.CreeptargetH.GetEnemyTeam())
+                         if (!creep.Unit.IsRanged && creep.Unit.Team == Variables.CreeptargetH.GetEnemyTeam() && creep.Unit.IsValid)
                          {
                              if (MinionAaData.StartedAttack(creep.Unit))
                              {
@@ -76,24 +77,20 @@ namespace EzGoldSharp
                                  var creepAttackBackswing = MinionAaData.GetAttackBackswing(creep.Unit) * 1000;
 
                                  if (creep.Unit.IsValid)
-                                 { 
                                  DelayAction.Add(creepAttackPoint, () =>
                                  {
                                      Variables.minionAttackPointList.Remove(creep.Unit.Handle);
                                      Variables.minionAttackBackswingList.Add(creep.Unit.Handle);
                                  });
-                                 }
 
                                  if (creep.Unit.IsValid)
-                                 { 
                                  DelayAction.Add(creepAttackPoint + creepAttackBackswing, () =>
                                  {
                                      Variables.minionAttackBackswingList.Remove(creep.Unit.Handle);
                                  });
-                                 }
                              }
                          }
-                         else if (creep.Unit.IsRanged && creep.Unit.Team == Variables.CreeptargetH.GetEnemyTeam())
+                         else if (creep.Unit.IsRanged && creep.Unit.Team == Variables.CreeptargetH.GetEnemyTeam() && creep.Unit.IsValid)
                          {
                              if (MinionAaData.StartedAttack(creep.Unit))
                              {
@@ -101,23 +98,17 @@ namespace EzGoldSharp
 
                                  var creepAttackPoint = MinionAaData.GetAttackPoint(creep.Unit) * 1000;
                                  var creepAttackBackswing = MinionAaData.GetAttackBackswing(creep.Unit) * 1000;
-
                                  if (creep.Unit.IsValid)
-                                 { 
                                  DelayAction.Add(creepAttackPoint, () =>
                                  {
                                      Variables.minionAttackPointList.Remove(creep.Unit.Handle);
                                      Variables.minionAttackBackswingList.Add(creep.Unit.Handle);
                                  });
-                                 }
-
                                  if (creep.Unit.IsValid)
-                                 { 
                                  DelayAction.Add(creepAttackPoint + creepAttackBackswing, () =>
                                  {
                                      Variables.minionAttackBackswingList.Remove(creep.Unit.Handle);
                                  });
-                                 }
                              }
                          }
                          }
@@ -128,7 +119,7 @@ namespace EzGoldSharp
                          }*/
                      }
 
-            Clear();
+            
         }
 
         public static double Healthpredict(Unit unit, double time)
@@ -274,7 +265,7 @@ namespace EzGoldSharp
             Utils.Sleep(10000, "Lasthit.Clear");
         }
 
-        #endregion TEST
+        #endregion PreDICKtionStuff
 
         #region Main
 
@@ -347,7 +338,7 @@ namespace EzGoldSharp
                 //Console.WriteLine(getDamage);
                 if (Variables.CreeptargetH.Distance2D(Variables.Me) <= MyHero.AttackRange())
                 {
-                    if (getPred > 0 && getPred <= getDamage ||
+                    if (getPred > 0 && getPred <= getDamage || Variables.CreeptargetH.Health < getDamage ||
                         Variables.CreeptargetH.Health < getDamage && Variables.CreeptargetH.Team == Variables.Me.Team &&
                         (MenuVariables.Denie || MenuVariables.Aoc))
                     {
@@ -715,9 +706,9 @@ namespace EzGoldSharp
                     }
                 }
             }
-            catch (Exception)
+            catch (Exception e)
             {
-                //
+                Console.WriteLine(e + "Error casting spell");
             }
         }
 

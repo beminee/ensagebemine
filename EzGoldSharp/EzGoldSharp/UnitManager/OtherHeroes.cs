@@ -88,7 +88,7 @@ namespace EzGoldSharp.UnitManager
         }
 
         #endregion Methods
-
+    }
         internal class EnemyHeroes
         {
             #region Fields
@@ -200,5 +200,5 @@ namespace EzGoldSharp.UnitManager
 
             #endregion Methods
         }
-    }
+    
 }

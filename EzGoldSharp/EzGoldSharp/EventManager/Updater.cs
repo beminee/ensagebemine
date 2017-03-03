@@ -29,7 +29,7 @@ namespace EzGoldSharp.EventManager
        {
            if (!CanUpdate()) return;
 
-           AllyHeroes.EnemyHeroes.Update();
+           EnemyHeroes.Update();
            AllyHeroes.Update();
 
            Variables.Q = Variables.Me.Spellbook.SpellQ;

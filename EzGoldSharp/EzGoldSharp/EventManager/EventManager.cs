@@ -23,15 +23,15 @@ namespace EzGoldSharp.EventManager
             }
             Variables.Me = ObjectManager.LocalHero;
             Variables.Loaded = true;
-            AllyHeroes.EnemyHeroes.Heroes = new List<Hero>();
-            AllyHeroes.EnemyHeroes.Illusions = new List<Hero>();
+            EnemyHeroes.Heroes = new List<Hero>();
+            EnemyHeroes.Illusions = new List<Hero>();
             AllyHeroes.Heroes = new List<Hero>();
-            AllyHeroes.EnemyHeroes.UsableHeroes = new Hero[] { };
+            EnemyHeroes.UsableHeroes = new Hero[] { };
             AllyHeroes.UsableHeroes = new Hero[] { };
             AllyHeroes.AbilityDictionary = new Dictionary<float, List<Ability>>();
-            AllyHeroes.EnemyHeroes.AbilityDictionary = new Dictionary<float, List<Ability>>();
+            EnemyHeroes.AbilityDictionary = new Dictionary<float, List<Ability>>();
             AllyHeroes.ItemDictionary = new Dictionary<float, List<Item>>();
-            AllyHeroes.EnemyHeroes.ItemDictionary = new Dictionary<float, List<Item>>();
+            EnemyHeroes.ItemDictionary = new Dictionary<float, List<Item>>();
 
             MenuLoader.MenuLoader.Load();
 

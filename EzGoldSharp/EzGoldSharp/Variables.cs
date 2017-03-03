@@ -102,6 +102,7 @@ namespace EzGoldSharp
 
     public class MinionAaData
     {
+        #region Methods
         public static float GetAttackSpeed(Unit creep)
         {
             var attackSpeed = Math.Min(creep.AttacksPerSecond * 1 / 0.01, 600);
@@ -140,5 +141,6 @@ namespace EzGoldSharp
         {
             return unit.IsAttacking() && !Variables.minionAttackPointList.Contains(unit.Handle) && !Variables.minionAttackBackswingList.Contains(unit.Handle);
         }
+        #endregion Methods
     }
 }
