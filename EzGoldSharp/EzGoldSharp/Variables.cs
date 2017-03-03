@@ -53,6 +53,30 @@ namespace EzGoldSharp
         {
             return (int)((ability.FindCastPoint() + Me.GetTurnTime(target)) * 1000.0 + Game.Ping);
         }
+
+        public static void UpdateCreeps()
+        {
+            try
+            {
+                Creeps = ObjectManager.GetEntities<Unit>()
+                    .Where(
+                        x =>
+                            (x.IsValid && x.ClassID == ClassID.CDOTA_BaseNPC_Tower ||
+                             x.ClassID == ClassID.CDOTA_BaseNPC_Creep_Lane
+                             || x.ClassID == ClassID.CDOTA_BaseNPC_Creep
+                             || x.ClassID == ClassID.CDOTA_BaseNPC_Creep_Neutral
+                             || x.ClassID == ClassID.CDOTA_BaseNPC_Creep_Siege
+                             || x.ClassID == ClassID.CDOTA_BaseNPC_Additive
+                             || x.ClassID == ClassID.CDOTA_BaseNPC_Barracks
+                             || x.ClassID == ClassID.CDOTA_BaseNPC_Building
+                             || x.ClassID == ClassID.CDOTA_BaseNPC_Creature) && x.IsAlive && x.IsVisible
+                            && x.Distance2D(Me) < MenuVariables.Outrange + MyHero.AttackRange()).ToList();
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e + "Update Creeps Error");
+            }
+        }
     }
 
     public class KillableCreeps

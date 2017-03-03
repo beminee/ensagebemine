@@ -67,7 +67,7 @@ namespace EzGoldSharp
                      {
                          if (Variables.CreeptargetH != null && creep.Unit != null)
                          { 
-                         if (!creep.Unit.IsRanged && creep.Unit.Team == Variables.CreeptargetH.GetEnemyTeam() && creep.Unit.IsValid)
+                         if (creep.Unit.IsValid && !creep.Unit.IsRanged && creep.Unit.Team == Variables.CreeptargetH.GetEnemyTeam())
                          {
                              if (MinionAaData.StartedAttack(creep.Unit))
                              {
@@ -90,7 +90,7 @@ namespace EzGoldSharp
                                  });
                              }
                          }
-                         else if (creep.Unit.IsRanged && creep.Unit.Team == Variables.CreeptargetH.GetEnemyTeam() && creep.Unit.IsValid)
+                         else if (creep.Unit.IsValid && creep.Unit.IsRanged && creep.Unit.Team == Variables.CreeptargetH.GetEnemyTeam())
                          {
                              if (MinionAaData.StartedAttack(creep.Unit))
                              {
@@ -336,6 +336,7 @@ namespace EzGoldSharp
                 var getPred = Healthpredict(Variables.CreeptargetH, time);
                 var getDamage = Math.Ceiling(GetDamageOnUnit(Variables.Me, Variables.CreeptargetH, 0));
                 //Console.WriteLine(getDamage);
+                //Console.WriteLine(getPred);
                 if (Variables.CreeptargetH.Distance2D(Variables.Me) <= MyHero.AttackRange())
                 {
                     if (getPred > 0 && getPred <= getDamage || Variables.CreeptargetH.Health < getDamage ||
@@ -616,7 +617,8 @@ namespace EzGoldSharp
         {
             try
             {
-                foreach (var creep in Variables.Creeps.Where(x => x.Team != Variables.Me.Team)
+                Variables.UpdateCreeps();
+                foreach (var creep in Variables.Creeps.Where(x => x.IsValid && x.Team != Variables.Me.Team)
                     .OrderByDescending(creep => creep.Health))
                 {
                     double damage = 0;
@@ -663,10 +665,9 @@ namespace EzGoldSharp
                             break;
 
                         case ClassID.CDOTA_Unit_Hero_PhantomAssassin:
-                            var stifflingdaggercastRange = Variables.Q.GetAbilityData("AbilityCastRange");
-                            if (Variables.Q.CanBeCasted() && Variables.Me.Distance2D(creep) < stifflingdaggercastRange)
+                            if (Variables.Q.CanBeCasted() && Variables.Me.Distance2D(creep) > MyHero.AttackRange())
                             {
-                                
+                                var stifflingdaggercastRange = Variables.Q.GetAbilityData("AbilityCastRange");
                                 var stifflingdaggerSpeed = Variables.Q.GetAbilityData("dagger_speed");
                                 var stifflingdaggerbaseDamage = Variables.Q.GetAbilityData("base_damage");
                                 var stifflingdaggerattackFactor = Variables.Q.GetAbilityData("attack_factor_tooltip") / 100;
