@@ -674,7 +674,7 @@ namespace EzGoldSharp
                                 var time = Variables.Me.Distance2D(creep) / stifflingdaggerSpeed;
                                 if (time < creep.SecondsPerAttack * 1000)
                                     damage = stifflingdaggerbaseDamage + (stifflingdaggerattackFactor * (Variables.Me.MinimumDamage + Variables.Me.BonusDamage)) * (1 - 0.06 * creep.Armor / (1 + 0.06 * creep.Armor));
-                                Console.WriteLine("Dagger damage: " + damage);
+                                //Console.WriteLine("Dagger damage: " + damage);
                                 if (damage > creep.Health && Variables.Me.CanCast() && Variables.Q.CanBeCasted())
                                 {
                                     Variables.Q.UseAbility(creep);
