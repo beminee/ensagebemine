@@ -715,7 +715,7 @@ namespace EzGoldSharp
                                 if (Variables.Q.CanBeCasted() && Variables.Me.Distance2D(creep) > MyHero.AttackRange())
                                 {
                                     var boltSpeed = Variables.Q.GetAbilityData("bolt_speed");
-                                    var boltDamage = Variables.Q.GetAbilityData("bolt_damage") * (Variables.Q.GetAbilityData("int_multiplier") * Variables.Me.TotalIntelligence);
+                                    var boltDamage = Variables.Q.GetAbilityData("bolt_damage") + (Variables.Q.GetAbilityData("int_multiplier") * Variables.Me.TotalIntelligence);
                                     var reachTime = Variables.Me.Distance2D(creep) / boltSpeed;
 
                                     if (reachTime <= creep.SecondsPerAttack * 1000 && boltDamage > creep.Health && Variables.Me.CanCast() && 
