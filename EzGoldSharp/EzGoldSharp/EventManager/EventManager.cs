@@ -3,8 +3,10 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Ensage.Common.Menu;
 using EzGoldSharp.MenuLoader;
 using EzGoldSharp.UnitManager;
+using MenuVariables = EzGoldSharp.MenuLoader.MenuVariables;
 
 namespace EzGoldSharp.EventManager
 {
@@ -15,6 +17,7 @@ namespace EzGoldSharp.EventManager
 
     internal class EventManager
     {
+
         public static void OnLoad(object sender, EventArgs e)
         {
             if (Variables.Loaded || ObjectManager.LocalHero == null)

@@ -132,7 +132,7 @@ namespace EzGoldSharp
 
                     var timetoCheck = Environment.TickCount + time;
 
-                    var rangedprojSpeed = 900;
+                    const int rangedprojSpeed = 900;
 
                     //var hta = Variables.CreepsDic.First(x => x.Unit.Handle == unit.Handle).KillableCreeps.ToList();
 
@@ -329,14 +329,18 @@ namespace EzGoldSharp
             if (Variables.CreeptargetH != null && Variables.CreeptargetH.IsValid &&
                 Variables.CreeptargetH.IsVisible && Variables.CreeptargetH.IsAlive)
             {
+                var attackPoint = Variables.Me.IsRanged == false
+                    ? 0 
+                    : MyHero.GetMyAttackPoint(Variables.Me);
                 var time = Variables.Me.IsRanged == false
                     ? Variables.HeroAPoint / 1000 + Variables.Me.GetTurnTime(Variables.CreeptargetH.Position)
                     : Variables.HeroAPoint / 1000 + Variables.Me.GetTurnTime(Variables.CreeptargetH.Position) +
                       Variables.Me.Distance2D(Variables.CreeptargetH) / MyHero.GetProjectileSpeed(Variables.Me);
-                var getPred = Healthpredict(Variables.CreeptargetH, time);
+                var getPred = Healthpredict(Variables.CreeptargetH, time + attackPoint);
                 var getDamage = Math.Ceiling(GetDamageOnUnit(Variables.Me, Variables.CreeptargetH, 0));
                 //Console.WriteLine(getDamage);
                 //Console.WriteLine(getPred);
+                //Console.WriteLine(attackBackswing);
                 if (Variables.CreeptargetH.Distance2D(Variables.Me) <= MyHero.AttackRange())
                 {
                     if (getPred > 0 && getPred <= getDamage || Variables.CreeptargetH.Health < getDamage ||
@@ -346,7 +350,7 @@ namespace EzGoldSharp
                         if (!Variables.Me.IsAttacking())
                             Variables.Me.Attack(Variables.CreeptargetH);
                     }
-                    else if (Variables.CreeptargetH.Health < getDamage * 2 && Variables.CreeptargetH.Health >= getDamage &&
+                    else if (getPred <= 0 ||Variables.CreeptargetH.Health < getDamage * 2 && Variables.CreeptargetH.Health >= getDamage &&
                              Variables.CreeptargetH.Team != Variables.Me.Team && Utils.SleepCheck("Lasthit.Stop"))
                     {
                         Variables.Me.Hold();
@@ -701,6 +705,26 @@ namespace EzGoldSharp
                                 {
                                     Variables.W.ToggleAbility();
                                     Utils.Sleep((float)Variables.HeroAPoint + Game.Ping, "Lasthit.Cooldown");
+                                }
+                            }
+                            break;
+
+                        case ClassID.CDOTA_Unit_Hero_Skywrath_Mage:
+                            if (Variables.Q.Level > 0)
+                            {
+                                if (Variables.Q.CanBeCasted() && Variables.Me.Distance2D(creep) > MyHero.AttackRange())
+                                {
+                                    var boltSpeed = Variables.Q.GetAbilityData("bolt_speed");
+                                    var boltDamage = Variables.Q.GetAbilityData("bolt_damage") * (Variables.Q.GetAbilityData("int_multiplier") * Variables.Me.TotalIntelligence);
+                                    var reachTime = Variables.Me.Distance2D(creep) / boltSpeed;
+
+                                    if (reachTime <= creep.SecondsPerAttack * 1000 && boltDamage > creep.Health && Variables.Me.CanCast() && 
+                                        Variables.Q.CanBeCasted())
+                                    {
+                                        Variables.Q.UseAbility(creep);
+                                        Utils.Sleep(Variables.GetAbilityDelay(creep, Variables.Q), "Lasthit.Cast");
+                                        Utils.Sleep(Variables.Q.GetCooldown(Variables.Q.Level - 1) * 1000 + 50 + Game.Ping, "Lasthit.Cooldown");
+                                    }
                                 }
                             }
                             break;

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using EzGoldSharp.MenuLoader;
 using EzGoldSharp.UnitManager;
 
 namespace EzGoldSharp.EventManager
@@ -44,7 +45,8 @@ namespace EzGoldSharp.EventManager
 
            MenuLoader.MenuLoader.Update();
 
-           if (Variables.AutoAttackMode != MenuLoader.MenuVariables.AutoAttackMode)
+
+            if (Variables.AutoAttackMode != MenuLoader.MenuVariables.AutoAttackMode)
            {
                switch (MenuLoader.MenuVariables.AutoAttackMode)
                {

@@ -5,8 +5,10 @@ using System.Text;
 using System.Threading.Tasks;
 using Ensage;
 using Ensage.Common.Extensions;
-using EzGoldSharp.MenuLoader;
+using Ensage.Common.Menu;
+using EzGoldSharp.EventManager;
 using EzGoldSharp.UnitManager;
+using MenuVariables = EzGoldSharp.MenuLoader.MenuVariables;
 
 namespace EzGoldSharp
 {
@@ -77,6 +79,7 @@ namespace EzGoldSharp
                 Console.WriteLine(e + "Update Creeps Error");
             }
         }
+
     }
 
     public class KillableCreeps

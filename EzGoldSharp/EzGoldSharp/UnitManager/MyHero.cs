@@ -1,4 +1,6 @@
-﻿namespace EzGoldSharp.UnitManager
+﻿using System;
+
+namespace EzGoldSharp.UnitManager
 {
     using Ensage;
     using Ensage.Common;
@@ -52,6 +54,24 @@
             return Variables.Me.ClassID == ClassID.CDOTA_Unit_Hero_ArcWarden
                 ? 800
                 : UnitDatabase.GetByName(unit.Name).ProjectileSpeed;
+        }
+
+        public static float GetMyAttackSpeed(Hero hero)
+        {
+            var attackSpeed = Math.Min(hero.AttacksPerSecond * 1 / 0.01, 600);
+
+            return (float)attackSpeed;
+        }
+
+        public static float GetMyAttackPoint(Hero hero)
+        {
+            var animationPoint = 0f;
+
+            var attackSpeed = GetMyAttackSpeed(hero);
+
+            animationPoint = (float) hero.AttackPoint();
+
+            return animationPoint / (1 + (attackSpeed - 100) / 100);
         }
 
         #endregion Methods

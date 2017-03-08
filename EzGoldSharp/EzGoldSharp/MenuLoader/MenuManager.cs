@@ -3,7 +3,11 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Ensage;
 using Ensage.Common.Menu;
+using EzGoldSharp.EventManager;
+using EzGoldSharp.UnitManager;
+using SharpDX;
 
 namespace EzGoldSharp.MenuLoader
 {
@@ -53,8 +57,6 @@ namespace EzGoldSharp.MenuLoader
 
             MenuVariables.AutoAttackMode = MenuLoader.Menu.Item("autoAttackMode").GetValue<StringList>().SelectedIndex;
             MenuVariables.Outrange = MenuLoader.Menu.Item("outrange").GetValue<Slider>().Value;
-
-
         }
     }
 
@@ -72,6 +74,7 @@ namespace EzGoldSharp.MenuLoader
         public static bool Support;
         public static bool Test;
         public static bool UseSpell;
+
         #endregion MenuVariables
     }
 }
