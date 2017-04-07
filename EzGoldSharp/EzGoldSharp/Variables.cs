@@ -1,12 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Ensage;
 using Ensage.Common.Extensions;
-using Ensage.Common.Menu;
-using EzGoldSharp.EventManager;
 using EzGoldSharp.UnitManager;
 using MenuVariables = EzGoldSharp.MenuLoader.MenuVariables;
 
@@ -169,5 +165,14 @@ namespace EzGoldSharp
             return unit.IsAttacking() && !Variables.minionAttackPointList.Contains(unit.Handle) && !Variables.minionAttackBackswingList.Contains(unit.Handle);
         }
         #endregion Methods
+    }
+
+    public class TowerData
+    {
+        public static float GetAttackSpeed(Unit tower)
+        {
+            var attackSpeed = tower.AttackSpeedValue;
+            return attackSpeed;
+        }
     }
 }

@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using Ensage.Common.Extensions;
 
 namespace EzGoldSharp.UnitManager
 {
@@ -14,7 +10,9 @@ namespace EzGoldSharp.UnitManager
     {
         #region Fields
 
-        public static List<Unit> Towers;
+        public static List<Unit> AllyTowers;
+
+        public static List<Unit> EnemyTowers;
 
         public static Unit AllyFountain;
 
@@ -24,15 +22,17 @@ namespace EzGoldSharp.UnitManager
 
         #region Methods
 
-        public static void GetBuildings()
+        public static List<Unit> GetAllyBuildings()
         {
-            Towers = ObjectManager.GetEntitiesParallel<Unit>().Where(x => x.IsAlive && (x.ClassID == ClassID.CDOTA_BaseNPC_Tower)).ToList();
+            AllyTowers = ObjectManager.GetEntitiesParallel<Unit>().Where(x => x.IsValid && x.IsAlive && x is Tower && ReferenceEquals(((Tower)x).AttackTarget, (Unit)Variables.CreeptargetH) && x.Team == Variables.Me.Team && x.MinimumDamage == 100 && x.Distance2D(Variables.CreeptargetH) <= x.AttackRange).ToList();
+            return AllyTowers;
+        }
 
-            if (ObjectManager.GetEntitiesParallel<Unit>().Any(x => x.ClassID == ClassID.CDOTA_Unit_Fountain && x.Team == Variables.Me.Team))
-                AllyFountain = ObjectManager.GetEntitiesParallel<Unit>().First(x => x.ClassID == ClassID.CDOTA_Unit_Fountain && x.Team == Variables.Me.Team);
+        public static List<Unit> GetEnemyBuildings()
+        {
+            EnemyTowers = ObjectManager.GetEntitiesParallel<Unit>().Where(x => x.IsValid && x.IsAlive && x is Tower && ReferenceEquals(((Tower) x).AttackTarget, (Unit) Variables.CreeptargetH) && x.Team != Variables.Me.Team && x.MinimumDamage == 100 && x.Distance2D(Variables.CreeptargetH) <= x.AttackRange).ToList();
 
-            if (ObjectManager.GetEntitiesParallel<Unit>().Any(x => x.ClassID == ClassID.CDOTA_Unit_Fountain && x.Team != Variables.Me.Team))
-                EnemyFountain = ObjectManager.GetEntitiesParallel<Unit>().First(x => x.ClassID == ClassID.CDOTA_Unit_Fountain && x.Team != Variables.Me.Team);
+            return EnemyTowers;
         }
 
         #endregion Methods

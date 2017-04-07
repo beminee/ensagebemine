@@ -1,11 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using Ensage.Common.Objects.UtilityObjects;
 using EzGoldSharp.UnitManager;
 using EzGoldSharp.MenuLoader;
-using EzGoldSharp.EventManager;
 
 namespace EzGoldSharp
 {
@@ -142,10 +137,14 @@ namespace EzGoldSharp
                     var allyRangedCreeps = ObjectManager.GetEntitiesParallel<Creep>().Where(creep => creep.IsAlive && creep.IsValid && creep.Team == Variables.Me.Team && creep.IsRanged).ToList();
                     var enemyRangedCreeps = ObjectManager.GetEntitiesParallel<Creep>().Where(creep => creep.IsAlive && creep.IsValid && creep.Team == Variables.Me.GetEnemyTeam() && creep.IsRanged).ToList();
 
+                    var allyTowers = Buildings.AllyTowers;
+                    var enemyTowers = Buildings.EnemyTowers;
+
                     if (unit.Team == Variables.Me.GetEnemyTeam()) //Enemy Creep
                     {
                         var rangedDamage = 0f;
                         var meleeDamage = 0f;
+                        var towerDamage = 0f;
 
                         foreach (var allyCreep in allyRangedCreeps)
                         {
@@ -190,13 +189,36 @@ namespace EzGoldSharp
                             meleeDamage += hitDamage;
                         }
 
-                        return Math.Max(0, unit.Health - (rangedDamage + meleeDamage));
+                        if (allyTowers != null) // Ally Towers
+                        {
+                            foreach (var allytower in allyTowers)
+                            {
+                                var tprjDamage = 0f;
+
+                                if (allytower.IsAttacking()) continue;
+
+                                var arrivalTime = (Environment.TickCount + TowerData.GetAttackSpeed(allytower)) + allytower.Distance2D(Variables.CreeptargetH) * 1000;
+
+                                if (arrivalTime < timetoCheck)
+                                {
+                                    tprjDamage = GetPhysDamage(allytower, unit);
+                                }
+                                towerDamage += tprjDamage;
+                            }
+                        }
+                        else
+                        {
+                            towerDamage = 0f;
+                        }
+
+                        return Math.Max(0, unit.Health - (rangedDamage + meleeDamage + towerDamage));
                     }
 
                     if (unit.Team == Variables.Me.Team) //Ally Creep
                     {
                         var rangedDamage = 0f;
                         var meleeDamage = 0f;
+                        var towerDamage = 0f;
 
                         foreach (var enemyCreep in enemyRangedCreeps)
                         {
@@ -241,10 +263,30 @@ namespace EzGoldSharp
                             meleeDamage += hitDamage;
                         }
 
-                        return Math.Max(0, unit.Health - (rangedDamage + meleeDamage));
-                    }
+                        if (enemyTowers != null) // Enemy Towers
+                        {
+                            foreach (var enemytower in enemyTowers)
+                            {
+                                var tprjDamage = 0f;
 
-                    return unit.Health;
+                                if (enemytower.IsAttacking()) continue;
+
+                                var arrivalTime = (Environment.TickCount + TowerData.GetAttackSpeed(enemytower)) + enemytower.Distance2D(Variables.CreeptargetH) * 1000;
+
+                                if (arrivalTime < timetoCheck)
+                                {
+                                    tprjDamage = GetPhysDamage(enemytower, unit);
+                                }
+                                towerDamage += tprjDamage;
+                            }
+                        }
+                        else
+                        {
+                            towerDamage = 0f;
+                        }
+
+                        return Math.Max(0, unit.Health - (rangedDamage + meleeDamage + towerDamage));
+                    }
 
                 }
                 catch (Exception e)
@@ -252,7 +294,7 @@ namespace EzGoldSharp
                    Console.WriteLine(e + "Health predict Error");
                 }
             }
-            return 0;
+            return unit.Health;
         }
 
         private static void Clear()
@@ -284,6 +326,19 @@ namespace EzGoldSharp
                 if (MenuVariables.UseSpell && Utils.SleepCheck("Lasthit.Cooldown"))
                     SpellCast();
                 Orbwalking.Orbwalk(Variables.CreeptargetH);
+            }
+
+            else if (MenuVariables.Harass && EnemyHeroes.Heroes != null)
+            {
+                var enemyHeroes = EnemyHeroes.Heroes;
+
+                foreach (var enemyHero in enemyHeroes)
+                {
+                    if (enemyHero.IsValid && Variables.Me.IsValid && Variables.Me.CanAttack() && Variables.Me.IsAlive && enemyHero.Distance2D(Variables.Me) <= MyHero.AttackRange())
+                    {
+                        Orbwalking.Orbwalk(enemyHero, 0, MenuVariables.Outrange, true);
+                    }
+                }
             }
         }
 
@@ -338,8 +393,8 @@ namespace EzGoldSharp
                       Variables.Me.Distance2D(Variables.CreeptargetH) / MyHero.GetProjectileSpeed(Variables.Me);
                 var getPred = Healthpredict(Variables.CreeptargetH, time + attackPoint);
                 var getDamage = Math.Ceiling(GetDamageOnUnit(Variables.Me, Variables.CreeptargetH, 0));
-                //Console.WriteLine(getDamage);
-                //Console.WriteLine(getPred);
+                //Game.PrintMessage(getDamage.ToString());
+                //Game.PrintMessage(getPred.ToString());
                 //Console.WriteLine(attackBackswing);
                 if (Variables.CreeptargetH.Distance2D(Variables.Me) <= MyHero.AttackRange())
                 {

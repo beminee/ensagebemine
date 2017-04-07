@@ -1,15 +1,10 @@
-﻿using System;
-using EzGoldSharp.EventManager;
-using EzGoldSharp.UnitManager;
+﻿using EzGoldSharp.EventManager;
 
 namespace EzGoldSharp
 {
     using Ensage;
     using Ensage.Common;
-    using Ensage.Common.Extensions;
-    using SharpDX;
     using System;
-    using System.Linq;
     internal class EzGoldSharp
     {
         public static void Game_OnUpdate(EventArgs args)

@@ -1,12 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Ensage.Common.Menu;
-using EzGoldSharp.MenuLoader;
-using EzGoldSharp.UnitManager;
-using MenuVariables = EzGoldSharp.MenuLoader.MenuVariables;
+﻿using EzGoldSharp.UnitManager;
 
 namespace EzGoldSharp.EventManager
 {

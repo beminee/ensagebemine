@@ -1,13 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Ensage;
-using Ensage.Common.Menu;
-using EzGoldSharp.EventManager;
-using EzGoldSharp.UnitManager;
-using SharpDX;
+﻿using Ensage.Common.Menu;
 
 namespace EzGoldSharp.MenuLoader
 {
@@ -23,7 +14,7 @@ namespace EzGoldSharp.MenuLoader
             MenuLoader.Menu.AddItem(new MenuItem("autoAttackMode", "Auto Attack Settings").SetValue(Attack));
             MenuLoader.Menu.AddItem(new MenuItem("sup", "Support").SetValue(false));
             MenuLoader.Menu.AddItem(new MenuItem("usespell", "Use spell for lasthitting").SetValue(true));
-            //MenuLoader.Menu.AddItem(new MenuItem("harassheroes", "Harass enemy in farming mode").SetValue(true));
+            MenuLoader.Menu.AddItem(new MenuItem("harassheroes", "Harass enemy in farming mode").SetValue(true));
             MenuLoader.Menu.AddItem(new MenuItem("denied", "Try to deny creeps").SetValue(true));
             MenuLoader.Menu.AddItem(new MenuItem("AOC", "Attack own creeps").SetValue(false));
             MenuLoader.Menu.AddItem(new MenuItem("test", "Alpha Test Calculation").SetValue(true));
@@ -46,7 +37,7 @@ namespace EzGoldSharp.MenuLoader
             {
                 MenuVariables.Support = MenuLoader.Menu.Item("sup").GetValue<bool>();
                 MenuVariables.UseSpell = MenuLoader.Menu.Item("usespell").GetValue<bool>();
-                //MenuVariables.Harass = MenuLoader.Menu.Item("harassheroes").GetValue<bool>();
+                MenuVariables.Harass = MenuLoader.Menu.Item("harassheroes").GetValue<bool>();
                 MenuVariables.Denie = MenuLoader.Menu.Item("denied").GetValue<bool>();
                 MenuVariables.Aoc = MenuLoader.Menu.Item("AOC").GetValue<bool>();
                 MenuVariables.Test = MenuLoader.Menu.Item("test").GetValue<bool>();
@@ -67,7 +58,7 @@ namespace EzGoldSharp.MenuLoader
         public static int AutoAttackMode;
         public static bool Denie;
         public static uint FarmKey;
-        //public static bool Harass;
+        public static bool Harass;
         public static bool LastHitEnable;
         public static uint LastHitKey;
         public static int Outrange;
