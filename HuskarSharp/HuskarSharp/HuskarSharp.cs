@@ -98,8 +98,7 @@ namespace HuskarSharp
 
 
             Game.PrintMessage(
-                "HuskarSharp" + System.Reflection.Assembly.GetExecutingAssembly().GetName().Version + " is loaded!",
-                MessageType.LogMessage);
+                "HuskarSharp" + System.Reflection.Assembly.GetExecutingAssembly().GetName().Version + " is loaded!");
         }
 
         public void OnUpdate_Combo()
@@ -156,7 +155,7 @@ namespace HuskarSharp
             }
             autoArmlet.PlayerExecution_Armlet(args);
             if (Target == null) return;
-            if (args.Order == Order.AttackTarget)
+            if (args.OrderId == OrderId.AttackTarget)
             {
                 this.targetFind.UnlockTarget();
                 this.targetFind.Find();

@@ -23,7 +23,7 @@ namespace HuskarSharp.Features
 
         private bool hasArmlet()
         {
-            return me.Inventory.Items.Any(x => x.ClassID.Equals(ClassID.CDOTA_Item_Armlet));
+            return me.Inventory.Items.Any(x => x.ClassId.Equals(ClassId.CDOTA_Item_Armlet));
         }
 
         private ArmletToggler armletToggler;
@@ -72,7 +72,7 @@ namespace HuskarSharp.Features
         {
             var spell = args.Ability;
             var manta = me.FindItem("item_manta");
-            if (args.Order == Order.Ability)
+            if (args.OrderId == OrderId.Ability)
             {
                 if (args.Ability == manta)
                 {
