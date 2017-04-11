@@ -349,15 +349,15 @@ namespace EzGoldSharp
                 return ObjectManager.GetEntitiesParallel<Unit>()
                         .Where(
                             x =>
-                                (x.ClassID == ClassID.CDOTA_BaseNPC_Tower ||
-                                 x.ClassID == ClassID.CDOTA_BaseNPC_Creep_Lane ||
-                                 x.ClassID == ClassID.CDOTA_BaseNPC_Creep ||
-                                 x.ClassID == ClassID.CDOTA_BaseNPC_Creep_Neutral ||
-                                 x.ClassID == ClassID.CDOTA_BaseNPC_Creep_Siege ||
-                                 x.ClassID == ClassID.CDOTA_BaseNPC_Additive ||
-                                 x.ClassID == ClassID.CDOTA_BaseNPC_Barracks ||
-                                 x.ClassID == ClassID.CDOTA_BaseNPC_Building ||
-                                 x.ClassID == ClassID.CDOTA_BaseNPC_Creature) &&
+                                (x.ClassId == ClassId.CDOTA_BaseNPC_Tower ||
+                                 x.ClassId == ClassId.CDOTA_BaseNPC_Creep_Lane ||
+                                 x.ClassId == ClassId.CDOTA_BaseNPC_Creep ||
+                                 x.ClassId == ClassId.CDOTA_BaseNPC_Creep_Neutral ||
+                                 x.ClassId == ClassId.CDOTA_BaseNPC_Creep_Siege ||
+                                 x.ClassId == ClassId.CDOTA_BaseNPC_Additive ||
+                                 x.ClassId == ClassId.CDOTA_BaseNPC_Barracks ||
+                                 x.ClassId == ClassId.CDOTA_BaseNPC_Building ||
+                                 x.ClassId == ClassId.CDOTA_BaseNPC_Creature) &&
                                  x.IsAlive && x.IsVisible && x.Distance2D(source) < range)
                                  .OrderBy(creep => creep.Health)
                                  .ToList();
@@ -440,15 +440,15 @@ namespace EzGoldSharp
                         physDamage = unit.MinimumDamage + unit.BonusDamage + 24;
                     }
                 }
-                switch (unit.ClassID)
+                switch (unit.ClassId)
                 {
-                    case ClassID.CDOTA_Unit_Hero_AntiMage:
+                    case ClassId.CDOTA_Unit_Hero_AntiMage:
                         var manabreakDamage = Variables.Q.GetAbilityData("mana_per_hit");
                         if (minion.MaximumMana > 0 && minion.Mana > 0 && Variables.Q.Level > 0 && minion.Team != unit.Team)
                             bonusdamage += manabreakDamage * 0.6;
                         break;
 
-                    case ClassID.CDOTA_Unit_Hero_Viper:
+                    case ClassId.CDOTA_Unit_Hero_Viper:
                         if (minion.Team != unit.Team)
                         {
                             var nethertoxindmg = Variables.W.GetAbilityData("bonus_damage") / (Variables.W.GetAbilityData("non_hero_damage_pct") / 100);
@@ -466,7 +466,7 @@ namespace EzGoldSharp
                         }
                         break;
 
-                    case ClassID.CDOTA_Unit_Hero_Ursa:
+                    case ClassId.CDOTA_Unit_Hero_Ursa:
                         var furymodif = 0;
                         var furyDamage = Variables.E.GetAbilityData("damage_per_stack");
                         var furyTalent = Variables.Me.Spellbook.Spells.First(x => x.Name == "special_bonus_unique_ursa").Level <= 0 ? 0 : 10;
@@ -482,25 +482,25 @@ namespace EzGoldSharp
                         }
                         break;
 
-                    case ClassID.CDOTA_Unit_Hero_BountyHunter:
+                    case ClassId.CDOTA_Unit_Hero_BountyHunter:
                         var jinadaDamage = Variables.W.GetAbilityData("crit_multiplier");
                         if (Variables.W.AbilityState == AbilityState.Ready)
                             bonusdamage += (physDamage * jinadaDamage / 100) - physDamage;
                         break;
 
-                    case ClassID.CDOTA_Unit_Hero_Weaver:
+                    case ClassId.CDOTA_Unit_Hero_Weaver:
                         if (Variables.E.Level > 0 && Variables.E.AbilityState == AbilityState.Ready)
                             bonusdamage += physDamage;
                         break;
 
-                    case ClassID.CDOTA_Unit_Hero_Kunkka:
+                    case ClassId.CDOTA_Unit_Hero_Kunkka:
                         var tidebringerDamage = Variables.W.GetAbilityData("damage_bonus");
                         if (Variables.W.AbilityState == AbilityState.Ready &&
                             Variables.W.IsAutoCastEnabled)
                             bonusdamage += tidebringerDamage;
                         break;
 
-                    case ClassID.CDOTA_Unit_Hero_Life_Stealer:
+                    case ClassId.CDOTA_Unit_Hero_Life_Stealer:
                         var feastDamage = Variables.E.GetAbilityData("hp_leech_percent");  
                             bonusdamage += minion.Health * feastDamage;
                         break;
@@ -517,7 +517,7 @@ namespace EzGoldSharp
                     var chillingtouchTalent = Variables.Me.Spellbook.Spells.First(x => x.Name == "special_bonus_unique_ancient_apparition_2").Level <= 0 ? 0 : 80;
                     magicdamage += chillingtouchDamage + chillingtouchTalent;
                 }
-                if (unit.ClassID == ClassID.CDOTA_Unit_Hero_Pudge && Variables.W.Level > 0 &&
+                if (unit.ClassId == ClassId.CDOTA_Unit_Hero_Pudge && Variables.W.Level > 0 &&
                     MenuVariables.UseSpell && Variables.E.CanHit(minion))
                 {
                     var rotDamage = Variables.E.GetAbilityData("rot_damage") / 2;
@@ -529,7 +529,7 @@ namespace EzGoldSharp
             {
                 modif = modif *
                         (ObjectManager.GetEntitiesParallel<Hero>()
-                            .First(x => x.ClassID == ClassID.CDOTA_Unit_Hero_Bloodseeker)
+                            .First(x => x.ClassId == ClassId.CDOTA_Unit_Hero_Bloodseeker)
                             .Spellbook.Spell1.Level - 1) * 0.05 + 1.25;
             }
 
@@ -537,8 +537,8 @@ namespace EzGoldSharp
             magicdamage = magicdamage * (1 - minion.MagicDamageResist);
 
             var realDamage = ((bonusdamage + physDamage) * damageMp + magicdamage) * modif;
-            if (minion.ClassID == ClassID.CDOTA_BaseNPC_Creep_Siege ||
-                minion.ClassID == ClassID.CDOTA_BaseNPC_Tower)
+            if (minion.ClassId == ClassId.CDOTA_BaseNPC_Creep_Siege ||
+                minion.ClassId == ClassId.CDOTA_BaseNPC_Tower)
             {
                 realDamage = realDamage / 2;
             }
@@ -556,15 +556,15 @@ namespace EzGoldSharp
                     ObjectManager.GetEntitiesParallel<Unit>()
                         .Where(
                             x =>
-                                (x.ClassID == ClassID.CDOTA_BaseNPC_Tower ||
-                                 x.ClassID == ClassID.CDOTA_BaseNPC_Creep_Lane ||
-                                 x.ClassID == ClassID.CDOTA_BaseNPC_Creep ||
-                                 x.ClassID == ClassID.CDOTA_BaseNPC_Creep_Neutral ||
-                                 x.ClassID == ClassID.CDOTA_BaseNPC_Creep_Siege ||
-                                 x.ClassID == ClassID.CDOTA_BaseNPC_Additive ||
-                                 x.ClassID == ClassID.CDOTA_BaseNPC_Barracks ||
-                                 x.ClassID == ClassID.CDOTA_BaseNPC_Building ||
-                                 x.ClassID == ClassID.CDOTA_BaseNPC_Creature) &&
+                                (x.ClassId == ClassId.CDOTA_BaseNPC_Tower ||
+                                 x.ClassId == ClassId.CDOTA_BaseNPC_Creep_Lane ||
+                                 x.ClassId == ClassId.CDOTA_BaseNPC_Creep ||
+                                 x.ClassId == ClassId.CDOTA_BaseNPC_Creep_Neutral ||
+                                 x.ClassId == ClassId.CDOTA_BaseNPC_Creep_Siege ||
+                                 x.ClassId == ClassId.CDOTA_BaseNPC_Additive ||
+                                 x.ClassId == ClassId.CDOTA_BaseNPC_Barracks ||
+                                 x.ClassId == ClassId.CDOTA_BaseNPC_Building ||
+                                 x.ClassId == ClassId.CDOTA_BaseNPC_Creature) &&
                                  x.IsAlive && x.IsVisible && x.Team != source.Team &&
                                  x.Distance2D(source) < range)
                         .OrderBy(creep => creep.Health)
@@ -586,15 +586,15 @@ namespace EzGoldSharp
                 return ObjectManager.GetEntitiesParallel<Unit>()
                         .Where(
                             x =>
-                                (x.ClassID == ClassID.CDOTA_BaseNPC_Tower ||
-                                 x.ClassID == ClassID.CDOTA_BaseNPC_Creep_Lane ||
-                                 x.ClassID == ClassID.CDOTA_BaseNPC_Creep ||
-                                 x.ClassID == ClassID.CDOTA_BaseNPC_Creep_Neutral ||
-                                 x.ClassID == ClassID.CDOTA_BaseNPC_Creep_Siege ||
-                                 x.ClassID == ClassID.CDOTA_BaseNPC_Additive ||
-                                 x.ClassID == ClassID.CDOTA_BaseNPC_Barracks ||
-                                 x.ClassID == ClassID.CDOTA_BaseNPC_Building ||
-                                 x.ClassID == ClassID.CDOTA_BaseNPC_Creature) &&
+                                (x.ClassId == ClassId.CDOTA_BaseNPC_Tower ||
+                                 x.ClassId == ClassId.CDOTA_BaseNPC_Creep_Lane ||
+                                 x.ClassId == ClassId.CDOTA_BaseNPC_Creep ||
+                                 x.ClassId == ClassId.CDOTA_BaseNPC_Creep_Neutral ||
+                                 x.ClassId == ClassId.CDOTA_BaseNPC_Creep_Siege ||
+                                 x.ClassId == ClassId.CDOTA_BaseNPC_Additive ||
+                                 x.ClassId == ClassId.CDOTA_BaseNPC_Barracks ||
+                                 x.ClassId == ClassId.CDOTA_BaseNPC_Building ||
+                                 x.ClassId == ClassId.CDOTA_BaseNPC_Creature) &&
                                  x.IsAlive && x.IsVisible && x.Team == source.Team &&
                                  x.Distance2D(source) < range)
                         .OrderBy(creep => creep.Health)
@@ -681,9 +681,9 @@ namespace EzGoldSharp
                     .OrderByDescending(creep => creep.Health))
                 {
                     double damage = 0;
-                    switch (Variables.Me.ClassID)
+                    switch (Variables.Me.ClassId)
                     {
-                        case ClassID.CDOTA_Unit_Hero_Zuus:
+                        case ClassId.CDOTA_Unit_Hero_Zuus:
                             if (Variables.Q.Level > 0 && Variables.Q.CanBeCasted() && Variables.Me.Distance2D(creep) > MyHero.AttackRange())
                             {
                                 damage = Variables.Q.GetDamage(Variables.Q.Level - 1) * (1 - creep.MagicDamageResist);
@@ -696,7 +696,7 @@ namespace EzGoldSharp
                             }
                             break;
 
-                        case ClassID.CDOTA_Unit_Hero_Bristleback:
+                        case ClassId.CDOTA_Unit_Hero_Bristleback:
                             if (Variables.W.Level > 0 && Variables.W.CanBeCasted() && Variables.Me.Distance2D(creep) > MyHero.AttackRange())
                             {
                                 double quillSprayDmg = 0;
@@ -723,7 +723,7 @@ namespace EzGoldSharp
                             }
                             break;
 
-                        case ClassID.CDOTA_Unit_Hero_PhantomAssassin:
+                        case ClassId.CDOTA_Unit_Hero_PhantomAssassin:
                             if (Variables.Q.CanBeCasted() && Variables.Me.Distance2D(creep) > MyHero.AttackRange() + 100)
                             {
                                 //var stifflingdaggercastRange = Variables.Q.GetAbilityData("AbilityCastRange");
@@ -743,7 +743,7 @@ namespace EzGoldSharp
                             }
                             break;
 
-                        case ClassID.CDOTA_Unit_Hero_Pudge:
+                        case ClassId.CDOTA_Unit_Hero_Pudge:
                             if (Variables.W.Level > 0)
                             {
                                 if (Variables.CreeptargetH != null && creep.Handle == Variables.CreeptargetH.Handle &&
@@ -764,7 +764,7 @@ namespace EzGoldSharp
                             }
                             break;
 
-                        case ClassID.CDOTA_Unit_Hero_Skywrath_Mage:
+                        case ClassId.CDOTA_Unit_Hero_Skywrath_Mage:
                             if (Variables.Q.Level > 0)
                             {
                                 if (Variables.Q.CanBeCasted() && Variables.Me.Distance2D(creep) > MyHero.AttackRange())

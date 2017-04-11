@@ -26,7 +26,7 @@ namespace EzGoldSharp.UnitManager
             }
             Utils.Sleep(1000, "MyHeroInfo.AttackRange");
 
-            if (Variables.Me.ClassID == ClassID.CDOTA_Unit_Hero_TrollWarlord)
+            if (Variables.Me.ClassId == ClassId.CDOTA_Unit_Hero_TrollWarlord)
                 _attackRange = Variables.Q.IsToggled ? 128 : Variables.Me.GetAttackRange();
             else
                 _attackRange = Variables.Me.GetAttackRange();
@@ -51,7 +51,7 @@ namespace EzGoldSharp.UnitManager
 
         public static float GetProjectileSpeed(Entity unit)
         {
-            return Variables.Me.ClassID == ClassID.CDOTA_Unit_Hero_ArcWarden
+            return Variables.Me.ClassId == ClassId.CDOTA_Unit_Hero_ArcWarden
                 ? 800
                 : UnitDatabase.GetByName(unit.Name).ProjectileSpeed;
         }

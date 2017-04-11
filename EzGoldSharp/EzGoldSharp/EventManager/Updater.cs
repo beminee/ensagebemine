@@ -30,7 +30,7 @@ namespace EzGoldSharp.EventManager
            Variables.E = Variables.Me.Spellbook.SpellE;
            Variables.R = Variables.Me.Spellbook.SpellR;
 
-           double apoint = Variables.Me.ClassID == ClassID.CDOTA_Unit_Hero_ArcWarden
+           double apoint = Variables.Me.ClassId == ClassId.CDOTA_Unit_Hero_ArcWarden
                 ? 0.3
                 : UnitDatabase.Units.Find(x => x.UnitName == Variables.Me.Name).AttackPoint;
            Variables.HeroAPoint = apoint / (1 + Variables.Me.AttacksPerSecond * Variables.Me.BaseAttackTime / 100) * 1000;
