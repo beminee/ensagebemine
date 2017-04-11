@@ -32,17 +32,39 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="clipper_library">
+      <HintPath>..\..\..\..\..\..\..\Program Files (x86)\L8RJQrNDr\References\clipper_library.dll</HintPath>
+    </Reference>
     <Reference Include="Ensage">
       <HintPath>C:\Program Files (x86)\L8RJQrNDr\References\Ensage.dll</HintPath>
     </Reference>
     <Reference Include="Ensage.Common">
       <HintPath>C:\Program Files (x86)\L8RJQrNDr\References\Ensage.Common.dll</HintPath>
     </Reference>
+    <Reference Include="Newtonsoft.Json, Version=9.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\..\..\..\..\Program Files (x86)\L8RJQrNDr\References\Newtonsoft.Json.dll</HintPath>
+    </Reference>
+    <Reference Include="PlaySharp.Toolkit">
+      <HintPath>..\..\..\..\..\..\..\Program Files (x86)\L8RJQrNDr\References\PlaySharp.Toolkit.dll</HintPath>
+    </Reference>
     <Reference Include="SharpDX">
       <HintPath>C:\Program Files (x86)\L8RJQrNDr\References\SharpDX.dll</HintPath>
     </Reference>
+    <Reference Include="SharpDX.Direct2D1">
+      <HintPath>..\..\..\..\..\..\..\Program Files (x86)\L8RJQrNDr\References\SharpDX.Direct2D1.dll</HintPath>
+    </Reference>
+    <Reference Include="SharpDX.Direct3D11">
+      <HintPath>..\..\..\..\..\..\..\Program Files (x86)\L8RJQrNDr\References\SharpDX.Direct3D11.dll</HintPath>
+    </Reference>
     <Reference Include="SharpDX.Direct3D9">
       <HintPath>C:\Program Files (x86)\L8RJQrNDr\References\SharpDX.Direct3D9.dll</HintPath>
+    </Reference>
+    <Reference Include="SharpDX.DXGI">
+      <HintPath>..\..\..\..\..\..\..\Program Files (x86)\L8RJQrNDr\References\SharpDX.DXGI.dll</HintPath>
+    </Reference>
+    <Reference Include="SharpDX.Mathematics">
+      <HintPath>..\..\..\..\..\..\..\Program Files (x86)\L8RJQrNDr\References\SharpDX.Mathematics.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
