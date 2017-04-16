@@ -19,13 +19,21 @@ namespace EzGoldSharp.MenuLoader
             MenuLoader.Menu.AddItem(new MenuItem("AOC", "Attack own creeps").SetValue(false));
             MenuLoader.Menu.AddItem(new MenuItem("test", "Alpha Test Calculation").SetValue(true));
             MenuLoader.Menu.AddItem(new MenuItem("outrange", "Bonus range").SetValue(BonusRange));
+            MenuLoader.Menu.AddItem(new MenuItem("showrange", "Show attack range?").SetValue(true));
+            MenuLoader.Menu.AddItem(new MenuItem("hpbar", "Show HP bar?").SetValue(true));
             MenuLoader.Menu.AddToMainMenu();
 
             var subMenu = new Menu("Hotkeys", " hotkeys", false);
             subMenu.AddItem(new MenuItem("lasthit", "Lasthit mode").SetValue(new KeyBind('C', KeyBindType.Press)));
             subMenu.AddItem(new MenuItem("farmKey", "Farm mode").SetValue(new KeyBind('V', KeyBindType.Press)));
             MenuLoader.Menu.AddSubMenu(subMenu);
-            
+
+            var subMenu2 = new Menu("Drawings", "draws", false);
+            subMenu2.AddItem(new MenuItem("showrange", "Show attack range?").SetValue(true));
+            subMenu2.AddItem(new MenuItem("hpbar", "Show HP bar?").SetValue(true));
+            MenuLoader.Menu.AddSubMenu(subMenu2);
+
+
         }
 
         
@@ -48,6 +56,8 @@ namespace EzGoldSharp.MenuLoader
 
             MenuVariables.AutoAttackMode = MenuLoader.Menu.Item("autoAttackMode").GetValue<StringList>().SelectedIndex;
             MenuVariables.Outrange = MenuLoader.Menu.Item("outrange").GetValue<Slider>().Value;
+            MenuVariables.ShowAttackRange = MenuLoader.Menu.Item("showrange").GetValue<bool>();
+            MenuVariables.HpBar = MenuLoader.Menu.Item("hpbar").GetValue<bool>();
         }
     }
 
@@ -64,6 +74,8 @@ namespace EzGoldSharp.MenuLoader
         public static int Outrange;
         public static bool Support;
         public static bool Test;
+        public static bool ShowAttackRange;
+        public static bool HpBar;
         public static bool UseSpell;
 
         #endregion MenuVariables

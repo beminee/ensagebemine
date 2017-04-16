@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using Ensage;
+using Ensage.Common;
 using Ensage.Common.Extensions;
 using EzGoldSharp.UnitManager;
 using MenuVariables = EzGoldSharp.MenuLoader.MenuVariables;
@@ -24,6 +25,8 @@ namespace EzGoldSharp
         public static Hero Me;
         public static Ability Q, W, E, R;
         public static int Seconds;
+        public static float LastRange;
+        public static ParticleEffect AttackRange;
         public static List<SleepDictionary> SleepDic = new List<SleepDictionary>();
         #endregion Variables
 

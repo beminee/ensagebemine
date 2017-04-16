@@ -119,7 +119,7 @@ namespace EzGoldSharp.UnitManager
                 }
                 Illusions = Illusions.Where(x => x.IsValid).ToList();
                 Heroes = Heroes.Where(x => x.IsValid).ToList();
-                UsableHeroes = Heroes.Where(x => x.Health > 0 && x.IsAlive && x.IsVisible).ToArray();
+                UsableHeroes = Heroes.Where(x => x.Health > 0 && x.IsAlive && x.IsVisible && x.Distance2D(Variables.Me) <= Variables.GetOutRange(Variables.Me)).ToArray();
                 if (Utils.SleepCheck("EnemyHeroes.CheckValid") || UsableHeroes.Any(x => !ItemDictionary.ContainsKey(x.Handle)))
                 {
                     Utils.Sleep(2000, "EnemyHeroes.CheckValid");

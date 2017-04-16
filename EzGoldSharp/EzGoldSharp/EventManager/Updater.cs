@@ -1,4 +1,6 @@
-﻿using EzGoldSharp.UnitManager;
+﻿using EzGoldSharp.MenuLoader;
+using EzGoldSharp.UnitManager;
+using SharpDX;
 
 namespace EzGoldSharp.EventManager
 {
@@ -36,6 +38,42 @@ namespace EzGoldSharp.EventManager
            Variables.HeroAPoint = apoint / (1 + Variables.Me.AttacksPerSecond * Variables.Me.BaseAttackTime / 100) * 1000;
 
            MenuLoader.MenuLoader.Update();
+
+            if (MenuVariables.ShowAttackRange)
+            {
+                if (Variables.AttackRange == null)
+                {
+                    if (Variables.Me.IsAlive)
+                    {
+                        Variables.AttackRange = Variables.Me.AddParticleEffect(@"particles\ui_mouseactions\drag_selected_ring.vpcf");
+                        Variables.AttackRange.SetControlPoint(1, new Vector3(255, 80, 50));
+                        Variables.AttackRange.SetControlPoint(3, new Vector3(20, 0, 0));
+                        Variables.AttackRange.SetControlPoint(2, new Vector3(Variables.LastRange, 255, 0));
+                    }
+                }
+                else
+                {
+                    if (!Variables.Me.IsAlive)
+                    {
+                        Variables.AttackRange.Dispose();
+                        Variables.AttackRange = null;
+                    }
+                    else if (Variables.LastRange != MyHero.AttackRange())
+                    {
+                        Variables.AttackRange.Dispose();
+                        Variables.LastRange = MyHero.AttackRange();
+                        Variables.AttackRange = Variables.Me.AddParticleEffect(@"particles\ui_mouseactions\drag_selected_ring.vpcf");
+                        Variables.AttackRange.SetControlPoint(1, new Vector3(255, 80, 50));
+                        Variables.AttackRange.SetControlPoint(3, new Vector3(15, 0, 0));
+                        Variables.AttackRange.SetControlPoint(2, new Vector3(Variables.LastRange, 255, 0));
+                    }
+                }
+            }
+            else if (!MenuVariables.ShowAttackRange)
+            {
+                if (Variables.AttackRange != null) Variables.AttackRange.Dispose();
+                Variables.AttackRange = null;
+            }
 
 
             if (Variables.AutoAttackMode != MenuLoader.MenuVariables.AutoAttackMode)
