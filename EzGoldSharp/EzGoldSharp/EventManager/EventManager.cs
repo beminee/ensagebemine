@@ -32,7 +32,7 @@ namespace EzGoldSharp.EventManager
 
             Game.OnUpdate += EzGoldSharp.Game_OnUpdate;
             Game.OnUpdate += Updater.Update;
-            Drawing.OnDraw += Draws.Drawing; // wat?
+            Drawing.OnDraw += Draws.Drawing;
 
             Orbwalking.Load();
 
