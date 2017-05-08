@@ -1,4 +1,6 @@
-﻿namespace HuskarSharpSDK 
+﻿using Ensage.Common.Menu;
+
+namespace HuskarSharpSDK 
 {
     using System.ComponentModel.Composition;
     using System.Windows.Input;
@@ -28,7 +30,7 @@
             this.Halberd = this.Owner.FindItem("item_heavens_halberd");
         }
 
-        public override bool CanExecute => Game.IsKeyDown(Key.Space);
+        public override bool CanExecute => Config.Key;
 
         public MyHeroConfig Config { get; }
         private Ability Ulti { get; }
@@ -101,12 +103,14 @@
         public MyHeroConfig()
         {
             this.Factory = MenuFactory.Create("HuskarSharpSDK");
+            this.Key = this.Factory.Item("Combo Key", new KeyBind(32, KeyBindType.Press));
             this.Heal = this.Factory.Item("Use Heal?", true);
             this.Ulti = this.Factory.Item("Use Ulti?", true);
             this.Spear = this.Factory.Item("Activate Spear on Combo?", true);
         }
 
         public MenuFactory Factory { get; }
+        public MenuItem<KeyBind> Key { get; }
         public MenuItem<bool> Heal { get; }
         public MenuItem<bool> Ulti { get; }
         public MenuItem<bool> Spear { get; }
