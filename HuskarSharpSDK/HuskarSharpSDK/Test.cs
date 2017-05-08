@@ -73,7 +73,7 @@
                 Utils.Sleep(150, "HuskarSharpSDK.BT");
             }
 
-            if (target != null && Owner.MaximumHealth / Owner.Health <= 0.2 && this.Satanic.CanBeCasted() && Utils.SleepCheck("HuskarSharpSDK.Satanic"))
+            if (target != null && Owner.Health / Owner.MaximumHealth <= 0.2 && this.Satanic.CanBeCasted() && Utils.SleepCheck("HuskarSharpSDK.Satanic"))
             {
                 this.Satanic.UseAbility();
                 Utils.Sleep(150, "HuskarSharpSDK.Satanic");
