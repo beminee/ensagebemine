@@ -1,7 +1,4 @@
-﻿using System.Collections.Generic;
-using Ensage.Common.Menu;
-
-namespace HuskarSharpSDK 
+﻿namespace HuskarSharpSDK 
 {
     using System.ComponentModel.Composition;
     using System.Windows.Input;
@@ -13,6 +10,8 @@ namespace HuskarSharpSDK
     using Ensage.SDK.Orbwalker.Metadata;
     using Ensage.SDK.Orbwalker.Modes;
     using Ensage.SDK.TargetSelector;
+    using System.Collections.Generic;
+    using Ensage.Common.Menu;
 
     [ExportOrbwalkingMode]
    public class Test : AutoAttackMode
