@@ -17,7 +17,7 @@
    public class Test : AutoAttackMode
     {
         [ImportingConstructor]
-        public Test(IOrbwalker orbwalker, ITargetSelectorManager targetSelector)
+        public Test([Import] IOrbwalker orbwalker, [Import] ITargetSelectorManager targetSelector)
             : base(orbwalker, targetSelector)
         {
             this.Config = new MyHeroConfig();
