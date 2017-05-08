@@ -1,4 +1,5 @@
-﻿using Ensage.Common.Menu;
+﻿using System.Collections.Generic;
+using Ensage.Common.Menu;
 
 namespace HuskarSharpSDK 
 {
@@ -28,6 +29,12 @@ namespace HuskarSharpSDK
             this.Satanic = this.Owner.FindItem("item_satanic");
             this.SolarCrest = this.Owner.FindItem("item_solar_crest");
             this.Halberd = this.Owner.FindItem("item_heavens_halberd");
+
+            if (!Config.TogglerSet)
+            {
+                Config.menuValue = this.Config.Toggler.Value;
+                Config.TogglerSet = true;
+            }
         }
 
         public override bool CanExecute => Config.Key;
@@ -51,7 +58,7 @@ namespace HuskarSharpSDK
                 this.Ulti.UseAbility(target);
                 Utils.Sleep(100, "HuskarSharpSDK.Ulti");
             }
-
+            // We don't want to use heal first then miss opportunity to ulti nor use heal then miss a hit. So we use heal in ulti ability phase.
             if (this.Ulti.IsInAbilityPhase && this.Config.Heal && this.Heal.CanBeCasted() && Utils.SleepCheck("HuskarSharpSDK.Heal"))
             {
                 this.Heal.UseAbility(Owner);
@@ -69,25 +76,25 @@ namespace HuskarSharpSDK
                 Utils.Sleep(150, "HuskarSharpSDK.Spear2");
             }
 
-            if (target != null && this.BloodThorn.CanBeCasted(target) && Utils.SleepCheck("HuskarSharpSDK.BT"))
+            if (target != null && this.BloodThorn.CanBeCasted(target) && Utils.SleepCheck("HuskarSharpSDK.BT") && Config.menuValue.IsEnabled(this.BloodThorn.Name))
             {
                 this.BloodThorn.UseAbility(target);
                 Utils.Sleep(150, "HuskarSharpSDK.BT");
             }
 
-            if (target != null && Owner.Health / Owner.MaximumHealth <= 0.2 && this.Satanic.CanBeCasted() && Utils.SleepCheck("HuskarSharpSDK.Satanic"))
+            if (target != null && Owner.Health / Owner.MaximumHealth <= 0.2 && this.Satanic.CanBeCasted() && Utils.SleepCheck("HuskarSharpSDK.Satanic") && Config.menuValue.IsEnabled(this.Satanic.Name))
             {
                 this.Satanic.UseAbility();
                 Utils.Sleep(150, "HuskarSharpSDK.Satanic");
             }
 
-            if (target != null && this.SolarCrest.CanBeCasted(target) && Utils.SleepCheck("HuskarSharpSDK.SolarCrest"))
+            if (target != null && this.SolarCrest.CanBeCasted(target) && Utils.SleepCheck("HuskarSharpSDK.SolarCrest") && Config.menuValue.IsEnabled(this.SolarCrest.Name))
             {
                 this.SolarCrest.UseAbility(target);
                 Utils.Sleep(150, "HuskarSharpSDK.SolarCrest");
             }
 
-            if (target != null && this.Halberd.CanBeCasted(target) && Utils.SleepCheck("HuskarSharpSDK.Halberd"))
+            if (target != null && this.Halberd.CanBeCasted(target) && Utils.SleepCheck("HuskarSharpSDK.Halberd") && Config.menuValue.IsEnabled(this.Halberd.Name))
             {
                 this.Halberd.UseAbility(target);
                 Utils.Sleep(150, "HuskarSharpSDK.Halberd");
@@ -102,11 +109,20 @@ namespace HuskarSharpSDK
     {
         public MyHeroConfig()
         {
+            var dict = new Dictionary<string, bool>
+            {
+                { "item_bloodthorn", true },
+                { "item_satanic", true },
+                { "item_solar_crest", true },
+                { "item_heavens_halberd", true }
+            };
+
             this.Factory = MenuFactory.Create("HuskarSharpSDK");
             this.Key = this.Factory.Item("Combo Key", new KeyBind(32, KeyBindType.Press));
             this.Heal = this.Factory.Item("Use Heal?", true);
             this.Ulti = this.Factory.Item("Use Ulti?", true);
             this.Spear = this.Factory.Item("Activate Spear on Combo?", true);
+            this.Toggler = this.Factory.Item("Items to use", new AbilityToggler(dict));
         }
 
         public MenuFactory Factory { get; }
@@ -114,5 +130,8 @@ namespace HuskarSharpSDK
         public MenuItem<bool> Heal { get; }
         public MenuItem<bool> Ulti { get; }
         public MenuItem<bool> Spear { get; }
+        public MenuItem<AbilityToggler> Toggler { get; }
+        public bool TogglerSet = false;
+        public AbilityToggler menuValue;
     }
 }
