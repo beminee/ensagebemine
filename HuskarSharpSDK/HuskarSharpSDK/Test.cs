@@ -93,6 +93,11 @@ namespace HuskarSharpSDK
                 this.Heal.UseAbility(me);
                 Utils.Sleep(100, "HuskarSharpSDK.Heal");
             }
+            else if (!Config.Ulti && Config.Heal && this.Heal.CanBeCasted() && Utils.SleepCheck("HuskarSharpSDK.Heal"))
+            {
+                this.Heal.UseAbility(me);
+                Utils.Sleep(100, "HuskarSharpSDK.Heal");
+            }
         }
             // Toggle on if comboing and target is not null
             if (this.CanExecute && this.Config.Spear && this.Spear.CanBeCasted(target) && !this.Spear.IsAutoCastEnabled && Utils.SleepCheck("HuskarSharpSDK.Spear"))
