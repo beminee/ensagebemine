@@ -4,6 +4,7 @@
 
 namespace HuskarSharpSDK
 {
+    using System;
     using System.Collections.Generic;
     using System.Collections.Specialized;
     using System.ComponentModel.Composition;
@@ -16,70 +17,70 @@ namespace HuskarSharpSDK
     using Ensage.SDK.Inventory;
     using Ensage.SDK.Menu;
     using Ensage.SDK.Orbwalker;
-    using Ensage.SDK.Orbwalker.Metadata;
-    using Ensage.SDK.Orbwalker.Modes;
     using Ensage.SDK.TargetSelector;
+    using Ensage.SDK.Service;
+    using Ensage.SDK.Service.Metadata;
 
-    [ExportOrbwalkingMode]
-    public class Test : AutoAttackMode
+    [ExportPlugin("HuskarSharpSDK", HeroId.npc_dota_hero_huskar)]
+    public class Test : Plugin, IOrbwalkingMode
     {
+        private readonly Lazy<IOrbwalkerManager> orbwalkerManager;
+
+        private readonly Lazy<ITargetSelectorManager> targetManager;
+
         [ImportingConstructor]
-        public Test([Import] IOrbwalker orbwalker, [Import] ITargetSelectorManager targetSelector, [Import] IInventoryManager inventory) // import IOrbwalker, ITargetSelectorManager and IInventoryManager
-            : base(orbwalker, targetSelector)
+        public Test([Import] Lazy<IOrbwalkerManager> orbManager, [Import] Lazy<ITargetSelectorManager> targetManager, [Import] IInventoryManager inventory) // import IOrbwalker, ITargetSelectorManager and IInventoryManager
         {
-            if (this.Owner.HeroId != HeroId.npc_dota_hero_huskar)
-            {
-                return; // check for hero support, will be added later in sdk
-            }
 
-            this.IsSupported = true;
+            this.orbwalkerManager = orbManager;
+            this.targetManager = targetManager;
 
-            this.Config = new MyHeroConfig();
-            this.Ulti = this.Owner.Spellbook.SpellR;
-            this.Heal = this.Owner.Spellbook.SpellQ;
-            this.Spear = this.Owner.Spellbook.SpellW;
             // this.BloodThorn = this.Owner.FindItem("item_bloodthorn");
             // this.Satanic = this.Owner.FindItem("item_satanic");
             // this.SolarCrest = this.Owner.FindItem("item_solar_crest");
             // this.Halberd = this.Owner.FindItem("item_heavens_halberd");
 
-            if (!this.Config.TogglerSet)
-            {
-                this.Config.MenuValue = this.Config.Toggler.Value;
-                this.Config.TogglerSet = true;
-            }
 
-            // sub to InventoryChanged
+            // inventory setter
             this.Inventory = inventory;
-            this.Inventory.CollectionChanged += this.OnInventoryChanged;
         }
+            
 
-        public override bool CanExecute => this.IsSupported && this.Config.Key;
+        public MyHeroConfig Config { get; private set; }
 
-        public MyHeroConfig Config { get; }
+        private IOrbwalker Orbwalker => this.orbwalkerManager.Value.Active;
 
-        public bool IsSupported { get; }
+        private ITargetSelector TargetSelector => this.targetManager.Value.Active;
+
+        public IInventoryManager Inventory { get; }
 
         private Item BloodThorn { get; set; }
 
         private Item Halberd { get; set; }
 
-        private Ability Heal { get; }
-
-        private IInventoryManager Inventory { get; }
+        private Ability Heal { get; set; }
 
         private Item Satanic { get; set; }
 
         private Item SolarCrest { get; set; }
 
-        private Ability Spear { get; }
+        private Ability Spear { get; set; }
 
-        private Ability Ulti { get; }
+        private Ability Ulti { get; set; }
 
-        public override void Execute()
+        public bool CanExecute => this.Config.Enabled && this.Config.Key;
+
+        public void Execute()
         {
-            var target = this.GetTarget();
+            var target = this.TargetSelector.GetTargets().FirstOrDefault();
+            var me = ObjectManager.LocalHero;
 
+            Ulti = me.Spellbook.SpellR;
+            Heal = me.Spellbook.SpellQ;
+            Spear = me.Spellbook.SpellW;
+
+        if (!me.IsSilenced())
+        {
             if (target != null && this.Config.Ulti && this.Ulti.CanBeCasted(target) && Utils.SleepCheck("HuskarSharpSDK.Ulti"))
             {
                 this.Ulti.UseAbility(target);
@@ -89,9 +90,10 @@ namespace HuskarSharpSDK
             // We don't want to use heal first then miss opportunity to ulti nor use heal then miss a hit. So we use heal in ulti ability phase.
             if (this.Ulti.IsInAbilityPhase && this.Config.Heal && this.Heal.CanBeCasted() && Utils.SleepCheck("HuskarSharpSDK.Heal"))
             {
-                this.Heal.UseAbility(this.Owner);
+                this.Heal.UseAbility(me);
                 Utils.Sleep(100, "HuskarSharpSDK.Heal");
             }
+        }
             // Toggle on if comboing and target is not null
             if (this.CanExecute && this.Config.Spear && this.Spear.CanBeCasted(target) && !this.Spear.IsAutoCastEnabled && Utils.SleepCheck("HuskarSharpSDK.Spear"))
             {
@@ -112,7 +114,7 @@ namespace HuskarSharpSDK
                 Utils.Sleep(150, "HuskarSharpSDK.BT");
             }
 
-            if (this.Satanic != null && this.Satanic.IsValid && target != null && this.Owner.Health / this.Owner.MaximumHealth <= 0.2 && this.Satanic.CanBeCasted()
+            if (this.Satanic != null && this.Satanic.IsValid && target != null && me.Health / me.MaximumHealth <= 0.2 && this.Satanic.CanBeCasted()
                 && Utils.SleepCheck("HuskarSharpSDK.Satanic") && this.Config.MenuValue.IsEnabled(this.Satanic.Name))
             {
                 this.Satanic.UseAbility();
@@ -133,7 +135,32 @@ namespace HuskarSharpSDK
                 Utils.Sleep(150, "HuskarSharpSDK.Halberd");
             }
 
-            base.Execute();
+            if (this.Orbwalker.OrbwalkTo(target))
+            {
+                // do nothing (?)
+            }
+
+        }
+
+        protected override void OnActivate()
+        {
+            this.Config = new MyHeroConfig(); // create menus
+
+            if (!this.Config.TogglerSet)
+            {
+                this.Config.MenuValue = this.Config.Toggler.Value;
+                this.Config.TogglerSet = true;
+            }
+
+            this.Orbwalker.RegisterMode(this);
+            this.Inventory.CollectionChanged += this.OnInventoryChanged; // sub to inventory changed
+        }
+
+        protected override void OnDeactivate()
+        {
+            this.Orbwalker.UnregisterMode(this);
+            this.Config.Dispose();
+            this.Inventory.CollectionChanged -= this.OnInventoryChanged;
         }
 
         private void OnInventoryChanged(object sender, NotifyCollectionChangedEventArgs args)
@@ -192,7 +219,7 @@ namespace HuskarSharpSDK
         }
     }
 
-    public class MyHeroConfig
+    public class MyHeroConfig : IDisposable
     {
         public AbilityToggler MenuValue;
 
@@ -208,15 +235,23 @@ namespace HuskarSharpSDK
                                { "item_heavens_halberd", true }
                            };
 
-            this.Factory = MenuFactory.Create("HuskarSharpSDK");
-            this.Key = this.Factory.Item("Combo Key", new KeyBind(32, KeyBindType.Press));
-            this.Heal = this.Factory.Item("Use Heal?", true);
-            this.Ulti = this.Factory.Item("Use Ulti?", true);
-            this.Spear = this.Factory.Item("Activate Spear on Combo?", true);
-            this.Toggler = this.Factory.Item("Items to use", new AbilityToggler(dict));
+            this.Menu = MenuFactory.Create("HuskarSharpSDK");
+            this.Enabled = this.Menu.Item("Enabled?", true);
+            this.Key = this.Menu.Item("Combo Key", new KeyBind(32, KeyBindType.Press));
+            this.Heal = this.Menu.Item("Use Heal?", true);
+            this.Ulti = this.Menu.Item("Use Ulti?", true);
+            this.Spear = this.Menu.Item("Activate Spear on Combo?", true);
+            this.Toggler = this.Menu.Item("Items to use", new AbilityToggler(dict));
         }
 
-        public MenuFactory Factory { get; }
+        public void Dispose()
+        {
+            this.Menu?.Dispose();
+        }
+
+        public MenuFactory Menu { get; }
+
+        public MenuItem<bool> Enabled { get; }
 
         public MenuItem<bool> Heal { get; }
 
