@@ -1,7 +1,6 @@
 ﻿// <copyright file="Test.cs" company="Ensage">
 //    Copyright (c) 2017 Ensage.
 // </copyright>
-
 namespace HuskarSharpSDK
 {
     using System;
@@ -44,7 +43,7 @@ namespace HuskarSharpSDK
             // inventory setter
             this.Inventory = inventory;
         }
-            
+
 
         public MyHeroConfig Config { get; private set; }
 
@@ -64,6 +63,8 @@ namespace HuskarSharpSDK
 
         private Item SolarCrest { get; set; }
 
+        private Item Armlet { get; set; }
+
         private Ability Spear { get; set; }
 
         private Ability Ulti { get; set; }
@@ -79,26 +80,26 @@ namespace HuskarSharpSDK
             Heal = me.Spellbook.SpellQ;
             Spear = me.Spellbook.SpellW;
 
-        if (!me.IsSilenced())
-        {
-            if (target != null && this.Config.Ulti && this.Ulti.CanBeCasted(target) && Utils.SleepCheck("HuskarSharpSDK.Ulti"))
+            if (!me.IsSilenced())
             {
-                this.Ulti.UseAbility(target);
-                Utils.Sleep(100, "HuskarSharpSDK.Ulti");
-            }
+                if (target != null && this.Config.Ulti && this.Ulti.CanBeCasted(target) && Utils.SleepCheck("HuskarSharpSDK.Ulti"))
+                {
+                    this.Ulti.UseAbility(target);
+                    Utils.Sleep(100, "HuskarSharpSDK.Ulti");
+                }
 
-            // We don't want to use heal first then miss opportunity to ulti nor use heal then miss a hit. So we use heal in ulti ability phase.
-            if (this.Ulti.IsInAbilityPhase && this.Config.Heal && this.Heal.CanBeCasted() && Utils.SleepCheck("HuskarSharpSDK.Heal"))
-            {
-                this.Heal.UseAbility(me);
-                Utils.Sleep(100, "HuskarSharpSDK.Heal");
+                // We don't want to use heal first then miss opportunity to ulti nor use heal then miss a hit. So we use heal in ulti ability phase.
+                if (this.Ulti.IsInAbilityPhase && this.Config.Heal && this.Heal.CanBeCasted() && Utils.SleepCheck("HuskarSharpSDK.Heal"))
+                {
+                    this.Heal.UseAbility(me);
+                    Utils.Sleep(100, "HuskarSharpSDK.Heal");
+                }
+                else if (!Config.Ulti && Config.Heal && this.Heal.CanBeCasted() && Utils.SleepCheck("HuskarSharpSDK.Heal"))
+                {
+                    this.Heal.UseAbility(me);
+                    Utils.Sleep(100, "HuskarSharpSDK.Heal");
+                }
             }
-            else if (!Config.Ulti && Config.Heal && this.Heal.CanBeCasted() && Utils.SleepCheck("HuskarSharpSDK.Heal"))
-            {
-                this.Heal.UseAbility(me);
-                Utils.Sleep(100, "HuskarSharpSDK.Heal");
-            }
-        }
             // Toggle on if comboing and target is not null
             if (this.CanExecute && this.Config.Spear && this.Spear.CanBeCasted(target) && !this.Spear.IsAutoCastEnabled && Utils.SleepCheck("HuskarSharpSDK.Spear"))
             {
@@ -140,9 +141,29 @@ namespace HuskarSharpSDK
                 Utils.Sleep(150, "HuskarSharpSDK.Halberd");
             }
 
+            if (this.Armlet != null && this.Armlet.IsValid && target == null && this.Armlet.CanBeCasted() &&
+                         this.Armlet.IsToggled &&
+                         Utils.SleepCheck("HuskarSharpSDK.Armlet2"))
+            {
+                this.Armlet.ToggleAbility();
+                Utils.Sleep(1000, "HuskarSharpSDK.Armlet2");
+            }
+
             if (this.Orbwalker.OrbwalkTo(target))
             {
-                // do nothing (?)
+                // We toggle on armlet after everything. We wait until ulti so that we don't lose more hp.
+                if (this.Armlet == null || !this.Armlet.IsValid || target == null || !this.Armlet.CanBeCasted() ||
+                    this.Armlet.IsToggled || !Utils.SleepCheck("HuskarSharpSDK.Armlet")) return;
+                if (Config.Ulti && this.Ulti.Cooldown > 0)
+                { 
+                    this.Armlet.ToggleAbility();
+                    Utils.Sleep(1000, "HuskarSharpSDK.Armlet");
+                }
+                else if (!Config.Ulti)
+                {
+                    this.Armlet.ToggleAbility();
+                    Utils.Sleep(1000, "HuskarSharpSDK.Armlet");
+                }
             }
 
         }
@@ -192,6 +213,10 @@ namespace HuskarSharpSDK
                         case ItemId.item_heavens_halberd:
                             this.Halberd = item.Item;
                             break;
+
+                        case ItemId.item_armlet:
+                            this.Armlet = item.Item;
+                            break;
                     }
                 }
             }
@@ -217,6 +242,10 @@ namespace HuskarSharpSDK
 
                         case ItemId.item_heavens_halberd:
                             this.Halberd = null;
+                            break;
+
+                        case ItemId.item_armlet:
+                            this.Armlet = null;
                             break;
                     }
                 }
