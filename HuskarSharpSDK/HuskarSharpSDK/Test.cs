@@ -82,67 +82,67 @@ namespace HuskarSharpSDK
 
             if (!me.IsSilenced())
             {
-                if (target != null && this.Config.Ulti && this.Ulti.CanBeCasted(target) && Utils.SleepCheck("HuskarSharpSDK.Ulti"))
+                if (target != null && this.Config.AbilityValue.IsEnabled(this.Ulti.Name) && this.Ulti.CanBeCasted(target) && Utils.SleepCheck("HuskarSharpSDK.Ulti"))
                 {
                     this.Ulti.UseAbility(target);
                     Utils.Sleep(100, "HuskarSharpSDK.Ulti");
                 }
 
                 // We don't want to use heal first then miss opportunity to ulti nor use heal then miss a hit. So we use heal in ulti ability phase.
-                if (this.Ulti.IsInAbilityPhase && this.Config.Heal && this.Heal.CanBeCasted() && Utils.SleepCheck("HuskarSharpSDK.Heal"))
+                if (this.Ulti.IsInAbilityPhase && this.Config.AbilityValue.IsEnabled(this.Heal.Name) && this.Heal.CanBeCasted() && Utils.SleepCheck("HuskarSharpSDK.Heal"))
                 {
                     this.Heal.UseAbility(me);
                     Utils.Sleep(100, "HuskarSharpSDK.Heal");
                 }
-                else if (!Config.Ulti && Config.Heal && this.Heal.CanBeCasted() && Utils.SleepCheck("HuskarSharpSDK.Heal"))
+                else if (!Config.AbilityValue.IsEnabled(this.Ulti.Name) && Config.AbilityValue.IsEnabled(this.Heal.Name) && this.Heal.CanBeCasted() && Utils.SleepCheck("HuskarSharpSDK.Heal"))
                 {
                     this.Heal.UseAbility(me);
                     Utils.Sleep(100, "HuskarSharpSDK.Heal");
                 }
             }
             // Toggle on if comboing and target is not null
-            if (this.CanExecute && this.Config.Spear && this.Spear.CanBeCasted(target) && !this.Spear.IsAutoCastEnabled && Utils.SleepCheck("HuskarSharpSDK.Spear"))
+            if (this.CanExecute && this.Config.AbilityValue.IsEnabled(this.Spear.Name) && this.Spear.CanBeCasted(target) && !this.Spear.IsAutoCastEnabled && Utils.SleepCheck("HuskarSharpSDK.Spear"))
             {
                 this.Spear.ToggleAutocastAbility();
                 Utils.Sleep(150, "HuskarSharpSDK.Spear");
             }
             // Toggle off if target is null
-            else if (this.Config.Spear && target == null && this.Spear.IsAutoCastEnabled && Utils.SleepCheck("HuskarSharpSDK.Spear2"))
+            else if (this.Config.AbilityValue.IsEnabled(this.Spear.Name) && target == null && this.Spear.IsAutoCastEnabled && Utils.SleepCheck("HuskarSharpSDK.Spear2"))
             {
                 this.Spear.ToggleAutocastAbility();
                 Utils.Sleep(150, "HuskarSharpSDK.Spear2");
             }
 
             if (this.BloodThorn != null && this.BloodThorn.IsValid && target != null && this.BloodThorn.CanBeCasted(target) && Utils.SleepCheck("HuskarSharpSDK.BT")
-                && this.Config.MenuValue.IsEnabled(this.BloodThorn.Name))
+                && this.Config.ItemValue.IsEnabled(this.BloodThorn.Name))
             {
                 this.BloodThorn.UseAbility(target);
                 Utils.Sleep(150, "HuskarSharpSDK.BT");
             }
 
             if (this.Satanic != null && this.Satanic.IsValid && target != null && me.Health / me.MaximumHealth <= 0.2 && this.Satanic.CanBeCasted()
-                && Utils.SleepCheck("HuskarSharpSDK.Satanic") && this.Config.MenuValue.IsEnabled(this.Satanic.Name))
+                && Utils.SleepCheck("HuskarSharpSDK.Satanic") && this.Config.ItemValue.IsEnabled(this.Satanic.Name))
             {
                 this.Satanic.UseAbility();
                 Utils.Sleep(150, "HuskarSharpSDK.Satanic");
             }
 
             if (this.SolarCrest != null && this.SolarCrest.IsValid && target != null && this.SolarCrest.CanBeCasted(target) && Utils.SleepCheck("HuskarSharpSDK.SolarCrest")
-                && this.Config.MenuValue.IsEnabled(this.SolarCrest.Name))
+                && this.Config.ItemValue.IsEnabled(this.SolarCrest.Name))
             {
                 this.SolarCrest.UseAbility(target);
                 Utils.Sleep(150, "HuskarSharpSDK.SolarCrest");
             }
 
             if (this.Halberd != null && this.Halberd.IsValid && target != null && this.Halberd.CanBeCasted(target) && Utils.SleepCheck("HuskarSharpSDK.Halberd")
-                && this.Config.MenuValue.IsEnabled(this.Halberd.Name))
+                && this.Config.ItemValue.IsEnabled(this.Halberd.Name))
             {
                 this.Halberd.UseAbility(target);
                 Utils.Sleep(150, "HuskarSharpSDK.Halberd");
             }
 
             if (this.Armlet != null && this.Armlet.IsValid && target == null && this.Armlet.CanBeCasted() &&
-                         this.Armlet.IsToggled &&
+                         this.Armlet.IsToggled && this.Config.ItemValue.IsEnabled(this.Armlet.Name) &&
                          Utils.SleepCheck("HuskarSharpSDK.Armlet2"))
             {
                 this.Armlet.ToggleAbility();
@@ -154,12 +154,12 @@ namespace HuskarSharpSDK
                 // We toggle on armlet after everything. We wait until ulti so that we don't lose more hp.
                 if (this.Armlet == null || !this.Armlet.IsValid || target == null || !this.Armlet.CanBeCasted() ||
                     this.Armlet.IsToggled || !Utils.SleepCheck("HuskarSharpSDK.Armlet")) return;
-                if (Config.Ulti && this.Ulti.Cooldown > 0)
+                if (Config.AbilityValue.IsEnabled(this.Ulti.Name) && this.Ulti.Cooldown > 0 && this.Config.ItemValue.IsEnabled(this.Armlet.Name))
                 { 
                     this.Armlet.ToggleAbility();
                     Utils.Sleep(1000, "HuskarSharpSDK.Armlet");
                 }
-                else if (!Config.Ulti)
+                else if (!Config.AbilityValue.IsEnabled(this.Ulti.Name) && this.Config.ItemValue.IsEnabled(this.Armlet.Name))
                 {
                     this.Armlet.ToggleAbility();
                     Utils.Sleep(1000, "HuskarSharpSDK.Armlet");
@@ -174,7 +174,8 @@ namespace HuskarSharpSDK
 
             if (!this.Config.TogglerSet)
             {
-                this.Config.MenuValue = this.Config.Toggler.Value;
+                this.Config.ItemValue = this.Config.Toggler.Value;
+                this.Config.AbilityValue = this.Config.AbilityToggler.Value;
                 this.Config.TogglerSet = true;
             }
 
@@ -255,27 +256,33 @@ namespace HuskarSharpSDK
 
     public class MyHeroConfig : IDisposable
     {
-        public AbilityToggler MenuValue;
+        public AbilityToggler ItemValue, AbilityValue;
 
         public bool TogglerSet = false;
 
         public MyHeroConfig()
         {
-            var dict = new Dictionary<string, bool>
+            var itemDict = new Dictionary<string, bool>
                            {
                                { "item_bloodthorn", true },
                                { "item_satanic", true },
                                { "item_solar_crest", true },
-                               { "item_heavens_halberd", true }
+                               { "item_heavens_halberd", true },
+                               { "item_armlet", true }
+                           };
+
+            var spellDict = new Dictionary<string, bool>
+                           {
+                               { "huskar_inner_vitality", true },
+                               { "huskar_burning_spear", true },
+                               { "huskar_life_break", true }
                            };
 
             this.Menu = MenuFactory.Create("HuskarSharpSDK");
             this.Enabled = this.Menu.Item("Enabled?", true);
             this.Key = this.Menu.Item("Combo Key", new KeyBind(32, KeyBindType.Press));
-            this.Heal = this.Menu.Item("Use Heal?", true);
-            this.Ulti = this.Menu.Item("Use Ulti?", true);
-            this.Spear = this.Menu.Item("Activate Spear on Combo?", true);
-            this.Toggler = this.Menu.Item("Items to use", new AbilityToggler(dict));
+            this.AbilityToggler = this.Menu.Item("Ability Toggler", new AbilityToggler(spellDict));
+            this.Toggler = this.Menu.Item("Ability Toggler", new AbilityToggler(itemDict));
         }
 
         public void Dispose()
@@ -287,14 +294,10 @@ namespace HuskarSharpSDK
 
         public MenuItem<bool> Enabled { get; }
 
-        public MenuItem<bool> Heal { get; }
+        public MenuItem<AbilityToggler> AbilityToggler { get; }
 
         public MenuItem<KeyBind> Key { get; }
 
-        public MenuItem<bool> Spear { get; }
-
         public MenuItem<AbilityToggler> Toggler { get; }
-
-        public MenuItem<bool> Ulti { get; }
     }
 }
