@@ -8,6 +8,7 @@ namespace HuskarSharpSDK
     using System.Collections.Specialized;
     using System.ComponentModel.Composition;
     using System.Linq;
+
     using Ensage;
     using Ensage.Common;
     using Ensage.Common.Enums;
@@ -23,6 +24,8 @@ namespace HuskarSharpSDK
     [ExportPlugin("HuskarSharpSDK", HeroId.npc_dota_hero_huskar)]
     public class Test : Plugin, IOrbwalkingMode
     {
+
+
         private readonly Lazy<IOrbwalkerManager> orbwalkerManager;
 
         private readonly Lazy<ITargetSelectorManager> targetManager;
@@ -179,13 +182,13 @@ namespace HuskarSharpSDK
                 this.Config.TogglerSet = true;
             }
 
-            this.Orbwalker.RegisterMode(this);
+            this.Orbwalker.Value.RegisterMode(this);
             this.Inventory.CollectionChanged += this.OnInventoryChanged; // sub to inventory changed
         }
 
         protected override void OnDeactivate()
         {
-            this.Orbwalker.UnregisterMode(this);
+            this.Orbwalker.Value.UnregisterMode(this);
             this.Config.Dispose();
             this.Inventory.CollectionChanged -= this.OnInventoryChanged;
         }
