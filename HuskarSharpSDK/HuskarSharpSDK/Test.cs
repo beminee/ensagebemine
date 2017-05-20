@@ -182,13 +182,13 @@ namespace HuskarSharpSDK
                 this.Config.TogglerSet = true;
             }
 
-            this.Orbwalker.Value.RegisterMode(this);
+            this.orbwalkerManager.Value.RegisterMode(this);
             this.Inventory.CollectionChanged += this.OnInventoryChanged; // sub to inventory changed
         }
 
         protected override void OnDeactivate()
         {
-            this.Orbwalker.Value.UnregisterMode(this);
+            this.orbwalkerManager.Value.UnregisterMode(this);
             this.Config.Dispose();
             this.Inventory.CollectionChanged -= this.OnInventoryChanged;
         }
