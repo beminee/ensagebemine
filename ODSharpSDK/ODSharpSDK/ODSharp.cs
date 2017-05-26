@@ -77,7 +77,6 @@ namespace ODSharpSDK
             : base(orbwalker, input, key)
         {
             this.Config = config;
-            this.Key = Config.Key.Item.GetValue<Key>(); // wat i've done
             this.targetSelector = targetselector;
             this.inventoryMgr = inventoryMgr;
             this.Prediction = Prediction;
