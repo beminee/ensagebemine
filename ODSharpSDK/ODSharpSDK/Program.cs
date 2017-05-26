@@ -2,7 +2,6 @@
 //    Copyright (c) 2017 Ensage.
 // </copyright>
 
-
 namespace ODSharpSDK
 {
     using System;
@@ -14,39 +13,66 @@ namespace ODSharpSDK
     using Ensage.SDK.Input;
     using Ensage.SDK.Inventory;
     using Ensage.SDK.Orbwalker;
-    using Ensage.SDK.TargetSelector;
+    using Ensage.SDK.Prediction;
     using Ensage.SDK.Service;
     using Ensage.SDK.Service.Metadata;
-    using Ensage.SDK.Prediction;
+    using Ensage.SDK.TargetSelector;
 
     [ExportPlugin("ODSharpSDK", HeroId.npc_dota_hero_obsidian_destroyer)]
     public class Program : Plugin
     {
         private readonly Lazy<IInputManager> input;
 
-        private readonly Lazy<IInventoryManager> inventoryMgr;
+        private readonly Lazy<IInventoryManager> inventoryManager;
 
         private readonly Lazy<IOrbwalkerManager> orbwalkerManager;
 
+        private readonly Lazy<IPrediction> prediction;
+
         private readonly Lazy<ITargetSelectorManager> targetManager;
 
-        private IPrediction Prediction { get; }
-
-
-        private OdSharpConfig Config;
-
         [ImportingConstructor]
-        public Program([Import] Lazy<IInventoryManager> inventoryMgr, [Import] Lazy<IInputManager> input, [Import] Lazy<IOrbwalkerManager> orbwalkerManager, 
-            [Import] Lazy<ITargetSelectorManager> targetManager, [Import] IPrediction prediction)
+        public Program(
+            [Import] Lazy<IInventoryManager> inventoryManager,
+            [Import] Lazy<IInputManager> input,
+            [Import] Lazy<IOrbwalkerManager> orbwalkerManager,
+            [Import] Lazy<ITargetSelectorManager> targetManager,
+            [Import] Lazy<IPrediction> prediction)
         {
-            this.inventoryMgr = inventoryMgr;
+            this.inventoryManager = inventoryManager;
             this.input = input;
             this.orbwalkerManager = orbwalkerManager;
-            this.Prediction = prediction;
+            this.prediction = prediction;
             this.targetManager = targetManager;
         }
 
+        public OdSharpConfig Config { get; private set; }
+
         public ODSharp OrbwalkerMode { get; private set; }
+
+        protected override void OnActivate()
+        {
+            this.Config = new OdSharpConfig();
+            this.Config.Key.Item.ValueChanged += this.HotkeyChanged;
+
+            this.OrbwalkerMode = new ODSharp(
+                KeyInterop.KeyFromVirtualKey((int)this.Config.Key.Value.Key),
+                this.Config,
+                this.orbwalkerManager,
+                this.input,
+                this.inventoryManager,
+                this.targetManager,
+                this.prediction);
+
+            this.orbwalkerManager.Value.RegisterMode(this.OrbwalkerMode);
+        }
+
+        protected override void OnDeactivate()
+        {
+            this.orbwalkerManager.Value.UnregisterMode(this.OrbwalkerMode);
+            this.Config.Key.Item.ValueChanged -= this.HotkeyChanged;
+            this.Config.Dispose();
+        }
 
         private void HotkeyChanged(object sender, OnValueChangeEventArgs e)
         {
@@ -58,27 +84,6 @@ namespace ODSharpSDK
 
             var key = KeyInterop.KeyFromVirtualKey((int)keyCode);
             this.OrbwalkerMode.Key = key;
-        }
-
-        protected override void OnActivate()
-        {
-            this.Config = new OdSharpConfig();
-
-            var key = KeyInterop.KeyFromVirtualKey((int)this.Config.Key.Value.Key);
-            this.OrbwalkerMode = new ODSharp(this.orbwalkerManager.Value, this.input.Value, key, this.Config, this.inventoryMgr.Value, this.targetManager.Value.Active, this.Prediction);
-
-            this.Config.Key.Item.ValueChanged += this.HotkeyChanged;
-
-            this.orbwalkerManager.Value.RegisterMode(this.OrbwalkerMode);
-        }
-
-        protected override void OnDeactivate()
-        {
-            this.orbwalkerManager.Value.UnregisterMode(this.OrbwalkerMode);
-
-            this.Config.Key.Item.ValueChanged -= this.HotkeyChanged;
-
-            this.Config?.Dispose();
         }
     }
 }
