@@ -151,7 +151,7 @@ namespace ODSharpSDK
                 // Toggle off if target is null
                 else if (this.Config.AbilityToggler.Value.IsEnabled(this.Orb.Name) && target == null && this.Orb.IsAutoCastEnabled)
                 {
-                    Log.Debug($"Toggling Arcane Orb off because {target is null}");
+                    Log.Debug($"Toggling Arcane Orb off because target is null");
                     this.Orb.ToggleAutocastAbility();
                     await Await.Delay(125 + (int)Game.Ping, token);
                 }
