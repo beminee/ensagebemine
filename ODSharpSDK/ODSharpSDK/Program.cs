@@ -33,7 +33,7 @@ namespace ODSharpSDK
         private IPrediction Prediction { get; }
 
 
-        private OdSharpConfig config;
+        private OdSharpConfig Config;
 
         [ImportingConstructor]
         public Program([Import] Lazy<IInventoryManager> inventoryMgr, [Import] Lazy<IInputManager> input, [Import] Lazy<IOrbwalkerManager> orbwalkerManager, 
@@ -47,8 +47,6 @@ namespace ODSharpSDK
         }
 
         public ODSharp OrbwalkerMode { get; private set; }
-
-        private IOrbwalker Orbwalker => this.orbwalkerManager.Value.Active;
 
         private void HotkeyChanged(object sender, OnValueChangeEventArgs e)
         {
@@ -64,12 +62,12 @@ namespace ODSharpSDK
 
         protected override void OnActivate()
         {
-            this.config = new OdSharpConfig();
+            this.Config = new OdSharpConfig();
 
-            var key = KeyInterop.KeyFromVirtualKey((int)this.config.Key.Value.Key);
-            this.OrbwalkerMode = new ODSharp(this.Orbwalker, this.input.Value, key, this.config, this.inventoryMgr.Value, this.targetManager.Value.Active, this.Prediction);
+            var key = KeyInterop.KeyFromVirtualKey((int)this.Config.Key.Value.Key);
+            this.OrbwalkerMode = new ODSharp(this.orbwalkerManager.Value, this.input.Value, key, this.Config, this.inventoryMgr.Value, this.targetManager.Value.Active, this.Prediction);
 
-            this.config.Key.Item.ValueChanged += this.HotkeyChanged;
+            this.Config.Key.Item.ValueChanged += this.HotkeyChanged;
 
             this.orbwalkerManager.Value.RegisterMode(this.OrbwalkerMode);
         }
@@ -78,9 +76,9 @@ namespace ODSharpSDK
         {
             this.orbwalkerManager.Value.UnregisterMode(this.OrbwalkerMode);
 
-            this.config.Key.Item.ValueChanged -= this.HotkeyChanged;
+            this.Config.Key.Item.ValueChanged -= this.HotkeyChanged;
 
-            this.config?.Dispose();
+            this.Config?.Dispose();
         }
     }
 }

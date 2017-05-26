@@ -43,7 +43,7 @@ namespace ODSharpSDK
 
         private readonly OdSharpConfig Config;
 
-        private readonly TaskHandler KillStealHandler;
+        private TaskHandler KillStealHandler;
 
         private readonly IInventoryManager inventoryMgr;
 
@@ -51,7 +51,7 @@ namespace ODSharpSDK
 
         private IPrediction Prediction { get; }
 
-        private readonly Unit owner;
+        private Unit owner;
 
         private InventoryItem BloodThorn { get; set; }
 
@@ -76,13 +76,10 @@ namespace ODSharpSDK
         public ODSharp(IOrbwalker orbwalker, IInputManager input, Key key, OdSharpConfig config, IInventoryManager inventoryMgr, ITargetSelector targetselector, IPrediction prediction)
             : base(orbwalker, input, key)
         {
-            this.Config = config;
-            this.targetSelector = targetselector;
-            this.inventoryMgr = inventoryMgr;
-            this.Prediction = Prediction;
-            this.KillStealHandler = UpdateManager.Run(this.KillStealAsync, false);
-
-            this.owner = orbwalker.Context.Owner;
+                this.Config = config;
+                this.targetSelector = targetselector;
+                this.inventoryMgr = inventoryMgr;
+                this.Prediction = Prediction;
         }
 
         public override async Task ExecuteAsync(CancellationToken token)
@@ -205,11 +202,15 @@ namespace ODSharpSDK
 
         protected override void OnActivate()
         {
+            this.owner = Orbwalker.Context.Owner;
+
             base.OnActivate();
 
             this.Imprison = UnitExtensions.GetAbilityById(this.owner, AbilityId.obsidian_destroyer_astral_imprisonment);
             this.Orb = UnitExtensions.GetAbilityById(this.owner, AbilityId.obsidian_destroyer_arcane_orb);
             this.Ulti = UnitExtensions.GetAbilityById(this.owner, AbilityId.obsidian_destroyer_sanity_eclipse);
+
+            this.KillStealHandler = UpdateManager.Run(this.KillStealAsync, false);
 
             this.inventoryMgr.CollectionChanged += this.OnInventoryChanged;
         }
