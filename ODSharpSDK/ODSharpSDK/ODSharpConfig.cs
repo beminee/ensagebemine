@@ -40,7 +40,7 @@ namespace ODSharpSDK
             this.Key.Item.Tooltip = "Hold this key to start combo mode.";
             this.KillStealEnabled = this.Menu.Item("Killsteal toggle", true);
             this.KillStealEnabled.Item.Tooltip = "Setting this to false will disable killsteal.";
-            this.UseBlinkPrediction = this.Menu.Item("Blink Prediction" ,new Slider(0, 200, 600));
+            this.UseBlinkPrediction = this.Menu.Item("Blink Prediction" ,new Slider(200, 0, 600));
             this.UseBlinkPrediction.Item.Tooltip = "Will blink to set distance. Set to 0 if you want to disable it.";
             this.MinimumTargetToUlti = this.Menu.Item("Ulti Target Count", new Slider(1, 1, 5));
             this.MinimumTargetToUlti.Item.Tooltip =
