@@ -57,8 +57,6 @@ namespace ODSharpSDK
 
         public MenuItem<Slider> MinimumTargetToUlti { get; }
 
-        public MenuItem<PriorityChanger> DisablePriority { get; set; }
-
         public MenuItem<AbilityToggler> AbilityToggler { get; }
 
         public MenuItem<KeyBind> Key { get; }
