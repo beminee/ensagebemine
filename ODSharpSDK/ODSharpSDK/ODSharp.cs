@@ -166,15 +166,33 @@ namespace ODSharpSDK
                         var output = this.Prediction.Value.GetPrediction(input);
                         var amount = output.AoeTargetsHit.Count;
 
+                        Game.PrintMessage(output.HitChance.ToString());
+
                         if (output.HitChance >= HitChance.Medium && this.Config.MinimumTargetToUlti.Item.GetValue<int>() <= amount)
                         {
                             Log.Debug(
                                 $"Using Ulti on {output.CastPosition} because {ultiTarget.Health} < {ultiDamage} and {this.Config.MinimumTargetToUlti.Item.GetValue<int>()} <= {amount}");
                             this.Ulti.UseAbility(output.CastPosition);
                             await Await.Delay(delay + (int)Game.Ping, token);
+                            break;
                         }
                     }
-                } 
+                }
+
+                if (this.CanExecute && this.Config.AbilityToggler.Value.IsEnabled(this.Orb.Name) && this.Orb.CanBeCasted(target) && !this.Orb.IsAutoCastEnabled)
+                {
+                    Log.Debug($"Toggling Arcane Orb on because {target != null}");
+                    this.Orb.ToggleAutocastAbility();
+                    await Await.Delay(100 + (int)Game.Ping, token);
+                }
+
+                // Toggle off if target is null
+                else if (this.Config.AbilityToggler.Value.IsEnabled(this.Orb.Name) && target == null && this.Orb.IsAutoCastEnabled)
+                {
+                    Log.Debug($"Toggling Arcane Orb off because target is null");
+                    this.Orb.ToggleAutocastAbility();
+                    await Await.Delay(100 + (int)Game.Ping, token);
+                }
             }
 
             if (this.BloodThorn != null &&
@@ -241,22 +259,10 @@ namespace ODSharpSDK
 
             if (this.Orbwalker.OrbwalkTo(target))
             {
-                if (this.CanExecute && this.Config.AbilityToggler.Value.IsEnabled(this.Orb.Name) && this.Orb.CanBeCasted(target) && !this.Orb.IsAutoCastEnabled)
-                {
-                    Log.Debug($"Toggling Arcane Orb on because {target != null}");
-                    this.Orb.ToggleAutocastAbility();
-                    await Await.Delay(100 + (int)Game.Ping, token);
-                }
 
-                // Toggle off if target is null
-                else if (this.Config.AbilityToggler.Value.IsEnabled(this.Orb.Name) && target == null && this.Orb.IsAutoCastEnabled)
-                {
-                    Log.Debug($"Toggling Arcane Orb off because target is null");
-                    this.Orb.ToggleAutocastAbility();
-                    await Await.Delay(100 + (int)Game.Ping, token);
-                }
             }
 
+            this.KillStealHandler.RunAsync();
             await Await.Delay(125, token);
         }
 
@@ -283,7 +289,6 @@ namespace ODSharpSDK
         protected override void OnActivate()
         {
             this.KillStealHandler = UpdateManager.Run(this.KillStealAsync, false);
-            this.KillStealHandler.RunAsync();
 
             this.Imprison = UnitExtensions.GetAbilityById(this.Owner, AbilityId.obsidian_destroyer_astral_imprisonment);
             this.Orb = UnitExtensions.GetAbilityById(this.Owner, AbilityId.obsidian_destroyer_arcane_orb);
@@ -302,6 +307,10 @@ namespace ODSharpSDK
 
         public virtual async Task<bool> KillStealAsync(CancellationToken args)
         {
+            if (!Config.KillStealEnabled)
+            {
+                return false;
+            }
             var enemies =
                 EntityManager<Hero>.Entities.Where(
                                        x =>
