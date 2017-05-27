@@ -166,7 +166,7 @@ namespace ODSharpSDK
                         var output = this.Prediction.Value.GetPrediction(input);
                         var amount = output.AoeTargetsHit.Count;
 
-                        Game.PrintMessage(output.HitChance.ToString());
+                        Log.Debug($"{output.HitChance}");
 
                         if (output.HitChance >= HitChance.Medium && this.Config.MinimumTargetToUlti.Item.GetValue<int>() <= amount)
                         {
@@ -254,11 +254,6 @@ namespace ODSharpSDK
                 Log.Debug("Using HurricanePike");
                 this.HurricanePike.UseAbility(target);
                 await Await.Delay(this.GetItemDelay(target) + (int)Game.Ping, token);
-            }
-
-            if (this.Orbwalker.OrbwalkTo(target))
-            {
-
             }
 
             this.KillStealHandler.RunAsync();
