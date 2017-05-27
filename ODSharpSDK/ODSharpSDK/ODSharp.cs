@@ -174,7 +174,6 @@ namespace ODSharpSDK
                                 $"Using Ulti on {output.CastPosition} because {ultiTarget.Health} < {ultiDamage} and {this.Config.MinimumTargetToUlti.Item.GetValue<int>()} <= {amount}");
                             this.Ulti.UseAbility(output.CastPosition);
                             await Await.Delay(delay + (int)Game.Ping, token);
-                            break;
                         }
                     }
                 }
