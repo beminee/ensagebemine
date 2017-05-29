@@ -95,6 +95,11 @@ namespace ODSharpSDK
 
             var sliderValue = this.Config.UseBlinkPrediction.Item.GetValue<Slider>().Value;
 
+            if (!await KillStealAsync(token))
+            {
+                return;
+            }
+
             if (this.BlinkDagger != null &&
             this.BlinkDagger.IsValid &&
             target != null && Owner.Distance2D(target) <= 1200 + sliderValue &&
