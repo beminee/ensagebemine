@@ -154,7 +154,7 @@ namespace ODSharpSDK
                                 PredictionSkillshotType.SkillshotCircle,
                                 true)
                             {
-                                CollisionTypes = CollisionTypes.EnemyHeroes
+                                CollisionTypes = CollisionTypes.None
                             };
 
                         // Log.Debug($"Owner: {input.Owner.Name}");
