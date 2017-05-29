@@ -95,10 +95,7 @@ namespace ODSharpSDK
 
             var sliderValue = this.Config.UseBlinkPrediction.Item.GetValue<Slider>().Value;
 
-            if (!await KillStealAsync(token))
-            {
-                return;
-            }
+            this.KillStealHandler.RunAsync();
 
             if (this.BlinkDagger != null &&
             this.BlinkDagger.IsValid &&
@@ -128,11 +125,6 @@ namespace ODSharpSDK
 
                     if (ultiTarget != null && this.Config.AbilityToggler.Value.IsEnabled(this.Ulti.Name) && this.Ulti.CanBeCasted(ultiTarget))
                     {
-
-                        if (me == null)
-                        {
-                            return;
-                        }
 
                         var ultiDamage =
                                 Math.Floor(
@@ -261,7 +253,10 @@ namespace ODSharpSDK
                 await Await.Delay(this.GetItemDelay(target) + (int)Game.Ping, token);
             }
 
-            this.KillStealHandler.RunAsync();
+            if (this.Orbwalker.OrbwalkTo(target))
+            {
+                return;
+            }
             await Await.Delay(125, token);
         }
 
@@ -344,7 +339,7 @@ namespace ODSharpSDK
 
         private void OnInventoryChanged(object sender, NotifyCollectionChangedEventArgs args)
         {
-            if (args.Action == NotifyCollectionChangedAction.Add)
+            if (args.Action == NotifyCollectionChangedAction.Add || args.Action == NotifyCollectionChangedAction.Reset)
             {
                 foreach (var item in args.NewItems.OfType<InventoryItem>())
                 {
