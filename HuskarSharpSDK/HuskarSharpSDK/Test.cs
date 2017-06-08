@@ -76,8 +76,8 @@ namespace HuskarSharpSDK
 
         public void Execute()
         {
-            var target = this.TargetSelector.GetTargets().FirstOrDefault();
             var me = ObjectManager.LocalHero;
+            var target = this.TargetSelector.GetTargets().FirstOrDefault(x => x.Distance2D(me) <= me.AttackRange * 2);
 
             Ulti = me.Spellbook.SpellR;
             Heal = me.Spellbook.SpellQ;
