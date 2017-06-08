@@ -89,13 +89,13 @@ namespace ODSharpSDK
 
         public override async Task ExecuteAsync(CancellationToken token)
         {
+            this.KillStealHandler.RunAsync();
+
             var target = this.TargetSelector.Value.Active.GetTargets().FirstOrDefault();
 
             var silenced = UnitExtensions.IsSilenced(this.Owner);
 
             var sliderValue = this.Config.UseBlinkPrediction.Item.GetValue<Slider>().Value;
-
-            this.KillStealHandler.RunAsync();
 
             if (this.BlinkDagger != null &&
             this.BlinkDagger.IsValid &&
@@ -117,13 +117,18 @@ namespace ODSharpSDK
 
             if (!silenced)
             {
-                var targets = this.TargetSelector.Value.Active.GetTargets().Cast<Hero>();
+                try
+                {
+
+                var targets =
+                    EntityManager<Hero>.Entities.Where(
+                            x => x.IsValid && x.Team != this.Owner.Team && !x.IsIllusion && x.Distance2D(this.Owner) <= 700)
+                        .ToList();
                 var me = this.Owner as Hero;
 
                 foreach (var ultiTarget in targets)
                 {
-
-                    if (ultiTarget != null && this.Config.AbilityToggler.Value.IsEnabled(this.Ulti.Name) && this.Ulti.CanBeCasted(ultiTarget))
+                    if (this.Config.AbilityToggler.Value.IsEnabled(this.Ulti.Name) && this.Ulti.CanBeCasted(ultiTarget))
                     {
 
                         var ultiDamage =
@@ -161,21 +166,27 @@ namespace ODSharpSDK
                         // Log.Debug($"Radius: {input.Radius}");
                         // Log.Debug($"Type: {input.PredictionSkillshotType}");
                         var output = this.Prediction.Value.GetPrediction(input);
-                        var amount = output.AoeTargetsHit.Count;
+                        //var amount = output.AoeTargetsHit.Count;
 
                         Log.Debug($"{output.HitChance}");
 
-                        if (output.HitChance >= HitChance.Medium && this.Config.MinimumTargetToUlti.Item.GetValue<int>() <= amount)
+                        if (output.HitChance >= HitChance.Medium /*&& this.Config.MinimumTargetToUlti.Item.GetValue<int>() >= amount*/)
                         {
                             Log.Debug(
-                                $"Using Ulti on {output.CastPosition} because {ultiTarget.Health} < {ultiDamage} and {this.Config.MinimumTargetToUlti.Item.GetValue<int>()} <= {amount}");
+                                $"Using Ulti!");
                             this.Ulti.UseAbility(output.CastPosition);
                             await Await.Delay(delay + (int)Game.Ping, token);
                         }
+
                     }
                 }
+                }
+                catch (Exception e)
+                {
+                    Log.Debug($"{e}");
+                }
 
-                if (this.CanExecute && this.Config.AbilityToggler.Value.IsEnabled(this.Orb.Name) && this.Orb.CanBeCasted(target) && !this.Orb.IsAutoCastEnabled)
+                if (this.Orb != null && this.Orb.IsValid && this.Config.AbilityToggler.Value.IsEnabled(this.Orb.Name) && this.Orb.CanBeCasted(target) && !this.Orb.IsAutoCastEnabled)
                 {
                     Log.Debug($"Toggling Arcane Orb on because {target != null}");
                     this.Orb.ToggleAutocastAbility();
@@ -183,7 +194,7 @@ namespace ODSharpSDK
                 }
 
                 // Toggle off if target is null
-                else if (this.Config.AbilityToggler.Value.IsEnabled(this.Orb.Name) && target == null && this.Orb.IsAutoCastEnabled)
+                else if (this.Orb != null && this.Orb.IsValid && this.Config.AbilityToggler.Value.IsEnabled(this.Orb.Name) && target == null && this.Orb.IsAutoCastEnabled)
                 {
                     Log.Debug($"Toggling Arcane Orb off because target is null");
                     this.Orb.ToggleAutocastAbility();
@@ -257,6 +268,7 @@ namespace ODSharpSDK
             {
                 return;
             }
+
             await Await.Delay(125, token);
         }
 
@@ -339,7 +351,7 @@ namespace ODSharpSDK
 
         private void OnInventoryChanged(object sender, NotifyCollectionChangedEventArgs args)
         {
-            if (args.Action == NotifyCollectionChangedAction.Add || args.Action == NotifyCollectionChangedAction.Reset)
+            if (args.Action == NotifyCollectionChangedAction.Add)
             {
                 foreach (var item in args.NewItems.OfType<InventoryItem>())
                 {
