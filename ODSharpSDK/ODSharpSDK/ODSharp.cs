@@ -166,14 +166,16 @@ namespace ODSharpSDK
                         // Log.Debug($"Radius: {input.Radius}");
                         // Log.Debug($"Type: {input.PredictionSkillshotType}");
                         var output = this.Prediction.Value.GetPrediction(input);
-                        //var amount = output.AoeTargetsHit.Count;
+                        var amount = output.AoeTargetsHit.Count;
 
-                        Log.Debug($"{output.HitChance}");
-
-                        if (output.HitChance >= HitChance.Medium /*&& this.Config.MinimumTargetToUlti.Item.GetValue<int>() >= amount*/)
+                        if (output.AoeTargetsHit == null && output.HitChance >= HitChance.Medium)
                         {
-                            Log.Debug(
-                                $"Using Ulti!");
+                            amount += 1;
+                        }
+
+                        if (output.HitChance >= HitChance.Medium && this.Config.MinimumTargetToUlti.Item.GetValue<int>() >= amount)
+                        {
+                            Log.Debug($"Using Ulti!");
                             this.Ulti.UseAbility(output.CastPosition);
                             await Await.Delay(delay + (int)Game.Ping, token);
                         }
