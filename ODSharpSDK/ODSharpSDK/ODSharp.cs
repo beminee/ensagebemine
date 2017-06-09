@@ -167,6 +167,7 @@ namespace ODSharpSDK
                         // Log.Debug($"Type: {input.PredictionSkillshotType}");
                         var output = this.Prediction.Value.GetPrediction(input);
                         var amount = output.AoeTargetsHit.Count;
+                        amount = 0;
 
                         if (output.AoeTargetsHit == null && output.HitChance >= HitChance.Medium)
                         {
