@@ -300,6 +300,39 @@ namespace ODSharpSDK
             this.Orb = UnitExtensions.GetAbilityById(this.Owner, AbilityId.obsidian_destroyer_arcane_orb);
             this.Ulti = UnitExtensions.GetAbilityById(this.Owner, AbilityId.obsidian_destroyer_sanity_eclipse);
 
+            foreach (var item in Inventory.Value.Items)
+            {
+                switch (item.Id)
+                {
+                    case ItemId.item_bloodthorn:
+                        this.BloodThorn = item.Item;
+                        break;
+
+                    case ItemId.item_sheepstick:
+                        this.SheepStick = item.Item;
+                        break;
+
+                    case ItemId.item_hurricane_pike:
+                        this.HurricanePike = item.Item;
+                        break;
+
+                    case ItemId.item_blink:
+                        this.BlinkDagger = item.Item;
+                        break;
+
+                    case ItemId.item_orchid:
+                        this.Orchid = item.Item;
+                        break;
+                    case ItemId.item_rod_of_atos:
+                        this.RodofAtos = item.Item;
+                        break;
+
+                    case ItemId.item_veil_of_discord:
+                        this.VeilofDiscord = item.Item;
+                        break;
+                }
+            }
+
             this.Inventory.Value.CollectionChanged += this.OnInventoryChanged;
 
             base.OnActivate();
