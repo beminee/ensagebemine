@@ -91,7 +91,7 @@ namespace ODSharpSDK
         {
             this.KillStealHandler.RunAsync();
 
-            var target = this.TargetSelector.Value.Active.GetTargets().FirstOrDefault();
+            var target = this.TargetSelector.Value.Active.GetTargets().FirstOrDefault(x => !x.IsInvulnerable());
 
             var silenced = UnitExtensions.IsSilenced(this.Owner);
 
