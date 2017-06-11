@@ -99,7 +99,7 @@ namespace ODSharpSDK
 
             if (this.BlinkDagger != null &&
             this.BlinkDagger.IsValid &&
-            target != null && Owner.Distance2D(target) <= 1200 + sliderValue &&
+            target != null && Owner.Distance2D(target) <= 1200 + sliderValue && !(Owner.Distance2D(target) <= 400) &&
             this.BlinkDagger.CanBeCasted(target) &&
             this.Config.ItemToggler.Value.IsEnabled(this.BlinkDagger.Name))
             {
