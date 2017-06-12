@@ -202,23 +202,23 @@ namespace HuskarSharpSDK
                     // new items
                     switch (item.Id)
                     {
-                        case ItemId.item_bloodthorn:
+                        case Ensage.AbilityId.item_bloodthorn:
                             this.BloodThorn = item.Item;
                             break;
 
-                        case ItemId.item_satanic:
+                        case Ensage.AbilityId.item_satanic:
                             this.Satanic = item.Item;
                             break;
 
-                        case ItemId.item_solar_crest:
+                        case Ensage.AbilityId.item_solar_crest:
                             this.SolarCrest = item.Item;
                             break;
 
-                        case ItemId.item_heavens_halberd:
+                        case Ensage.AbilityId.item_heavens_halberd:
                             this.Halberd = item.Item;
                             break;
 
-                        case ItemId.item_armlet:
+                        case Ensage.AbilityId.item_armlet:
                             this.Armlet = item.Item;
                             break;
                     }
@@ -232,23 +232,23 @@ namespace HuskarSharpSDK
                     // removed items
                     switch (item.Id)
                     {
-                        case ItemId.item_bloodthorn:
+                        case Ensage.AbilityId.item_bloodthorn:
                             this.BloodThorn = null;
                             break;
 
-                        case ItemId.item_satanic:
+                        case Ensage.AbilityId.item_satanic:
                             this.Satanic = null;
                             break;
 
-                        case ItemId.item_solar_crest:
+                        case Ensage.AbilityId.item_solar_crest:
                             this.SolarCrest = null;
                             break;
 
-                        case ItemId.item_heavens_halberd:
+                        case Ensage.AbilityId.item_heavens_halberd:
                             this.Halberd = null;
                             break;
 
-                        case ItemId.item_armlet:
+                        case Ensage.AbilityId.item_armlet:
                             this.Armlet = null;
                             break;
                     }
