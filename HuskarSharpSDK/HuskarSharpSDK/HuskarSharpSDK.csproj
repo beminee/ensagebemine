@@ -42,8 +42,7 @@
     <Reference Include="Ensage.Common">
       <HintPath>C:\Program Files (x86)\Ensage\References\Ensage.Common.dll</HintPath>
     </Reference>
-    <Reference Include="Ensage.SDK, Version=1.0.0.0, Culture=neutral, PublicKeyToken=2a0bb906a796e43b, processorArchitecture=AMD64">
-      <SpecificVersion>False</SpecificVersion>
+    <Reference Include="Ensage.SDK">
       <HintPath>C:\Program Files (x86)\Ensage\References\Ensage.SDK.dll</HintPath>
     </Reference>
     <Reference Include="Newtonsoft.Json">
@@ -89,8 +88,8 @@
     <Reference Include="WindowsBase" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Program.cs" />
     <Compile Include="Test.cs" />
+    <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
