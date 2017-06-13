@@ -81,6 +81,8 @@ namespace ODSharpSDK
 
         private Item SheepStick { get; set; }
 
+        private Item ShivasGuard { get; set; }
+
         private Lazy<ITargetSelectorManager> TargetSelector { get; }
 
         private Ability Ulti { get; set; }
@@ -112,7 +114,7 @@ namespace ODSharpSDK
 
                 Log.Debug("Using BlinkDagger");
                 this.BlinkDagger.UseAbility(position);
-                await Await.Delay(this.GetItemDelay(target) + (int)Game.Ping, token);
+                await Await.Delay(this.GetItemDelay(target), token);
             }
 
             if (!silenced)
@@ -168,7 +170,7 @@ namespace ODSharpSDK
                         var output = this.Prediction.Value.GetPrediction(input);
                         //var amount = output.AoeTargetsHit.Count;
 
-                        Log.Debug($"{output.HitChance}");
+                       // Log.Debug($"{output.HitChance}");
 
                         if (output.HitChance >= HitChance.Medium /*&& this.Config.MinimumTargetToUlti.Item.GetValue<int>() >= amount*/)
                         {
@@ -210,7 +212,7 @@ namespace ODSharpSDK
             {
                 Log.Debug("Using Bloodthorn");
                 this.BloodThorn.UseAbility(target);
-                await Await.Delay(this.GetItemDelay(target) + (int)Game.Ping, token);
+                await Await.Delay(this.GetItemDelay(target), token);
             }
 
             if (this.SheepStick != null &&
@@ -221,14 +223,14 @@ namespace ODSharpSDK
             {
                 Log.Debug("Using Sheepstick");
                 this.SheepStick.UseAbility(target);
-                await Await.Delay(this.GetItemDelay(target) + (int)Game.Ping, token);
+                await Await.Delay(this.GetItemDelay(target), token);
             }
 
             if (this.Orchid != null && this.Orchid.IsValid && target != null && this.Orchid.CanBeCasted(target) && this.Config.ItemToggler.Value.IsEnabled("item_orchid"))
             {
                 Log.Debug("Using Orchid");
                 this.Orchid.UseAbility(target);
-                await Await.Delay(this.GetItemDelay(target) + (int)Game.Ping, token);
+                await Await.Delay(this.GetItemDelay(target), token);
             }
 
             if (this.RodofAtos != null &&
@@ -239,7 +241,7 @@ namespace ODSharpSDK
             {
                 Log.Debug("Using RodofAtos");
                 this.RodofAtos.UseAbility(target);
-                await Await.Delay(this.GetItemDelay(target) + (int)Game.Ping, token);
+                await Await.Delay(this.GetItemDelay(target), token);
             }
 
             if (this.VeilofDiscord != null &&
@@ -250,7 +252,7 @@ namespace ODSharpSDK
             {
                 Log.Debug("Using VeilofDiscord");
                 this.VeilofDiscord.UseAbility(target.Position);
-                await Await.Delay(this.GetItemDelay(target) + (int)Game.Ping, token);
+                await Await.Delay(this.GetItemDelay(target), token);
             }
 
             if (this.HurricanePike != null &&
@@ -261,7 +263,18 @@ namespace ODSharpSDK
             {
                 Log.Debug("Using HurricanePike");
                 this.HurricanePike.UseAbility(target);
-                await Await.Delay(this.GetItemDelay(target) + (int)Game.Ping, token);
+                await Await.Delay(this.GetItemDelay(target), token);
+            }
+
+            if (this.ShivasGuard != null &&
+                this.ShivasGuard.IsValid &&
+                target != null && this.Owner.Distance2D(target) <= 900 &&
+                this.ShivasGuard.CanBeCasted() &&
+                this.Config.ItemToggler.Value.IsEnabled("item_shivas_guard"))
+            {
+                Log.Debug("Using Shivas");
+                this.ShivasGuard.UseAbility();
+                await Await.Delay(20 + (int)Game.Ping, token);
             }
 
             if (this.Orbwalker.OrbwalkTo(target))
@@ -329,6 +342,10 @@ namespace ODSharpSDK
 
                     case Ensage.AbilityId.item_veil_of_discord:
                         this.VeilofDiscord = item.Item;
+                        break;
+
+                    case AbilityId.item_shivas_guard:
+                        this.ShivasGuard = item.Item;
                         break;
                 }
             }
@@ -416,6 +433,10 @@ namespace ODSharpSDK
                         case Ensage.AbilityId.item_veil_of_discord:
                             this.VeilofDiscord = item.Item;
                             break;
+
+                        case AbilityId.item_shivas_guard:
+                            this.ShivasGuard = item.Item;
+                            break;
                     }
                 }
             }
@@ -450,6 +471,10 @@ namespace ODSharpSDK
 
                         case Ensage.AbilityId.item_veil_of_discord:
                             this.VeilofDiscord = null;
+                            break;
+
+                        case Ensage.AbilityId.item_shivas_guard:
+                            this.ShivasGuard = null;
                             break;
                     }
                 }
