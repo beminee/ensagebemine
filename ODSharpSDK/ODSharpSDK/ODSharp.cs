@@ -255,8 +255,8 @@ namespace ODSharpSDK
                 await Await.Delay(this.GetItemDelay(target), token);
             }
 
-            if (this.HurricanePike != null && (this.Owner.Health / this.Owner.MaximumHealth) / 100 <= 
-                this.Config.HurricanePercentage.Item.GetValue<Slider>().Value &&
+            if (this.HurricanePike != null && (double)(this.Owner.Health / this.Owner.MaximumHealth) / 100 <= 
+                (double)Config.HurricanePercentage.Item.GetValue<Slider>().Value &&
                 this.HurricanePike.IsValid &&
                 target != null &&
                 this.HurricanePike.CanBeCasted() &&
