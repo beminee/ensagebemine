@@ -45,6 +45,7 @@ namespace ODSharpSDK
            // this.MinimumTargetToUlti = this.Menu.Item("Ulti Target Count", new Slider(1, 1, 5));
            // this.MinimumTargetToUlti.Item.Tooltip =
            //     "Minimum required enemy heroes to cast ulti. Atleast 1 of them should die too.";
+            this.HurricanePercentage = this.Menu.Item("Hurricane Usage Percent", new Slider(20, 0, 100));
             this.AbilityToggler = this.Menu.Item("Ability Toggler", new AbilityToggler(spellDict));
             this.ItemToggler = this.Menu.Item("Item Toggler", new AbilityToggler(itemDict));
         }
@@ -54,6 +55,8 @@ namespace ODSharpSDK
         public MenuItem<bool> KillStealEnabled { get; }
 
         public MenuItem<Slider> UseBlinkPrediction { get; }
+
+        public MenuItem<Slider> HurricanePercentage { get; }
 
        // public MenuItem<Slider> MinimumTargetToUlti { get; }
 
