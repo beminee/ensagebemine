@@ -91,7 +91,6 @@ namespace ODSharpSDK
 
         public override async Task ExecuteAsync(CancellationToken token)
         {
-            this.KillStealHandler.RunAsync();
 
             var target = this.TargetSelector.Value.Active.GetTargets().FirstOrDefault(x => !x.IsInvulnerable());
 
@@ -306,9 +305,22 @@ namespace ODSharpSDK
             return (int)((this.Owner.GetTurnTime(pos) * 1000.0) + Game.Ping) + 100;
         }
 
+        private void GameDispatcher_OnIngameUpdate(EventArgs args)
+        {
+            if (!this.Config.KillStealEnabled.Value)
+            {
+                return;
+            }
+
+            if (!Game.IsPaused && Owner.IsAlive && !UnitExtensions.IsChanneling(Owner))
+            {
+                Await.Block("MyKillstealer", KillStealAsync);
+            }
+        }
+
         protected override void OnActivate()
         {
-            this.KillStealHandler = UpdateManager.Run(this.KillStealAsync, false);
+            GameDispatcher.OnIngameUpdate += GameDispatcher_OnIngameUpdate;
 
             this.Imprison = UnitExtensions.GetAbilityById(this.Owner, AbilityId.obsidian_destroyer_astral_imprisonment);
             this.Orb = UnitExtensions.GetAbilityById(this.Owner, AbilityId.obsidian_destroyer_arcane_orb);
@@ -362,12 +374,8 @@ namespace ODSharpSDK
             this.Inventory.Value.CollectionChanged -= this.OnInventoryChanged;
         }
 
-        public virtual async Task<bool> KillStealAsync(CancellationToken args)
+        public virtual async Task<bool> KillStealAsync()
         {
-            if (!Config.KillStealEnabled)
-            {
-                return false;
-            }
             var enemies =
                 EntityManager<Hero>.Entities.Where(
                                        x =>
@@ -391,12 +399,12 @@ namespace ODSharpSDK
                 {
                     Log.Debug($"Using Imprison because enemy can be ks'ed.");
                     this.Imprison.UseAbility(enemy);
-                    await Await.Delay(this.GetAbilityDelay(enemy, this.Imprison), args);
+                    await Await.Delay(this.GetAbilityDelay(enemy, this.Imprison));
                     return true;
                 }
             }
 
-            await Await.Delay(250, args);
+            await Await.Delay(250);
             return false;
         }
 
