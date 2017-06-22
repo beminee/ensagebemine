@@ -92,7 +92,7 @@ namespace ODSharpSDK
         public override async Task ExecuteAsync(CancellationToken token)
         {
 
-            var target = this.TargetSelector.Value.Active.GetTargets().FirstOrDefault(x => !x.IsInvulnerable());
+            var target = this.TargetSelector.Value.Active.GetTargets().FirstOrDefault(x => !x.IsInvulnerable() && x.Distance2D(this.Owner) <= this.Owner.AttackRange * 2);
 
             var silenced = UnitExtensions.IsSilenced(this.Owner);
 
