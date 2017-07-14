@@ -24,13 +24,13 @@ namespace EzGoldSharp.UnitManager
 
         public static List<Unit> GetAllyBuildings()
         {
-            AllyTowers = ObjectManager.GetEntitiesParallel<Unit>().Where(x => x.IsValid && x.IsAlive && x is Tower && ReferenceEquals(((Tower)x).AttackTarget, (Unit)Variables.CreeptargetH) && x.Team == Variables.Me.Team && x.MinimumDamage == 100 && x.Distance2D(Variables.CreeptargetH) <= x.AttackRange).ToList();
+            AllyTowers = ObjectManager.GetEntities<Unit>().Where(x => x.IsValid && x.IsAlive && x is Tower && ReferenceEquals(((Tower)x).AttackTarget, (Unit)Variables.CreeptargetH) && x.Team == Variables.Me.Team && x.MinimumDamage == 100 && x.Distance2D(Variables.CreeptargetH) <= x.AttackRange).ToList();
             return AllyTowers;
         }
 
         public static List<Unit> GetEnemyBuildings()
         {
-            EnemyTowers = ObjectManager.GetEntitiesParallel<Unit>().Where(x => x.IsValid && x.IsAlive && x is Tower && ReferenceEquals(((Tower) x).AttackTarget, (Unit) Variables.CreeptargetH) && x.Team != Variables.Me.Team && x.MinimumDamage == 100 && x.Distance2D(Variables.CreeptargetH) <= x.AttackRange).ToList();
+            EnemyTowers = ObjectManager.GetEntities<Unit>().Where(x => x.IsValid && x.IsAlive && x is Tower && ReferenceEquals(((Tower) x).AttackTarget, (Unit) Variables.CreeptargetH) && x.Team != Variables.Me.Team && x.MinimumDamage == 100 && x.Distance2D(Variables.CreeptargetH) <= x.AttackRange).ToList();
 
             return EnemyTowers;
         }

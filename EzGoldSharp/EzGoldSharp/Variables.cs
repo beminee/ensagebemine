@@ -59,7 +59,7 @@ namespace EzGoldSharp
         {
             try
             {
-                Creeps = ObjectManager.GetEntitiesParallel<Unit>()
+                Creeps = ObjectManager.GetEntities<Unit>()
                     .Where(
                         x =>
                             (x.IsValid && x.ClassId == ClassId.CDOTA_BaseNPC_Tower ||
