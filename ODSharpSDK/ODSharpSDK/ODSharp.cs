@@ -44,17 +44,14 @@ namespace ODSharpSDK
         public ODSharp(
             Key key,
             OdSharpConfig config,
-            Lazy<IOrbwalkerManager> orbwalker,
-            Lazy<IInputManager> input,
-            Lazy<IInventoryManager> inventory,
-            Lazy<ITargetSelectorManager> targetselector,
-            Lazy<IPrediction> prediction)
-            : base(orbwalker.Value, input.Value, key)
+            IServiceContext context)
+            : base(context, key)
         {
+            this.Context = context;
             this.Config = config;
-            this.TargetSelector = targetselector;
-            this.Inventory = inventory;
-            this.Prediction = prediction;
+            this.TargetSelector = context.TargetSelector;
+            this.Inventory = context.Inventory;
+            this.Prediction = context.Prediction;
         }
 
         public OdSharpConfig Config { get; }
@@ -279,6 +276,7 @@ namespace ODSharpSDK
 
             if (this.Orbwalker.OrbwalkTo(target))
             {
+                
                 return;
             }
 

@@ -33,17 +33,13 @@ namespace ODSharpSDK
 
         [ImportingConstructor]
         public Program(
-            [Import] Lazy<IInventoryManager> inventoryManager,
-            [Import] Lazy<IInputManager> input,
-            [Import] Lazy<IOrbwalkerManager> orbwalkerManager,
-            [Import] Lazy<ITargetSelectorManager> targetManager,
-            [Import] Lazy<IPrediction> prediction)
+            [Import] IServiceContext context)
         {
-            this.inventoryManager = inventoryManager;
-            this.input = input;
-            this.orbwalkerManager = orbwalkerManager;
-            this.prediction = prediction;
-            this.targetManager = targetManager;
+            this.inventoryManager = context.Inventory;
+            this.input = context.Input;
+            this.orbwalkerManager = context.Orbwalker;
+            this.prediction = Context.Prediction;
+            this.targetManager = context.TargetSelector;
         }
 
         public OdSharpConfig Config { get; private set; }
