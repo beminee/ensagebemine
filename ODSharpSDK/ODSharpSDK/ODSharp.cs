@@ -27,6 +27,8 @@ namespace ODSharpSDK
     using Ensage.SDK.Prediction;
     using Ensage.SDK.Prediction.Collision;
     using Ensage.SDK.TargetSelector;
+    using Ensage.SDK.Service;
+    using Ensage.SDK.Service.Metadata;
 
     using log4net;
 
