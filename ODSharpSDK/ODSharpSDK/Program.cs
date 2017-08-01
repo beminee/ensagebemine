@@ -38,7 +38,7 @@ namespace ODSharpSDK
             this.inventoryManager = context.Inventory;
             this.input = context.Input;
             this.orbwalkerManager = context.Orbwalker;
-            this.prediction = Context.Prediction;
+            this.prediction = context.Prediction;
             this.targetManager = context.TargetSelector;
         }
 
