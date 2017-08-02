@@ -21,51 +21,33 @@ namespace ODSharpSDK
     [ExportPlugin("ODSharpSDK", HeroId.npc_dota_hero_obsidian_destroyer)]
     public class Program : Plugin
     {
-        private readonly Lazy<IInputManager> input;
-
-        private readonly Lazy<IInventoryManager> inventoryManager;
-
-        private readonly Lazy<IOrbwalkerManager> orbwalkerManager;
-
-        private readonly Lazy<IPrediction> prediction;
-
-        private readonly Lazy<ITargetSelectorManager> targetManager;
+        private readonly IServiceContext context;
 
         [ImportingConstructor]
-        public Program(
-            [Import] IServiceContext context)
+        public Program([Import] IServiceContext context)
         {
-            this.inventoryManager = context.Inventory;
-            this.input = context.Input;
-            this.orbwalkerManager = context.Orbwalker;
-            this.prediction = context.Prediction;
-            this.targetManager = context.TargetSelector;
+            this.context = context;
         }
 
         public OdSharpConfig Config { get; private set; }
 
         public ODSharp OrbwalkerMode { get; private set; }
 
+
         protected override void OnActivate()
         {
             this.Config = new OdSharpConfig();
+            var key = KeyInterop.KeyFromVirtualKey((int)this.Config.Key.Value.Key);
             this.Config.Key.Item.ValueChanged += this.HotkeyChanged;
 
-            this.OrbwalkerMode = new ODSharp(
-                KeyInterop.KeyFromVirtualKey((int)this.Config.Key.Value.Key),
-                this.Config,
-                this.orbwalkerManager,
-                this.input,
-                this.inventoryManager,
-                this.targetManager,
-                this.prediction);
+            this.OrbwalkerMode = new ODSharp(key, this.Config, this.context);
 
-            this.orbwalkerManager.Value.RegisterMode(this.OrbwalkerMode);
+            this.context.Orbwalker.RegisterMode(this.OrbwalkerMode);
         }
 
         protected override void OnDeactivate()
         {
-            this.orbwalkerManager.Value.UnregisterMode(this.OrbwalkerMode);
+            this.context.Orbwalker.UnregisterMode(this.OrbwalkerMode);
             this.Config.Key.Item.ValueChanged -= this.HotkeyChanged;
             this.Config.Dispose();
         }

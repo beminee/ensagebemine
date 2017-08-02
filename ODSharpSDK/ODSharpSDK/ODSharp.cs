@@ -27,11 +27,14 @@ namespace ODSharpSDK
     using Ensage.SDK.Prediction;
     using Ensage.SDK.Prediction.Collision;
     using Ensage.SDK.TargetSelector;
+    using Ensage.SDK.Abilities.Items;
+    using Ensage.SDK.Inventory.Metadata;
     using Ensage.SDK.Service;
     using Ensage.SDK.Service.Metadata;
 
     using log4net;
 
+    using PlaySharp.Toolkit.Helper.Annotations;
     using PlaySharp.Toolkit.Logging;
 
     using SharpDX;
@@ -39,6 +42,7 @@ namespace ODSharpSDK
     using AbilityId = Ensage.AbilityId;
     using UnitExtensions = Ensage.SDK.Extensions.UnitExtensions;
 
+    [PublicAPI]
     public class ODSharp : KeyPressOrbwalkingModeAsync
     {
         private static readonly ILog Log = AssemblyLogs.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
@@ -49,7 +53,7 @@ namespace ODSharpSDK
             IServiceContext context)
             : base(context, key)
         {
-            this.Context = context;
+            this.context = context;
             this.Config = config;
             this.TargetSelector = context.TargetSelector;
             this.Inventory = context.Inventory;
@@ -58,50 +62,60 @@ namespace ODSharpSDK
 
         public OdSharpConfig Config { get; }
 
-        private Item BlinkDagger { get; set; }
+        private readonly IServiceContext context;
 
-        private Item BloodThorn { get; set; }
+        private IInventoryManager Inventory { get; }
 
-        private Item HurricanePike { get; set; }
+        private IPrediction Prediction { get; }
 
-        private Ability Imprison { get; set; }
-
-        private Lazy<IInventoryManager> Inventory { get; }
+        private ITargetSelectorManager TargetSelector { get; }
 
         private TaskHandler KillStealHandler { get; set; }
 
         private Ability Orb { get; set; }
 
-        private Item Orchid { get; set; }
-
-        private Lazy<IPrediction> Prediction { get; }
-
-        private Item RodofAtos { get; set; }
-
-        private Item SheepStick { get; set; }
-
-        private Item ShivasGuard { get; set; }
-
-        private Lazy<ITargetSelectorManager> TargetSelector { get; }
-
         private Ability Ulti { get; set; }
 
-        private Item VeilofDiscord { get; set; }
+        private Ability Imprison { get; set; }
+
+        [ItemBinding]
+        private item_orchid Orchid { get; set; }
+
+        [ItemBinding]
+        private item_blink BlinkDagger { get; set; }
+
+        [ItemBinding]
+        private item_bloodthorn BloodThorn { get; set; }
+
+        [ItemBinding]
+        private item_hurricane_pike HurricanePike { get; set; }
+
+        [ItemBinding]
+        private item_rod_of_atos RodofAtos { get; set; }
+
+        [ItemBinding]
+        private item_sheepstick SheepStick { get; set; }
+
+        [ItemBinding]
+        private item_shivas_guard ShivasGuard { get; set; }
+
+        [ItemBinding]
+        private item_veil_of_discord VeilofDiscord { get; set; }
 
         public override async Task ExecuteAsync(CancellationToken token)
         {
 
-            var target = this.TargetSelector.Value.Active.GetTargets().FirstOrDefault(x => !x.IsInvulnerable() && x.Distance2D(this.Owner) <= this.Owner.AttackRange * 2);
+            var target = this.TargetSelector.Active.GetTargets().FirstOrDefault(x => !x.IsInvulnerable() && x.Distance2D(this.Owner) <= this.Owner.AttackRange * 2);
 
             var silenced = UnitExtensions.IsSilenced(this.Owner);
 
             var sliderValue = this.Config.UseBlinkPrediction.Item.GetValue<Slider>().Value;
 
-            if (this.BlinkDagger != null &&
-            this.BlinkDagger.IsValid &&
+            if ((this.BlinkDagger != null) &&
+            (this.BlinkDagger.Item.IsValid) &&
             target != null && Owner.Distance2D(target) <= 1200 + sliderValue && !(Owner.Distance2D(target) <= 400) &&
-            this.BlinkDagger.CanBeCasted(target) &&
-            this.Config.ItemToggler.Value.IsEnabled(this.BlinkDagger.Name))
+            this.BlinkDagger.Item.CanBeCasted(target) &&
+            this.Config.ItemToggler.Value.IsEnabled(this.BlinkDagger.Item.Name))
             {
                 var l = (this.Owner.Distance2D(target) - sliderValue) / sliderValue;
                 var posA = this.Owner.Position;
@@ -165,7 +179,7 @@ namespace ODSharpSDK
                         // Log.Debug($"Speed: {input.Speed}");
                         // Log.Debug($"Radius: {input.Radius}");
                         // Log.Debug($"Type: {input.PredictionSkillshotType}");
-                        var output = this.Prediction.Value.GetPrediction(input);
+                        var output = this.Prediction.GetPrediction(input);
                         //var amount = output.AoeTargetsHit.Count;
 
                        // Log.Debug($"{output.HitChance}");
@@ -202,21 +216,21 @@ namespace ODSharpSDK
                 }
             }
 
-            if (this.BloodThorn != null &&
-                this.BloodThorn.IsValid &&
+            if ((this.BloodThorn != null) &&
+                this.BloodThorn.Item.IsValid &&
                 target != null &&
-                this.BloodThorn.CanBeCasted(target) &&
-                this.Config.ItemToggler.Value.IsEnabled(this.BloodThorn.Name))
+                this.BloodThorn.Item.CanBeCasted(target) &&
+                this.Config.ItemToggler.Value.IsEnabled(this.BloodThorn.Item.Name))
             {
                 Log.Debug("Using Bloodthorn");
                 this.BloodThorn.UseAbility(target);
                 await Await.Delay(this.GetItemDelay(target), token);
             }
 
-            if (this.SheepStick != null &&
-                this.SheepStick.IsValid &&
+            if ((this.SheepStick != null) &&
+                this.SheepStick.Item.IsValid &&
                 target != null &&
-                this.SheepStick.CanBeCasted(target) &&
+                this.SheepStick.Item.CanBeCasted(target) &&
                 this.Config.ItemToggler.Value.IsEnabled("item_sheepstick"))
             {
                 Log.Debug("Using Sheepstick");
@@ -224,17 +238,17 @@ namespace ODSharpSDK
                 await Await.Delay(this.GetItemDelay(target), token);
             }
 
-            if (this.Orchid != null && this.Orchid.IsValid && target != null && this.Orchid.CanBeCasted(target) && this.Config.ItemToggler.Value.IsEnabled("item_orchid"))
+            if ((this.Orchid != null) && this.Orchid.Item.IsValid && target != null && this.Orchid.Item.CanBeCasted(target) && this.Config.ItemToggler.Value.IsEnabled("item_orchid"))
             {
                 Log.Debug("Using Orchid");
                 this.Orchid.UseAbility(target);
                 await Await.Delay(this.GetItemDelay(target), token);
             }
 
-            if (this.RodofAtos != null &&
-                this.RodofAtos.IsValid &&
+            if ((this.RodofAtos != null) &&
+                this.RodofAtos.Item.IsValid &&
                 target != null &&
-                this.RodofAtos.CanBeCasted(target) &&
+                this.RodofAtos.Item.CanBeCasted(target) &&
                 this.Config.ItemToggler.Value.IsEnabled("item_rod_of_atos"))
             {
                 Log.Debug("Using RodofAtos");
@@ -242,10 +256,10 @@ namespace ODSharpSDK
                 await Await.Delay(this.GetItemDelay(target), token);
             }
 
-            if (this.VeilofDiscord != null &&
-                this.VeilofDiscord.IsValid &&
+            if ((this.VeilofDiscord != null) &&
+                this.VeilofDiscord.Item.IsValid &&
                 target != null &&
-                this.VeilofDiscord.CanBeCasted() &&
+                this.VeilofDiscord.Item.CanBeCasted() &&
                 this.Config.ItemToggler.Value.IsEnabled("item_veil_of_discord"))
             {
                 Log.Debug("Using VeilofDiscord");
@@ -253,11 +267,11 @@ namespace ODSharpSDK
                 await Await.Delay(this.GetItemDelay(target), token);
             }
 
-            if (this.HurricanePike != null && (double)(this.Owner.Health / this.Owner.MaximumHealth) * 100 <= 
+            if ((this.HurricanePike != null) && (double)(this.Owner.Health / this.Owner.MaximumHealth) * 100 <= 
                 (double)Config.HurricanePercentage.Item.GetValue<Slider>().Value &&
-                this.HurricanePike.IsValid &&
+                this.HurricanePike.Item.IsValid &&
                 target != null &&
-                this.HurricanePike.CanBeCasted() &&
+                this.HurricanePike.Item.CanBeCasted() &&
                 this.Config.ItemToggler.Value.IsEnabled("item_hurricane_pike"))
             {
                 Log.Debug("Using HurricanePike");
@@ -265,10 +279,10 @@ namespace ODSharpSDK
                 await Await.Delay(this.GetItemDelay(target), token);
             }
 
-            if (this.ShivasGuard != null &&
-                this.ShivasGuard.IsValid &&
+            if ((this.ShivasGuard != null) &&
+                this.ShivasGuard.Item.IsValid &&
                 target != null && this.Owner.Distance2D(target) <= 900 &&
-                this.ShivasGuard.CanBeCasted() &&
+                this.ShivasGuard.Item.CanBeCasted() &&
                 this.Config.ItemToggler.Value.IsEnabled("item_shivas_guard"))
             {
                 Log.Debug("Using Shivas");
@@ -326,44 +340,7 @@ namespace ODSharpSDK
             this.Orb = UnitExtensions.GetAbilityById(this.Owner, AbilityId.obsidian_destroyer_arcane_orb);
             this.Ulti = UnitExtensions.GetAbilityById(this.Owner, AbilityId.obsidian_destroyer_sanity_eclipse);
 
-            foreach (var item in Inventory.Value.Items)
-            {
-                switch (item.Id)
-                {
-                    case Ensage.AbilityId.item_bloodthorn:
-                        this.BloodThorn = item.Item;
-                        break;
-
-                    case Ensage.AbilityId.item_sheepstick:
-                        this.SheepStick = item.Item;
-                        break;
-
-                    case Ensage.AbilityId.item_hurricane_pike:
-                        this.HurricanePike = item.Item;
-                        break;
-
-                    case Ensage.AbilityId.item_blink:
-                        this.BlinkDagger = item.Item;
-                        break;
-
-                    case Ensage.AbilityId.item_orchid:
-                        this.Orchid = item.Item;
-                        break;
-                    case Ensage.AbilityId.item_rod_of_atos:
-                        this.RodofAtos = item.Item;
-                        break;
-
-                    case Ensage.AbilityId.item_veil_of_discord:
-                        this.VeilofDiscord = item.Item;
-                        break;
-
-                    case AbilityId.item_shivas_guard:
-                        this.ShivasGuard = item.Item;
-                        break;
-                }
-            }
-
-            this.Inventory.Value.CollectionChanged += this.OnInventoryChanged;
+            this.context.Inventory.Attach(this);
 
             base.OnActivate();
         }
@@ -371,7 +348,7 @@ namespace ODSharpSDK
         protected override void OnDeactivate()
         {
             base.OnDeactivate();
-            this.Inventory.Value.CollectionChanged -= this.OnInventoryChanged;
+            this.context.Inventory.Detach(this);
         }
 
         public virtual async Task<bool> KillStealAsync()
@@ -406,88 +383,6 @@ namespace ODSharpSDK
 
             await Await.Delay(250);
             return false;
-        }
-
-        private void OnInventoryChanged(object sender, NotifyCollectionChangedEventArgs args)
-        {
-            if (args.Action == NotifyCollectionChangedAction.Add)
-            {
-                foreach (var item in args.NewItems.OfType<InventoryItem>())
-                {
-                    switch (item.Id)
-                    {
-                        case Ensage.AbilityId.item_bloodthorn:
-                            this.BloodThorn = item.Item;
-                            break;
-
-                        case Ensage.AbilityId.item_sheepstick:
-                            this.SheepStick = item.Item;
-                            break;
-
-                        case Ensage.AbilityId.item_hurricane_pike:
-                            this.HurricanePike = item.Item;
-                            break;
-
-                        case Ensage.AbilityId.item_blink:
-                            this.BlinkDagger = item.Item;
-                            break;
-
-                        case Ensage.AbilityId.item_orchid:
-                            this.Orchid = item.Item;
-                            break;
-                        case Ensage.AbilityId.item_rod_of_atos:
-                            this.RodofAtos = item.Item;
-                            break;
-
-                        case Ensage.AbilityId.item_veil_of_discord:
-                            this.VeilofDiscord = item.Item;
-                            break;
-
-                        case AbilityId.item_shivas_guard:
-                            this.ShivasGuard = item.Item;
-                            break;
-                    }
-                }
-            }
-            else if (args.Action == NotifyCollectionChangedAction.Remove)
-            {
-                foreach (var item in args.OldItems.OfType<InventoryItem>())
-                {
-                    switch (item.Id)
-                    {
-                        case Ensage.AbilityId.item_bloodthorn:
-                            this.BloodThorn = null;
-                            break;
-
-                        case Ensage.AbilityId.item_sheepstick:
-                            this.SheepStick = null;
-                            break;
-
-                        case Ensage.AbilityId.item_hurricane_pike:
-                            this.HurricanePike = null;
-                            break;
-
-                        case Ensage.AbilityId.item_blink:
-                            this.BlinkDagger = null;
-                            break;
-
-                        case Ensage.AbilityId.item_orchid:
-                            this.Orchid = null;
-                            break;
-                        case Ensage.AbilityId.item_rod_of_atos:
-                            this.RodofAtos = null;
-                            break;
-
-                        case Ensage.AbilityId.item_veil_of_discord:
-                            this.VeilofDiscord = null;
-                            break;
-
-                        case Ensage.AbilityId.item_shivas_guard:
-                            this.ShivasGuard = null;
-                            break;
-                    }
-                }
-            }
         }
     }
 }
