@@ -47,24 +47,9 @@ namespace ODSharpSDK
     {
         private static readonly ILog Log = AssemblyLogs.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
 
-        public ODSharp(
-            Key key,
-            OdSharpConfig config,
-            IServiceContext context)
-            : base(context, key)
-        {
-            this.context = context;
-            this.Config = config;
-            this.TargetSelector = context.TargetSelector;
-            this.Inventory = context.Inventory;
-            this.Prediction = context.Prediction;
-        }
-
         public OdSharpConfig Config { get; }
 
         private readonly IServiceContext context;
-
-        private IInventoryManager Inventory { get; }
 
         private IPrediction Prediction { get; }
 
@@ -74,33 +59,46 @@ namespace ODSharpSDK
 
         private Ability Orb { get; set; }
 
-        private Ability Ulti { get; set; }
+        public Ability Ulti { get; set; }
 
         private Ability Imprison { get; set; }
 
-        [ItemBinding]
-        private item_orchid Orchid { get; set; }
+        public ODSharp(
+            Key key,
+            OdSharpConfig config,
+            IServiceContext context)
+            : base(context, key)
+        {
+            this.context = context;
+            this.Config = config;
+            this.TargetSelector = context.TargetSelector;
+            this.Prediction = context.Prediction;
+        }
+
 
         [ItemBinding]
-        private item_blink BlinkDagger { get; set; }
+        public item_orchid Orchid { get; private set; }
 
         [ItemBinding]
-        private item_bloodthorn BloodThorn { get; set; }
+        public item_blink BlinkDagger { get; private set; }
 
         [ItemBinding]
-        private item_hurricane_pike HurricanePike { get; set; }
+        public item_bloodthorn BloodThorn { get; private set; }
 
         [ItemBinding]
-        private item_rod_of_atos RodofAtos { get; set; }
+        public item_hurricane_pike HurricanePike { get; private set; }
 
         [ItemBinding]
-        private item_sheepstick SheepStick { get; set; }
+        public item_rod_of_atos RodofAtos { get; private set; }
 
         [ItemBinding]
-        private item_shivas_guard ShivasGuard { get; set; }
+        public item_sheepstick SheepStick { get; private set; }
 
         [ItemBinding]
-        private item_veil_of_discord VeilofDiscord { get; set; }
+        public item_shivas_guard ShivasGuard { get; private set; }
+
+        [ItemBinding]
+        public item_veil_of_discord VeilofDiscord { get; private set; }
 
         public override async Task ExecuteAsync(CancellationToken token)
         {
@@ -238,7 +236,10 @@ namespace ODSharpSDK
                 await Await.Delay(this.GetItemDelay(target), token);
             }
 
-            if ((this.Orchid != null) && this.Orchid.Item.IsValid && target != null && this.Orchid.Item.CanBeCasted(target) && this.Config.ItemToggler.Value.IsEnabled("item_orchid"))
+            if ((this.Orchid != null) &&
+                this.Orchid.Item.IsValid && target != null &&
+                this.Orchid.Item.CanBeCasted(target) &&
+                this.Config.ItemToggler.Value.IsEnabled("item_orchid"))
             {
                 Log.Debug("Using Orchid");
                 this.Orchid.UseAbility(target);
@@ -334,15 +335,15 @@ namespace ODSharpSDK
 
         protected override void OnActivate()
         {
+            base.OnActivate();
+
+            this.context.Inventory.Attach(this);
+
             GameDispatcher.OnIngameUpdate += GameDispatcher_OnIngameUpdate;
 
             this.Imprison = UnitExtensions.GetAbilityById(this.Owner, AbilityId.obsidian_destroyer_astral_imprisonment);
             this.Orb = UnitExtensions.GetAbilityById(this.Owner, AbilityId.obsidian_destroyer_arcane_orb);
             this.Ulti = UnitExtensions.GetAbilityById(this.Owner, AbilityId.obsidian_destroyer_sanity_eclipse);
-
-            this.context.Inventory.Attach(this);
-
-            base.OnActivate();
         }
 
         protected override void OnDeactivate()

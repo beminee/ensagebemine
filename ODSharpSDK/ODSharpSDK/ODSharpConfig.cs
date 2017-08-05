@@ -42,6 +42,7 @@ namespace ODSharpSDK
             this.KillStealEnabled.Item.Tooltip = "Setting this to false will disable killsteal.";
             this.UseBlinkPrediction = this.Menu.Item("Blink Prediction" ,new Slider(200, 0, 600));
             this.UseBlinkPrediction.Item.Tooltip = "Will blink to set distance. Set to 0 if you want to disable it.";
+            this.Drawings = this.Menu.Item("Enable Ulti damage drawings", true);
            // this.MinimumTargetToUlti = this.Menu.Item("Ulti Target Count", new Slider(1, 1, 5));
            // this.MinimumTargetToUlti.Item.Tooltip =
            //     "Minimum required enemy heroes to cast ulti. Atleast 1 of them should die too.";
@@ -57,6 +58,8 @@ namespace ODSharpSDK
         public MenuItem<Slider> UseBlinkPrediction { get; }
 
         public MenuItem<Slider> HurricanePercentage { get; }
+
+        public MenuItem<bool> Drawings { get; }
 
        // public MenuItem<Slider> MinimumTargetToUlti { get; }
 
