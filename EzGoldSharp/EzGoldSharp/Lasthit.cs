@@ -23,7 +23,7 @@ namespace EzGoldSharp
             try
             {
                 var creeps =
-                    ObjectManager.GetEntities<Unit>()
+                    ObjectManager.GetEntitiesFast<Unit>()
                         .Where(
                             x =>
                                 x.Distance2D(unit) <= x.AttackRange + 100 && x.IsAttacking() && x.IsAlive &&
@@ -43,10 +43,10 @@ namespace EzGoldSharp
 
         public static void Attack_Calc()
         {
-            if (!ObjectManager.GetEntities<Unit>().Any(x => x.Distance2D(Variables.Me) <= 2000 && x.IsAlive && x.Health > 0))
+            if (!ObjectManager.GetEntitiesFast<Unit>().Any(x => x.Distance2D(Variables.Me) <= 2000 && x.IsAlive && x.Health > 0))
                 return;
             var creeps =
-                ObjectManager.GetEntities<Unit>()
+                ObjectManager.GetEntitiesFast<Unit>()
                     .Where(x => x.IsValid && x.Distance2D(Variables.Me) <= 2000 && x.IsAlive && x.Health > 0)
                     .ToList();
             foreach (var creep in creeps)
@@ -131,11 +131,11 @@ namespace EzGoldSharp
 
                     //var hta = Variables.CreepsDic.First(x => x.Unit.Handle == unit.Handle).KillableCreeps.ToList();
 
-                    var allyMeleeCreeps = ObjectManager.GetEntities<Creep>().Where(creep => creep.IsAlive && creep.IsValid && creep.Team == Variables.Me.Team && creep.IsMelee).ToList();
-                    var enemyMeleeCreeps = ObjectManager.GetEntities<Creep>().Where(creep => creep.IsAlive && creep.IsValid && creep.Team == Variables.Me.GetEnemyTeam() && creep.IsMelee).ToList();
+                    var allyMeleeCreeps = ObjectManager.GetEntitiesFast<Creep>().Where(creep => creep.IsAlive && creep.IsValid && creep.Team == Variables.Me.Team && creep.IsMelee).ToList();
+                    var enemyMeleeCreeps = ObjectManager.GetEntitiesFast<Creep>().Where(creep => creep.IsAlive && creep.IsValid && creep.Team == Variables.Me.GetEnemyTeam() && creep.IsMelee).ToList();
 
-                    var allyRangedCreeps = ObjectManager.GetEntities<Creep>().Where(creep => creep.IsAlive && creep.IsValid && creep.Team == Variables.Me.Team && creep.IsRanged).ToList();
-                    var enemyRangedCreeps = ObjectManager.GetEntities<Creep>().Where(creep => creep.IsAlive && creep.IsValid && creep.Team == Variables.Me.GetEnemyTeam() && creep.IsRanged).ToList();
+                    var allyRangedCreeps = ObjectManager.GetEntitiesFast<Creep>().Where(creep => creep.IsAlive && creep.IsValid && creep.Team == Variables.Me.Team && creep.IsRanged).ToList();
+                    var enemyRangedCreeps = ObjectManager.GetEntitiesFast<Creep>().Where(creep => creep.IsAlive && creep.IsValid && creep.Team == Variables.Me.GetEnemyTeam() && creep.IsRanged).ToList();
 
                     var allyTowers = Buildings.AllyTowers;
                     var enemyTowers = Buildings.EnemyTowers;
@@ -300,7 +300,7 @@ namespace EzGoldSharp
         private static void Clear()
         {
             if (!Utils.SleepCheck("Lasthit.Clear")) return;
-            var creeps = ObjectManager.GetEntities<Unit>().Where(x => x.IsAlive).ToList();
+            var creeps = ObjectManager.GetEntitiesFast<Unit>().Where(x => x.IsAlive).ToList();
             Variables.CreepsDic = (from creep in creeps
                                    where Variables.CreepsDic.Any(x => x.Unit.Handle == creep.Handle)
                                    select Variables.CreepsDic.Find(x => x.Unit.Handle == creep.Handle)).ToList();
@@ -348,7 +348,7 @@ namespace EzGoldSharp
         {
             try
             {
-                return ObjectManager.GetEntities<Unit>()
+                return ObjectManager.GetEntitiesFast<Unit>()
                         .Where(
                             x =>
                                 (x.ClassId == ClassId.CDOTA_BaseNPC_Tower ||
@@ -533,7 +533,7 @@ namespace EzGoldSharp
             if (unit.Modifiers.Any(x => x.Name == "modifier_bloodseeker_bloodrage"))
             {
                 modif = modif *
-                        (ObjectManager.GetEntities<Hero>()
+                        (ObjectManager.GetEntitiesFast<Hero>()
                             .First(x => x.ClassId == ClassId.CDOTA_Unit_Hero_Bloodseeker)
                             .Spellbook.Spell1.Level - 1) * 0.05 + 1.25;
             }
@@ -558,7 +558,7 @@ namespace EzGoldSharp
             try
             {
                 var lowestHp =
-                    ObjectManager.GetEntities<Unit>()
+                    ObjectManager.GetEntitiesFast<Unit>()
                         .Where(
                             x =>
                                 (x.ClassId == ClassId.CDOTA_BaseNPC_Tower ||
@@ -588,7 +588,7 @@ namespace EzGoldSharp
         {
             try
             {
-                return ObjectManager.GetEntities<Unit>()
+                return ObjectManager.GetEntitiesFast<Unit>()
                         .Where(
                             x =>
                                 (x.ClassId == ClassId.CDOTA_BaseNPC_Tower ||
@@ -806,7 +806,7 @@ namespace EzGoldSharp
             try
             {
                 var creeps =
-                    ObjectManager.GetEntities<Unit>()
+                    ObjectManager.GetEntitiesFast<Unit>()
                         .Where(
                             x =>
                                 (x.ClassId == ClassId.CDOTA_BaseNPC_Tower ||
@@ -1000,7 +1000,7 @@ namespace EzGoldSharp
             if (unit.Modifiers.Any(x => x.Name == "modifier_bloodseeker_bloodrage"))
             {
                 modif = modif *
-                        (ObjectManager.GetEntities<Hero>()
+                        (ObjectManager.GetEntitiesFast<Hero>()
                             .First(x => x.ClassId == ClassId.CDOTA_Unit_Hero_Bloodseeker)
                             .Spellbook.Spell1.Level - 1) * 0.05 + 1.25;
             }
