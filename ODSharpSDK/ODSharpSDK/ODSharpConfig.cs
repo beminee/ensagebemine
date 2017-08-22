@@ -43,9 +43,9 @@ namespace ODSharpSDK
             this.UseBlinkPrediction = this.Menu.Item("Blink Prediction" ,new Slider(200, 0, 600));
             this.UseBlinkPrediction.Item.Tooltip = "Will blink to set distance. Set to 0 if you want to disable it.";
             this.Drawings = this.Menu.Item("Enable Ulti damage drawings", true);
-           // this.MinimumTargetToUlti = this.Menu.Item("Ulti Target Count", new Slider(1, 1, 5));
-           // this.MinimumTargetToUlti.Item.Tooltip =
-           //     "Minimum required enemy heroes to cast ulti. Atleast 1 of them should die too.";
+            this.MinimumTargetToUlti = this.Menu.Item("Ulti Target Count", new Slider(1, 1, 5));
+            this.MinimumTargetToUlti.Item.Tooltip =
+                "Minimum required enemy heroes to cast ulti. Atleast 1 of them should die too.";
             this.HurricanePercentage = this.Menu.Item("Hurricane Usage Percent", new Slider(20, 0, 100));
             this.AbilityToggler = this.Menu.Item("Ability Toggler", new AbilityToggler(spellDict));
             this.ItemToggler = this.Menu.Item("Item Toggler", new AbilityToggler(itemDict));
@@ -61,7 +61,7 @@ namespace ODSharpSDK
 
         public MenuItem<bool> Drawings { get; }
 
-       // public MenuItem<Slider> MinimumTargetToUlti { get; }
+        public MenuItem<Slider> MinimumTargetToUlti { get; }
 
         public MenuItem<AbilityToggler> AbilityToggler { get; }
 
