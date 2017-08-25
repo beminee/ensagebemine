@@ -57,64 +57,66 @@ namespace EzGoldSharp
                 }
             }
             Clear();
+            Utils.Sleep(100, "Wait");
 
-                     foreach (var creep in Variables.CreepsDic)
-                     {
-                         if (Variables.CreeptargetH != null && creep.Unit != null)
-                         { 
-                         if (creep.Unit.IsValid && !creep.Unit.IsRanged && creep.Unit.Team == Variables.CreeptargetH.GetEnemyTeam())
-                         {
-                             if (MinionAaData.StartedAttack(creep.Unit))
-                             {
-                                 Variables.minionAttackPointList.Add(creep.Unit.Handle);
+            if (Utils.SleepCheck("Wait")) return;
+            {
+                foreach (var creep in Variables.CreepsDic)
+                {
+                    if (Variables.CreeptargetH != null && creep.Unit != null)
+                    { 
+                        if (creep.Unit.IsValid && !creep.Unit.IsRanged && creep.Unit.Team == Variables.CreeptargetH.GetEnemyTeam())
+                        {
+                            if (MinionAaData.StartedAttack(creep.Unit))
+                            {
+                                Variables.minionAttackPointList.Add(creep.Unit.Handle);
 
-                                 var creepAttackPoint = MinionAaData.GetAttackPoint(creep.Unit) * 1000;
-                                 var creepAttackBackswing = MinionAaData.GetAttackBackswing(creep.Unit) * 1000;
+                                var creepAttackPoint = MinionAaData.GetAttackPoint(creep.Unit) * 1000;
+                                var creepAttackBackswing = MinionAaData.GetAttackBackswing(creep.Unit) * 1000;
 
-                                 if (creep.Unit.IsValid)
-                                 DelayAction.Add(creepAttackPoint, () =>
-                                 {
-                                     Variables.minionAttackPointList.Remove(creep.Unit.Handle);
-                                     Variables.minionAttackBackswingList.Add(creep.Unit.Handle);
-                                 });
+                                if (creep.Unit.IsValid)
+                                    DelayAction.Add(creepAttackPoint, () =>
+                                    {
+                                        Variables.minionAttackPointList.Remove(creep.Unit.Handle);
+                                        Variables.minionAttackBackswingList.Add(creep.Unit.Handle);
+                                    });
 
-                                 if (creep.Unit.IsValid)
-                                 DelayAction.Add(creepAttackPoint + creepAttackBackswing, () =>
-                                 {
-                                     Variables.minionAttackBackswingList.Remove(creep.Unit.Handle);
-                                 });
-                             }
-                         }
-                         else if (creep.Unit.IsValid && creep.Unit.IsRanged && creep.Unit.Team == Variables.CreeptargetH.GetEnemyTeam())
-                         {
-                             if (MinionAaData.StartedAttack(creep.Unit))
-                             {
-                                 Variables.minionAttackPointList.Add(creep.Unit.Handle);
+                                if (creep.Unit.IsValid)
+                                    DelayAction.Add(creepAttackPoint + creepAttackBackswing, () =>
+                                    {
+                                        Variables.minionAttackBackswingList.Remove(creep.Unit.Handle);
+                                    });
+                            }
+                        }
+                        else if (creep.Unit.IsValid && creep.Unit.IsRanged && creep.Unit.Team == Variables.CreeptargetH.GetEnemyTeam())
+                        {
+                            if (MinionAaData.StartedAttack(creep.Unit))
+                            {
+                                Variables.minionAttackPointList.Add(creep.Unit.Handle);
 
-                                 var creepAttackPoint = MinionAaData.GetAttackPoint(creep.Unit) * 1000;
-                                 var creepAttackBackswing = MinionAaData.GetAttackBackswing(creep.Unit) * 1000;
-                                 if (creep.Unit.IsValid)
-                                 DelayAction.Add(creepAttackPoint, () =>
-                                 {
-                                     Variables.minionAttackPointList.Remove(creep.Unit.Handle);
-                                     Variables.minionAttackBackswingList.Add(creep.Unit.Handle);
-                                 });
-                                 if (creep.Unit.IsValid)
-                                 DelayAction.Add(creepAttackPoint + creepAttackBackswing, () =>
-                                 {
-                                     Variables.minionAttackBackswingList.Remove(creep.Unit.Handle);
-                                 });
-                             }
-                         }
-                         }
-                         //Console.WriteLine("Unit : {0}", creep.Unit.Handle);
-                         /*foreach (var ht in creep.KillableCreeps)
+                                var creepAttackPoint = MinionAaData.GetAttackPoint(creep.Unit) * 1000;
+                                var creepAttackBackswing = MinionAaData.GetAttackBackswing(creep.Unit) * 1000;
+                                if (creep.Unit.IsValid)
+                                    DelayAction.Add(creepAttackPoint, () =>
+                                    {
+                                        Variables.minionAttackPointList.Remove(creep.Unit.Handle);
+                                        Variables.minionAttackBackswingList.Add(creep.Unit.Handle);
+                                    });
+                                if (creep.Unit.IsValid)
+                                    DelayAction.Add(creepAttackPoint + creepAttackBackswing, () =>
+                                    {
+                                        Variables.minionAttackBackswingList.Remove(creep.Unit.Handle);
+                                    });
+                            }
+                        }
+                    }
+                    //Console.WriteLine("Unit : {0}", creep.Unit.Handle);
+                    /*foreach (var ht in creep.KillableCreeps)
                          {
                              //Console.WriteLine("Health - time : {0} - {1} - {2}", ht.Health, ht.Time, ht.ACreeps);
                          }*/
-                     }
-
-            
+                }
+            }
         }
 
         public static double Healthpredict(Unit unit, double time)
