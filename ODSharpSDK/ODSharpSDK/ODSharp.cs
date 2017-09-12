@@ -1,4 +1,4 @@
-﻿// <copyright file="ODSharp.cs" company="Ensage">
+// <copyright file="ODSharp.cs" company="Ensage">
 //    Copyright (c) 2017 Ensage.
 // </copyright>
 
@@ -274,7 +274,11 @@ namespace ODSharpSDK
 
             if (this.HurricanePike != null)
             {
+<<<<<<< HEAD
 				if (modifier)
+=======
+				if (this.Owner.HasModifier(this.HurricanePike.ModifierName))
+>>>>>>> origin/master
 				{
 					this.Owner.Attack(target);
                     await Task.Delay(100, token);
