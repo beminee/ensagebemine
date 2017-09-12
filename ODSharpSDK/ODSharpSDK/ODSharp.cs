@@ -268,16 +268,27 @@ namespace ODSharpSDK
                 await Await.Delay(this.GetItemDelay(target), token);
             }
 
-            if ((this.HurricanePike != null) && (double)(this.Owner.Health / this.Owner.MaximumHealth) * 100 <= 
+            if (this.HurricanePike != null)
+            {
+				if (this.Owner.HasModifier(this.HurricanePike.ModifierName))
+				{
+					this.Owner.Attack(target);
+                    await Task.Delay(100, token);
+                    return;
+				}
+				
+				if ((double)(this.Owner.Health / this.Owner.MaximumHealth) * 100 <= 
                 (double)Config.HurricanePercentage.Item.GetValue<Slider>().Value &&
                 this.HurricanePike.Item.IsValid &&
                 target != null &&
                 this.HurricanePike.Item.CanBeCasted() &&
                 this.Config.ItemToggler.Value.IsEnabled("item_hurricane_pike"))
-            {
+				{
                 Log.Debug("Using HurricanePike");
                 this.HurricanePike.UseAbility(target);
                 await Await.Delay(this.GetItemDelay(target), token);
+				return;
+				}
             }
 
             if ((this.ShivasGuard != null) &&
