@@ -274,11 +274,7 @@ namespace ODSharpSDK
 
             if (this.HurricanePike != null)
             {
-<<<<<<< HEAD
 				if (modifier)
-=======
-				if (this.Owner.HasModifier(this.HurricanePike.ModifierName))
->>>>>>> origin/master
 				{
 					this.Owner.Attack(target);
                     await Task.Delay(100, token);
