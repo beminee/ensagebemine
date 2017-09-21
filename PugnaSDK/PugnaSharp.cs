@@ -416,11 +416,6 @@
                 await Await.Delay(this.GetItemDelay(target), token);
             }
 
-            if (!UnitExtensions.IsAttackImmune(target))
-            {
-                return;
-            }
-
             if (this.Orbwalker.OrbwalkTo(target))
             {
                 return;
