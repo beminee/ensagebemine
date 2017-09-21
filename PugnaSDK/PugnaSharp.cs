@@ -57,9 +57,8 @@
         {
             this.Config = config;
             this.context = context;
-            this.TargetSelector = TargetSelector;
-            this.Inventory = Inventory;
-            this.Prediction = Prediction;
+            this.TargetSelector = context.TargetSelector;
+            this.Prediction = context.Prediction;
         }
 
 
@@ -165,7 +164,7 @@
                                 && ((float) x.Health / (float) x.MaximumHealth) * 100 < healThreshold
                                 && !UnitExtensions.IsMagicImmune(x));
 
-                    float myHealth = (float) Owner.Health / (float) Owner.MaximumHealth * 100;
+                    var myHealth = (float) Owner.Health / (float) Owner.MaximumHealth * 100;
 
                     if (tempHealTarget != null)
                     {
@@ -231,7 +230,7 @@
             }
 
 
-            if (!silenced)
+            if (!silenced && target != null)
             {
                 var targets =
                     EntityManager<Hero>.Entities.Where(
@@ -241,18 +240,20 @@
                                 x.Distance2D(this.Owner) <= Ward.GetAbilityData("radius"))
                         .ToList();
 
-                if (targets.Count >= wardTars && this.Config.AbilityToggler.Value.IsEnabled(this.Ward.Name))
+                if (targets.Count >= wardTars && this.Ward.CanBeCasted() &&
+                    this.Config.AbilityToggler.Value.IsEnabled(this.Ward.Name))
                 {
                     Ward.UseAbility(Owner.NetworkPosition);
                     await Await.Delay(GetAbilityDelay(Owner, Ward), token);
                 }
 
-                // var thresholdTars = this.Config.WardTargets.Item.GetValue<Slider>();
-                var manaDecrepify = Decrepify.GetManaCost(Decrepify.Level - 1);
-                var manaBlast = Blast.GetManaCost(Blast.Level - 1);
-                // var manaDrain = Drain.GetManaCost(Drain.Level - 1);
                 try
                 {
+                    // var thresholdTars = this.Config.WardTargets.Item.GetValue<Slider>();
+                    var manaDecrepify = Decrepify.GetManaCost(Decrepify.Level - 1);
+                    var manaBlast = Blast.GetManaCost(Blast.Level - 1);
+                    // var manaDrain = Drain.GetManaCost(Drain.Level - 1);
+
                     if (Decrepify.CanBeCasted() && target != null && Decrepify.CanHit(target)
                         && this.Config.AbilityToggler.Value.IsEnabled(this.Decrepify.Name)
                         && this.Owner.Mana >= manaBlast + manaDecrepify
@@ -297,29 +298,29 @@
                         if (output.HitChance >= HitChance.Medium)
                         {
                             this.Blast.UseAbility(output.CastPosition);
-                            await Await.Delay(GetAbilityDelay(output.CastPosition, this.Blast), token);
+                            await Await.Delay(GetAbilityDelay(target.Position, this.Blast), token);
                         }
-                    }
-
-                    if (this.Drain.CanBeCasted() &&
-                        !this.Blast.CanBeCasted() && !this.Decrepify.CanBeCasted()
-                        && this.Config.AbilityToggler.Value.IsEnabled(this.Drain.Name)
-                        && !UnitExtensions.IsChanneling(Owner)
-                        && target != null && target.IsAlive)
-                    {
-                        this.Drain.UseAbility(target);
-                        await Await.Delay(GetAbilityDelay(target, Drain), token);
                     }
                 }
                 catch (Exception e)
                 {
                     Log.Debug($"{e}");
                 }
+
+                if (this.Drain.CanBeCasted() &&
+                    !this.Blast.CanBeCasted() && !this.Decrepify.CanBeCasted()
+                    && this.Config.AbilityToggler.Value.IsEnabled(this.Drain.Name)
+                    && !UnitExtensions.IsChanneling(Owner)
+                    && target != null && target.IsAlive)
+                {
+                    this.Drain.UseAbility(target);
+                    await Await.Delay(GetAbilityDelay(target, Drain), token);
+                }
             }
 
             if (this.BloodThorn != null &&
                 this.BloodThorn.Item.IsValid &&
-                target != null && 
+                target != null &&
                 this.BloodThorn.Item.CanBeCasted(target) &&
                 this.Config.ItemToggler.Value.IsEnabled(this.BloodThorn.Item.Name))
             {
@@ -417,6 +418,11 @@
                 await Await.Delay(this.GetItemDelay(target), token);
             }
 
+            if (!target.IsValidOrbwalkingTarget(this.Owner))
+            {
+                return;
+            }
+
             if (this.Orbwalker.OrbwalkTo(target))
             {
                 return;
@@ -462,7 +468,7 @@
                 EntityManager<Hero>.Entities.FirstOrDefault(
                     x =>
                         x.IsAlive && x.Team != this.Owner.Team && !x.IsIllusion
-                        && x.Health < damageBlast * (1 - x.MagicDamageResist) && Decrepify != null && Decrepify.IsValid
+                        && x.Health < damageBlast * (1 - x.MagicDamageResist)
                         && Blast != null && Blast.IsValid
                         && Decrepify.CanBeCasted(x) && Blast.CanBeCasted()
                         && !UnitExtensions.IsMagicImmune(x) && comboMana);
@@ -471,7 +477,7 @@
                 EntityManager<Hero>.Entities.FirstOrDefault(
                     x =>
                         x.IsAlive && x.Team != this.Owner.Team && !x.IsIllusion
-                        && x.Health < damageBlast * (1 - x.MagicDamageResist) && Blast != null && Blast.IsValid
+                        && x.Health < damageBlast * (1 - x.MagicDamageResist)
                         && Blast.CanBeCasted() && !UnitExtensions.IsMagicImmune(x)
                         && Ensage.SDK.Extensions.EntityExtensions.Distance2D(Owner, x.NetworkPosition) <= 400);
 
@@ -497,7 +503,7 @@
 
         protected int GetAbilityDelay(Vector3 pos, Ability ability)
         {
-            return (int)(((ability.FindCastPoint() + this.Owner.GetTurnTime(pos)) * 1000.0) + Game.Ping) + 50;
+            return (int) (((ability.FindCastPoint() + this.Owner.GetTurnTime(pos)) * 1000.0) + Game.Ping) + 50;
         }
 
         protected int GetItemDelay(Unit unit)
@@ -531,7 +537,7 @@
             this.Ward = UnitExtensions.GetAbilityById(this.Owner, AbilityId.pugna_nether_ward);
             this.Drain = UnitExtensions.GetAbilityById(this.Owner, AbilityId.pugna_life_drain);
 
-            this.context.Inventory.Attach(this);
+            this.Context.Inventory.Attach(this);
 
             base.OnActivate();
         }
@@ -540,7 +546,7 @@
         {
             GameDispatcher.OnIngameUpdate -= GameDispatcher_OnIngameUpdate;
             base.OnDeactivate();
-            this.context.Inventory.Detach(this);
+            this.Context.Inventory.Detach(this);
         }
     }
 }
