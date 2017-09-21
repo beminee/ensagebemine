@@ -17,6 +17,7 @@
                                { "item_bloodthorn", true },
                                { "item_sheepstick", true },
                                { "item_shivas_guard", true },
+                               { "item_dagon_5", true },
                                { "item_hurricane_pike", true },
                                { "item_blink", true },
                                { "item_orchid", true },

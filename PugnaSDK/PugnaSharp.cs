@@ -18,12 +18,14 @@
     using Ensage.SDK.Helpers;
     using Ensage.SDK.Input;
     using Ensage.SDK.Inventory;
+    using Ensage.SDK.Inventory.Metadata;
     using Ensage.SDK.Orbwalker;
     using Ensage.SDK.Orbwalker.Modes;
     using Ensage.SDK.Prediction;
     using Ensage.SDK.Prediction.Collision;
     using Ensage.SDK.TargetSelector;
     using Ensage.SDK.Abilities.Items;
+    using Ensage.SDK.Abilities;
     using Ensage.SDK.Service;
 
     using log4net;
@@ -66,25 +68,36 @@
         public PugnaSharpConfig Config { get; }
 
 
-
+        [ItemBinding]
         private item_blink BlinkDagger { get; set; }
-
+        [ItemBinding]
         private item_bloodthorn BloodThorn { get; set; }
-
+        [ItemBinding]
         private item_hurricane_pike HurricanePike { get; set; }
-
+        [ItemBinding]
         private item_shivas_guard ShivasGuard { get; set; }
-
+        [ItemBinding]
         private item_mjollnir Mjollnir { get; set; }
-
+        [ItemBinding]
         private item_veil_of_discord VeilofDiscord { get; set; }
-
+        [ItemBinding]
         private item_rod_of_atos RodofAtos { get; set; }
-
+        [ItemBinding]
         private item_sheepstick SheepStick { get; set; }
-
+        [ItemBinding]
         private item_orchid Orchid { get; set; }
+        [ItemBinding]
+        public item_dagon Dagon1 { get; set; }
+        [ItemBinding]
+        public item_dagon_2 Dagon2 { get; set; }
+        [ItemBinding]
+        public item_dagon_3 Dagon3 { get; set; }
+        [ItemBinding]
+        public item_dagon_4 Dagon4 { get; set; }
+        [ItemBinding]
+        public item_dagon_5 Dagon5 { get; set; }
 
+        public Dagon Dagon => Dagon1 ?? Dagon2 ?? Dagon3 ?? Dagon4 ?? (Dagon)Dagon5;
 
 
         private Ability Decrepify { get; set; }
@@ -314,6 +327,17 @@
                 await Await.Delay(this.GetItemDelay(target), token);
             }
 
+            if (this.Dagon != null && 
+                this.Dagon.Item.IsValid && 
+                target != null && 
+                this.Dagon.Item.CanBeCasted(target) &&
+                this.Config.ItemToggler.Value.IsEnabled(Dagon5.Item.Name))
+            {
+                Log.Debug("Using Dagon");
+                this.Dagon.UseAbility(target);
+                await Await.Delay(this.GetItemDelay(target), token);
+            }
+
             if (this.Orchid != null && 
                 this.Orchid.Item.IsValid && 
                 target != null && 
@@ -394,6 +418,7 @@
         {
             // spell amp
             var me = Context.Owner as Hero;
+
             var spellAmp = (100.0f + me.TotalIntelligence / 16.0f) / 100.0f;
 
             var aether = Owner.GetItemById(ItemId.item_aether_lens);
@@ -459,12 +484,12 @@
 
         protected int GetItemDelay(Unit unit)
         {
-            return (int)((this.Owner.GetTurnTime(unit) * 1000.0) + Game.Ping) + 100;
+            return (int)((this.Owner.GetTurnTime(unit) * 1000.0) + Game.Ping) + 50;
         }
 
         protected int GetItemDelay(Vector3 pos)
         {
-            return (int)((this.Owner.GetTurnTime(pos) * 1000.0) + Game.Ping) + 100;
+            return (int)((this.Owner.GetTurnTime(pos) * 1000.0) + Game.Ping) + 50;
         }
 
         private void GameDispatcher_OnIngameUpdate(EventArgs args)
