@@ -28,10 +28,9 @@
         protected override void OnActivate()
         {
             this.Config = new PugnaSharpConfig();
-            var key = KeyInterop.KeyFromVirtualKey((int)this.Config.Key.Value.Key);
             this.Config.Key.Item.ValueChanged += this.HotkeyChanged;
 
-            this.OrbwalkerMode = new PugnaSharp(key, this.Config, this.context);
+            this.OrbwalkerMode = new PugnaSharp(this.Config.Key, this.Config, this.context);
 
             this.context.Orbwalker.RegisterMode(this.OrbwalkerMode);
         }
@@ -51,7 +50,7 @@
                 return;
             }
 
-            var key = KeyInterop.KeyFromVirtualKey((int)keyCode);
+            var key = KeyInterop.KeyFromVirtualKey(this.Config.Key);
             this.OrbwalkerMode.Key = key;
         }
     }

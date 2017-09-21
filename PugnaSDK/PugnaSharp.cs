@@ -39,6 +39,16 @@
     {
         private static readonly ILog Log = AssemblyLogs.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
 
+        private readonly IServiceContext context;
+
+        private IInventoryManager Inventory { get; }
+
+        private IPrediction Prediction { get; }
+
+        private ITargetSelectorManager TargetSelector { get; }
+
+        public PugnaSharpConfig Config { get; }
+
         public PugnaSharp(
             Key key,
             PugnaSharpConfig config,
@@ -51,16 +61,6 @@
             this.Inventory = Inventory;
             this.Prediction = Prediction;
         }
-
-        private readonly IServiceContext context;
-
-        private IInventoryManager Inventory { get; }
-
-        private IPrediction Prediction { get; }
-
-        private ITargetSelectorManager TargetSelector { get; }
-
-        public PugnaSharpConfig Config { get; }
 
 
         [ItemBinding]
@@ -500,12 +500,12 @@
 
         protected int GetItemDelay(Unit unit)
         {
-            return (int) ((this.Owner.GetTurnTime(unit) * 1000.0) + Game.Ping) + 50;
+            return (int) ((this.Owner.GetTurnTime(unit) * 1000.0) + Game.Ping) + 100;
         }
 
         protected int GetItemDelay(Vector3 pos)
         {
-            return (int) ((this.Owner.GetTurnTime(pos) * 1000.0) + Game.Ping) + 50;
+            return (int) ((this.Owner.GetTurnTime(pos) * 1000.0) + Game.Ping) + 100;
         }
 
         private void GameDispatcher_OnIngameUpdate(EventArgs args)
