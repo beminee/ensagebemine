@@ -231,7 +231,7 @@
             }
 
 
-            if (!silenced && target != null)
+            if (!silenced)
             {
                 var targets =
                     EntityManager<Hero>.Entities.Where(
