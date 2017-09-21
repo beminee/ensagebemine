@@ -41,8 +41,6 @@
 
         private readonly IServiceContext context;
 
-        private IInventoryManager Inventory { get; }
-
         private IPrediction Prediction { get; }
 
         private ITargetSelectorManager TargetSelector { get; }
@@ -418,7 +416,7 @@
                 await Await.Delay(this.GetItemDelay(target), token);
             }
 
-            if (!target.IsValidOrbwalkingTarget(this.Owner))
+            if (!UnitExtensions.IsAttackImmune(target))
             {
                 return;
             }
