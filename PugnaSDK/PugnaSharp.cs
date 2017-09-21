@@ -124,7 +124,7 @@
         {
             var target = this.TargetSelector.Active.GetTargets().FirstOrDefault(x => !x.IsInvulnerable());
 
-            var allTargets = TargetSelector.Active.GetTargets().FirstOrDefault();
+            var allTargets = this.TargetSelector.Active.GetTargets().FirstOrDefault();
 
             var silenced = UnitExtensions.IsSilenced(this.Owner);
 
@@ -227,7 +227,7 @@
 
                 Log.Debug("Using BlinkDagger");
                 this.BlinkDagger.UseAbility(position);
-                await Await.Delay(this.GetItemDelay(target) + (int) Game.Ping, token);
+                await Await.Delay(this.GetItemDelay(position) + (int) Game.Ping, token);
             }
 
 
@@ -251,79 +251,75 @@
                 var manaDecrepify = Decrepify.GetManaCost(Decrepify.Level - 1);
                 var manaBlast = Blast.GetManaCost(Blast.Level - 1);
                 // var manaDrain = Drain.GetManaCost(Drain.Level - 1);
-
-                if (target != null)
+                try
                 {
-                    try
+                    if (Decrepify.CanBeCasted() && Decrepify.CanHit(target)
+                        && this.Config.AbilityToggler.Value.IsEnabled(this.Decrepify.Name)
+                        && this.Owner.Mana >= manaBlast + manaDecrepify
+                        && !UnitExtensions.IsChanneling(Owner)
+                        && target != null && target.IsAlive)
                     {
-                        if (Decrepify.CanBeCasted() && Decrepify.CanHit(target)
-                            && this.Config.AbilityToggler.Value.IsEnabled(this.Decrepify.Name)
-                            && this.Owner.Mana >= manaBlast + manaDecrepify
-                            && !UnitExtensions.IsChanneling(Owner)
-                            && target.IsAlive && target != null)
-                        {
-                            this.Decrepify.UseAbility(target);
-                            await Await.Delay(GetAbilityDelay(target, Decrepify), token);
-                        }
+                        this.Decrepify.UseAbility(target);
+                        await Await.Delay(GetAbilityDelay(target, Decrepify), token);
+                    }
 
-                        if (this.Blast.CanBeCasted()
-                            && this.Config.AbilityToggler.Value.IsEnabled(this.Blast.Name)
-                            && (!this.Decrepify.CanBeCasted() || manaBlast > Owner.Mana - manaDecrepify)
-                            && !UnitExtensions.IsChanneling(Owner)
-                            && target.IsAlive && target != null)
-                        {
-                            var delay = Blast.GetAbilityData("delay") * 1000;
-                            var blastTargets =
-                                EntityManager<Hero>.Entities.OrderBy(x => x == allTargets).Where(
-                                    x =>
-                                        x.IsValid && x.IsVisible && x.Team != Owner.Team && !x.IsIllusion &&
-                                        !UnitExtensions.IsMagicImmune(x)).ToList();
+                    if (this.Blast.CanBeCasted()
+                        && this.Config.AbilityToggler.Value.IsEnabled(this.Blast.Name)
+                        && (!this.Decrepify.CanBeCasted() || manaBlast > Owner.Mana - manaDecrepify)
+                        && !UnitExtensions.IsChanneling(Owner)
+                        && target != null && target.IsAlive)
+                    {
+                        var delay = Blast.GetAbilityData("delay") * 1000;
+                        var blastTargets =
+                            EntityManager<Hero>.Entities.OrderBy(x => x == allTargets).Where(
+                                x =>
+                                    x.IsValid && x.IsVisible && x.Team != Owner.Team && !x.IsIllusion &&
+                                    !UnitExtensions.IsMagicImmune(x)).ToList();
 
-                            if (blastTargets == null) return;
-                            var input =
-                                new PredictionInput(
-                                    Owner,
-                                    target,
-                                    delay,
-                                    float.MaxValue,
-                                    620,
-                                    400,
-                                    PredictionSkillshotType.SkillshotCircle,
-                                    true,
-                                    blastTargets)
-                                {
-                                    CollisionTypes = CollisionTypes.None
-                                };
-
-                            var output = Prediction.GetPrediction(input);
-
-                            if (output.HitChance >= HitChance.Medium)
+                        if (blastTargets == null) return;
+                        var input =
+                            new PredictionInput(
+                                Owner,
+                                target,
+                                delay,
+                                float.MaxValue,
+                                620,
+                                400,
+                                PredictionSkillshotType.SkillshotCircle,
+                                true,
+                                blastTargets)
                             {
-                                this.Blast.UseAbility(output.CastPosition);
-                                await Await.Delay(GetAbilityDelay(target, this.Blast), token);
-                            }
-                        }
+                                CollisionTypes = CollisionTypes.None
+                            };
 
-                        if (this.Drain.CanBeCasted() &&
-                            !this.Blast.CanBeCasted() && !this.Decrepify.CanBeCasted()
-                            && this.Config.AbilityToggler.Value.IsEnabled(this.Drain.Name)
-                            && !UnitExtensions.IsChanneling(Owner)
-                            && target.IsAlive && target != null)
+                        var output = Prediction.GetPrediction(input);
+
+                        if (output.HitChance >= HitChance.Medium)
                         {
-                            this.Drain.UseAbility(target);
-                            await Await.Delay(GetAbilityDelay(target, Drain), token);
+                            this.Blast.UseAbility(output.CastPosition);
+                            await Await.Delay(GetAbilityDelay(output.CastPosition, this.Blast), token);
                         }
                     }
-                    catch (Exception e)
+
+                    if (this.Drain.CanBeCasted() &&
+                        !this.Blast.CanBeCasted() && !this.Decrepify.CanBeCasted()
+                        && this.Config.AbilityToggler.Value.IsEnabled(this.Drain.Name)
+                        && !UnitExtensions.IsChanneling(Owner)
+                        && target != null && target.IsAlive)
                     {
-                        Log.Debug($"{e}");
+                        this.Drain.UseAbility(target);
+                        await Await.Delay(GetAbilityDelay(target, Drain), token);
                     }
+                }
+                catch (Exception e)
+                {
+                    Log.Debug($"{e}");
                 }
             }
 
             if (this.BloodThorn != null &&
                 this.BloodThorn.Item.IsValid &&
-                target != null &&
+                target != null && 
                 this.BloodThorn.Item.CanBeCasted(target) &&
                 this.Config.ItemToggler.Value.IsEnabled(this.BloodThorn.Item.Name))
             {
@@ -466,7 +462,8 @@
                 EntityManager<Hero>.Entities.FirstOrDefault(
                     x =>
                         x.IsAlive && x.Team != this.Owner.Team && !x.IsIllusion
-                        && x.Health < damageBlast * (1 - x.MagicDamageResist)
+                        && x.Health < damageBlast * (1 - x.MagicDamageResist) && Decrepify != null && Decrepify.IsValid
+                        && Blast != null && Blast.IsValid
                         && Decrepify.CanBeCasted(x) && Blast.CanBeCasted()
                         && !UnitExtensions.IsMagicImmune(x) && comboMana);
 
@@ -474,7 +471,7 @@
                 EntityManager<Hero>.Entities.FirstOrDefault(
                     x =>
                         x.IsAlive && x.Team != this.Owner.Team && !x.IsIllusion
-                        && x.Health < damageBlast * (1 - x.MagicDamageResist)
+                        && x.Health < damageBlast * (1 - x.MagicDamageResist) && Blast != null && Blast.IsValid
                         && Blast.CanBeCasted() && !UnitExtensions.IsMagicImmune(x)
                         && Ensage.SDK.Extensions.EntityExtensions.Distance2D(Owner, x.NetworkPosition) <= 400);
 
@@ -496,6 +493,11 @@
         protected int GetAbilityDelay(Unit unit, Ability ability)
         {
             return (int) (((ability.FindCastPoint() + this.Owner.GetTurnTime(unit)) * 1000.0) + Game.Ping) + 50;
+        }
+
+        protected int GetAbilityDelay(Vector3 pos, Ability ability)
+        {
+            return (int)(((ability.FindCastPoint() + this.Owner.GetTurnTime(pos)) * 1000.0) + Game.Ping) + 50;
         }
 
         protected int GetItemDelay(Unit unit)
@@ -536,6 +538,7 @@
 
         protected override void OnDeactivate()
         {
+            GameDispatcher.OnIngameUpdate -= GameDispatcher_OnIngameUpdate;
             base.OnDeactivate();
             this.context.Inventory.Detach(this);
         }
