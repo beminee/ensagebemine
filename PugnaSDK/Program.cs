@@ -50,7 +50,7 @@
                 return;
             }
 
-            var key = KeyInterop.KeyFromVirtualKey(this.Config.Key);
+            var key = KeyInterop.KeyFromVirtualKey((int)keyCode);
             this.OrbwalkerMode.Key = key;
         }
     }
