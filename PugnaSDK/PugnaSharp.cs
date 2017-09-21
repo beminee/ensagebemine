@@ -416,9 +416,13 @@
                 await Await.Delay(this.GetItemDelay(target), token);
             }
 
-            if (this.Orbwalker.OrbwalkTo(target))
+            if (target != null && !Owner.IsValidOrbwalkingTarget(target))
             {
-                return;
+                Orbwalker.Move(Game.MousePosition);
+            }
+            else
+            {
+                Orbwalker.OrbwalkTo(target);
             }
 
             await Await.Delay(50, token);
