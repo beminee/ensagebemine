@@ -253,11 +253,11 @@
                 // var manaDrain = Drain.GetManaCost(Drain.Level - 1);
                 try
                 {
-                    if (Decrepify.CanBeCasted() && Decrepify.CanHit(target)
+                    if (Decrepify.CanBeCasted() && target != null && Decrepify.CanHit(target)
                         && this.Config.AbilityToggler.Value.IsEnabled(this.Decrepify.Name)
                         && this.Owner.Mana >= manaBlast + manaDecrepify
                         && !UnitExtensions.IsChanneling(Owner)
-                        && target != null && target.IsAlive)
+                        && target.IsAlive)
                     {
                         this.Decrepify.UseAbility(target);
                         await Await.Delay(GetAbilityDelay(target, Decrepify), token);
