@@ -167,6 +167,7 @@
                     {
                         if (HealTarget != null && this.Config.AbilityToggler.Value.IsEnabled(this.Drain.Name)
                             && !UnitExtensions.IsChanneling(Owner) && myHealth >= myHpThreshold
+                            && HealTarget.Distance2D(this.Owner) <= Drain.CastRange
                             && HealTarget.HealthPercent() * 100 < healThreshold)
                         {
                             this.Drain.UseAbility(HealTarget);
