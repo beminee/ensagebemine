@@ -1,7 +1,6 @@
 ﻿namespace PugnaSharpSDK
 {
     using System;
-    using System.Collections.Specialized;
     using System.Linq;
     using System.Reflection;
     using System.Threading;
@@ -13,12 +12,8 @@
     using Ensage.Common.Menu;
     using Ensage.Common.Threading;
     using Ensage.SDK.Extensions;
-    using Ensage.SDK.Handlers;
     using Ensage.SDK.Helpers;
-    using Ensage.SDK.Input;
-    using Ensage.SDK.Inventory;
     using Ensage.SDK.Inventory.Metadata;
-    using Ensage.SDK.Orbwalker;
     using Ensage.SDK.Orbwalker.Modes;
     using Ensage.SDK.Prediction;
     using Ensage.SDK.Prediction.Collision;
@@ -32,7 +27,6 @@
     using SharpDX;
     using AbilityId = Ensage.AbilityId;
     using UnitExtensions = Ensage.SDK.Extensions.UnitExtensions;
-    using System.Collections.Generic;
 
     [PublicAPI]
     public class PugnaSharp : KeyPressOrbwalkingModeAsync
@@ -61,31 +55,31 @@
 
 
         [ItemBinding]
-        private item_blink BlinkDagger { get; set; }
+        public item_blink BlinkDagger { get; private set; }
 
         [ItemBinding]
-        private item_bloodthorn BloodThorn { get; set; }
+        public item_bloodthorn BloodThorn { get; private set; }
 
         [ItemBinding]
-        private item_hurricane_pike HurricanePike { get; set; }
+        public item_hurricane_pike HurricanePike { get; private set; }
 
         [ItemBinding]
-        private item_shivas_guard ShivasGuard { get; set; }
+        public item_shivas_guard ShivasGuard { get; private set; }
 
         [ItemBinding]
-        private item_mjollnir Mjollnir { get; set; }
+        public item_mjollnir Mjollnir { get; private set; }
 
         [ItemBinding]
-        private item_veil_of_discord VeilofDiscord { get; set; }
+        public item_veil_of_discord VeilofDiscord { get; private set; }
 
         [ItemBinding]
-        private item_rod_of_atos RodofAtos { get; set; }
+        public item_rod_of_atos RodofAtos { get; private set; }
 
         [ItemBinding]
-        private item_sheepstick SheepStick { get; set; }
+        public item_sheepstick SheepStick { get; private set; }
 
         [ItemBinding]
-        private item_orchid Orchid { get; set; }
+        public item_orchid Orchid { get; set; }
 
         [ItemBinding]
         public item_dagon Dagon1 { get; set; }
@@ -268,12 +262,13 @@
                         && !UnitExtensions.IsChanneling(Owner)
                         && target != null && target.IsAlive)
                     {
-                        var delay = Blast.GetAbilityData("delay") * 1000;
+                        var delay = Blast.GetAbilityData("delay");
                         var blastTargets =
                             EntityManager<Hero>.Entities.OrderBy(x => x == allTargets).Where(
                                 x =>
                                     x.IsValid && x.IsVisible && x.Team != Owner.Team && !x.IsIllusion &&
                                     !UnitExtensions.IsMagicImmune(x)).ToList();
+                        var blastCastRange = Blast.CastRange;
 
                         if (blastTargets == null) return;
                         var input =
@@ -282,7 +277,7 @@
                                 target,
                                 delay,
                                 float.MaxValue,
-                                620,
+                                blastCastRange,
                                 400,
                                 PredictionSkillshotType.SkillshotCircle,
                                 true,
@@ -303,16 +298,6 @@
                 catch (Exception e)
                 {
                     Log.Debug($"{e}");
-                }
-
-                if (this.Drain.CanBeCasted() &&
-                    !this.Blast.CanBeCasted() && !this.Decrepify.CanBeCasted()
-                    && this.Config.AbilityToggler.Value.IsEnabled(this.Drain.Name)
-                    && !UnitExtensions.IsChanneling(Owner)
-                    && target != null && target.IsAlive)
-                {
-                    this.Drain.UseAbility(target);
-                    await Await.Delay(GetAbilityDelay(target, Drain), token);
                 }
             }
 
@@ -414,6 +399,16 @@
                 Log.Debug("Using Mjollnir");
                 this.Mjollnir.UseAbility(Owner);
                 await Await.Delay(this.GetItemDelay(target), token);
+            }
+
+            if (!silenced && this.Drain.CanBeCasted() &&
+                !this.Blast.CanBeCasted() && !this.Decrepify.CanBeCasted()
+                && this.Config.AbilityToggler.Value.IsEnabled(this.Drain.Name)
+                && !UnitExtensions.IsChanneling(Owner)
+                && target != null && target.IsAlive)
+            {
+                this.Drain.UseAbility(target);
+                await Await.Delay(GetAbilityDelay(target, Drain), token);
             }
 
             if (target != null && !Owner.IsValidOrbwalkingTarget(target) && !UnitExtensions.IsChanneling(this.Owner))
