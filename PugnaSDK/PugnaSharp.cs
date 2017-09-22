@@ -237,6 +237,7 @@
                 if (targets.Count >= wardTars && this.Ward.CanBeCasted() &&
                     this.Config.AbilityToggler.Value.IsEnabled(this.Ward.Name))
                 {
+                    Log.Debug($"Using Ward");
                     Ward.UseAbility(Owner.NetworkPosition);
                     await Await.Delay(GetAbilityDelay(Owner, Ward), token);
                 }
@@ -292,6 +293,7 @@
 
                         if (output.HitChance >= HitChance.Medium)
                         {
+                            Log.Debug($"Using Blast");
                             this.Blast.UseAbility(output.CastPosition);
                             await Await.Delay(GetAbilityDelay(target.Position, this.Blast), token);
                         }
@@ -402,17 +404,33 @@
                 this.Mjollnir.UseAbility(Owner);
                 await Await.Delay(this.GetItemDelay(target), token);
             }
-
-            if (!silenced && this.Drain.CanBeCasted() &&
+            if (this.Config.AbilityToggler.Value.IsEnabled(this.Blast.Name) &&
+                this.Config.AbilityToggler.Value.IsEnabled(this.Decrepify.Name))
+            {
+                if (!silenced && this.Drain.CanBeCasted() &&
                 !this.Blast.CanBeCasted() && !this.Decrepify.CanBeCasted()
                 && this.Config.AbilityToggler.Value.IsEnabled(this.Drain.Name)
                 && !UnitExtensions.IsChanneling(Owner)
                 && target != null && target.IsAlive)
-            {
-                this.Drain.UseAbility(target);
-                await Await.Delay(GetAbilityDelay(target, Drain), token);
+                {
+                    Log.Debug($"Using Drain 1");
+                    this.Drain.UseAbility(target);
+                    await Await.Delay(GetAbilityDelay(target, Drain), token);
+                }
             }
-
+            else
+            {
+                if (!silenced && this.Drain.CanBeCasted()
+                && this.Config.AbilityToggler.Value.IsEnabled(this.Drain.Name)
+                && !UnitExtensions.IsChanneling(Owner)
+                && target != null && target.IsAlive)
+                {
+                    Log.Debug($"Using Drain 2");
+                    this.Drain.UseAbility(target);
+                    await Await.Delay(GetAbilityDelay(target, Drain), token);
+                }
+            }
+            
             if (target != null && !Owner.IsValidOrbwalkingTarget(target) && !UnitExtensions.IsChanneling(this.Owner))
             {
                 Orbwalker.Move(Game.MousePosition);
