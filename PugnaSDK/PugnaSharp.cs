@@ -201,6 +201,7 @@
                 }
             }
 
+            if (IsHealing) return;
 
             if ((this.BlinkDagger != null) &&
                 (this.BlinkDagger.Item.IsValid) &&
@@ -462,7 +463,7 @@
                     x =>
                         x.IsAlive && x.Team != this.Owner.Team && !x.IsIllusion
                         && x.Health < damageBlast * (1 - x.MagicDamageResist)
-                        && Blast != null && Blast.IsValid
+                        && Blast != null && Blast.IsValid && x.Distance2D(this.Owner) <= 900
                         && Decrepify.CanBeCasted(x) && Blast.CanBeCasted()
                         && !UnitExtensions.IsMagicImmune(x) && comboMana);
 
@@ -472,7 +473,7 @@
                         x.IsAlive && x.Team != this.Owner.Team && !x.IsIllusion
                         && x.Health < damageBlast * (1 - x.MagicDamageResist)
                         && Blast.CanBeCasted() && !UnitExtensions.IsMagicImmune(x)
-                        && Ensage.SDK.Extensions.EntityExtensions.Distance2D(Owner, x.NetworkPosition) <= 400);
+                        && Ensage.SDK.Extensions.EntityExtensions.Distance2D(Owner, x.NetworkPosition) <= 800);
 
             if (decrepifyKillable != null)
             {
