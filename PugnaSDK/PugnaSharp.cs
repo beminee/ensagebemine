@@ -234,7 +234,7 @@
                                 x.Distance2D(this.Owner) <= Ward.GetAbilityData("radius"))
                         .ToList();
 
-                if (targets.Count >= wardTars && this.Ward.CanBeCasted() &&
+                if (targets.Count >= wardTars && this.Ward.CanBeCasted() && !UnitExtensions.IsChanneling(Owner) &&
                     this.Config.AbilityToggler.Value.IsEnabled(this.Ward.Name))
                 {
                     Log.Debug($"Using Ward");
@@ -265,7 +265,7 @@
                         && !UnitExtensions.IsChanneling(Owner)
                         && target != null && target.IsAlive)
                     {
-                        var delay = Blast.GetAbilityData("delay");
+                        var delay = Blast.GetAbilityData("delay") + Blast.GetCastPoint();
                         var blastTargets =
                             EntityManager<Hero>.Entities.OrderBy(x => x == allTargets).Where(
                                 x =>
@@ -307,7 +307,7 @@
 
             if (this.BloodThorn != null &&
                 this.BloodThorn.Item.IsValid &&
-                target != null &&
+                target != null && !UnitExtensions.IsChanneling(Owner) &&
                 this.BloodThorn.Item.CanBeCasted(target) &&
                 this.Config.ItemToggler.Value.IsEnabled(this.BloodThorn.Item.Name))
             {
@@ -318,7 +318,7 @@
 
             if ((this.SheepStick != null) &&
                 (this.SheepStick.Item.IsValid) &&
-                target != null &&
+                target != null && !UnitExtensions.IsChanneling(Owner) &&
                 this.SheepStick.Item.CanBeCasted(target) &&
                 this.Config.ItemToggler.Value.IsEnabled("item_sheepstick"))
             {
@@ -329,7 +329,7 @@
 
             if (this.Dagon != null &&
                 this.Dagon.Item.IsValid &&
-                target != null &&
+                target != null && !UnitExtensions.IsChanneling(Owner) &&
                 this.Dagon.Item.CanBeCasted(target) &&
                 this.Config.ItemToggler.Value.IsEnabled(Dagon5.Item.Name))
             {
@@ -340,7 +340,7 @@
 
             if (this.Orchid != null &&
                 this.Orchid.Item.IsValid &&
-                target != null &&
+                target != null && !UnitExtensions.IsChanneling(Owner) &&
                 this.Orchid.Item.CanBeCasted(target) &&
                 this.Config.ItemToggler.Value.IsEnabled("item_orchid"))
             {
@@ -351,7 +351,7 @@
 
             if (this.RodofAtos != null &&
                 this.RodofAtos.Item.IsValid &&
-                target != null &&
+                target != null && !UnitExtensions.IsChanneling(Owner) &&
                 this.RodofAtos.Item.CanBeCasted(target) &&
                 this.Config.ItemToggler.Value.IsEnabled("item_rod_of_atos"))
             {
@@ -362,7 +362,7 @@
 
             if (this.VeilofDiscord != null &&
                 this.VeilofDiscord.Item.IsValid &&
-                target != null &&
+                target != null && !UnitExtensions.IsChanneling(Owner) &&
                 this.VeilofDiscord.Item.CanBeCasted() &&
                 this.Config.ItemToggler.Value.IsEnabled("item_veil_of_discord"))
             {
@@ -373,7 +373,7 @@
 
             if (this.HurricanePike != null &&
                 this.HurricanePike.Item.IsValid &&
-                target != null &&
+                target != null && !UnitExtensions.IsChanneling(Owner) &&
                 this.HurricanePike.Item.CanBeCasted() &&
                 this.Config.ItemToggler.Value.IsEnabled("item_hurricane_pike"))
             {
@@ -384,7 +384,7 @@
 
             if (this.ShivasGuard != null &&
                 this.ShivasGuard.Item.IsValid &&
-                target != null &&
+                target != null && !UnitExtensions.IsChanneling(Owner) &&
                 this.ShivasGuard.Item.CanBeCasted() &&
                 Owner.Distance2D(target) <= 900 &&
                 this.Config.ItemToggler.Value.IsEnabled("item_shivas_guard"))
@@ -396,7 +396,7 @@
 
             if (this.Mjollnir != null &&
                 this.Mjollnir.Item.IsValid &&
-                target != null &&
+                target != null && !UnitExtensions.IsChanneling(Owner) &&
                 this.Mjollnir.Item.CanBeCasted() &&
                 this.Config.ItemToggler.Value.IsEnabled("item_mjollnir"))
             {
@@ -415,7 +415,7 @@
                 {
                     Log.Debug($"Using Drain 1");
                     this.Drain.UseAbility(target);
-                    await Await.Delay(GetAbilityDelay(target, Drain), token);
+                    await Await.Delay(GetAbilityDelay(target, Drain) + 50, token);
                 }
             }
             else
@@ -427,7 +427,7 @@
                 {
                     Log.Debug($"Using Drain 2");
                     this.Drain.UseAbility(target);
-                    await Await.Delay(GetAbilityDelay(target, Drain), token);
+                    await Await.Delay(GetAbilityDelay(target, Drain) + 50, token);
                 }
             }
             
