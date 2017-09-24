@@ -408,10 +408,10 @@
                 this.Config.AbilityToggler.Value.IsEnabled(this.Decrepify.Name))
             {
                 if (!silenced && this.Drain.CanBeCasted() &&
-                !this.Blast.CanBeCasted() && !this.Decrepify.CanBeCasted()
-                && this.Config.AbilityToggler.Value.IsEnabled(this.Drain.Name)
-                && !UnitExtensions.IsChanneling(Owner)
-                && target != null && target.IsAlive)
+                    !this.Blast.CanBeCasted() && !this.Decrepify.CanBeCasted()
+                    && this.Config.AbilityToggler.Value.IsEnabled(this.Drain.Name)
+                    && !UnitExtensions.IsChanneling(Owner)
+                    && target != null && target.IsAlive)
                 {
                     Log.Debug($"Using Drain 1");
                     this.Drain.UseAbility(target);
@@ -421,16 +421,16 @@
             else
             {
                 if (!silenced && this.Drain.CanBeCasted()
-                && this.Config.AbilityToggler.Value.IsEnabled(this.Drain.Name)
-                && !UnitExtensions.IsChanneling(Owner)
-                && target != null && target.IsAlive)
+                    && this.Config.AbilityToggler.Value.IsEnabled(this.Drain.Name)
+                    && !UnitExtensions.IsChanneling(Owner)
+                    && target != null && target.IsAlive)
                 {
                     Log.Debug($"Using Drain 2");
                     this.Drain.UseAbility(target);
                     await Await.Delay(GetAbilityDelay(target, Drain) + 50, token);
                 }
             }
-            
+
             if (target != null && !Owner.IsValidOrbwalkingTarget(target) && !UnitExtensions.IsChanneling(this.Owner))
             {
                 Orbwalker.Move(Game.MousePosition);
