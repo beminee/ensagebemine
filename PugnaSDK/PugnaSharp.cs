@@ -301,9 +301,9 @@
                         }
                     }
                 }
-                catch (Exception e)
+                catch (Exception)
                 {
-                    Log.Debug($"{e}");
+                    // ignored
                 }
             }
 
