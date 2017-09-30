@@ -3,13 +3,13 @@
     using System;
     using System.ComponentModel.Composition;
     using System.Windows.Input;
-
     using Ensage;
     using Ensage.Common.Menu;
     using Ensage.SDK.Service;
     using Ensage.SDK.Service.Metadata;
 
-    [ExportPlugin("PugnaSharpSDK", HeroId.npc_dota_hero_pugna)]
+    [ExportPlugin("PugnaSharpSDK", StartupMode.Auto, "beminee", "1.0.0.0", "Fully Functional Pugna Assembly", 500,
+        HeroId.npc_dota_hero_pugna)]
     public class Program : Plugin
     {
         private readonly IServiceContext context;
@@ -27,7 +27,7 @@
 
         protected override void OnActivate()
         {
-            this.Config = new PugnaSharpConfig();
+            this.Config = new PugnaSharpConfig(OrbwalkerMode);
             this.Config.Key.Item.ValueChanged += this.HotkeyChanged;
 
             this.OrbwalkerMode = new PugnaSharp(this.Config.Key, this.Config, this.context);
@@ -50,7 +50,7 @@
                 return;
             }
 
-            var key = KeyInterop.KeyFromVirtualKey((int)keyCode);
+            var key = KeyInterop.KeyFromVirtualKey((int) keyCode);
             this.OrbwalkerMode.Key = key;
         }
     }

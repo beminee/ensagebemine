@@ -3,10 +3,12 @@
     using System;
     using System.Linq;
     using System.Reflection;
+    using System.Collections.Generic;
     using System.Threading;
     using System.Threading.Tasks;
     using System.Windows.Input;
     using Ensage;
+    using Ensage.Heroes;
     using Ensage.Common.Enums;
     using Ensage.Common.Extensions;
     using Ensage.Common.Menu;
@@ -51,6 +53,18 @@
             this.context = context;
             this.TargetSelector = context.TargetSelector;
             this.Prediction = context.Prediction;
+
+            var alliedHeroes =
+                EntityManager<Hero>.Entities.Where(
+                        x =>
+                            x.IsValid && !x.IsIllusion && x.IsAlive && x.Team == this.Owner.Team && x != this.Owner &&
+                            !(x is Meepo))
+                    .ToList();
+
+            foreach (var alliedHero in alliedHeroes)
+            {
+                HeroDictionary.Add(alliedHero.Name, true);
+            }
         }
 
 
@@ -111,6 +125,8 @@
 
         protected Unit HealTarget { get; set; }
 
+        public Dictionary<string, bool> HeroDictionary { get; } = new Dictionary<string, bool>();
+
         public override async Task ExecuteAsync(CancellationToken token)
         {
             var target = this.TargetSelector.Active.GetTargets().FirstOrDefault(x => !x.IsInvulnerable());
@@ -154,7 +170,7 @@
                             x =>
                                 x.IsAlive && x.Team == this.Owner.Team && x != Owner && !x.IsIllusion
                                 && ((float) x.Health / (float) x.MaximumHealth) * 100 < healThreshold
-                                && !UnitExtensions.IsMagicImmune(x));
+                                && !UnitExtensions.IsMagicImmune(x) && Config.HealTargetHeroes.Value.IsEnabled(x.Name));
 
                     var myHealth = (float) Owner.Health / (float) Owner.MaximumHealth * 100;
 
@@ -483,7 +499,7 @@
                         x.IsAlive && x.Team != this.Owner.Team && !x.IsIllusion
                         && x.Health < damageBlast * (1 - x.MagicDamageResist)
                         && Blast != null && Blast.IsValid && x.Distance2D(this.Owner) <= 900
-                        && Decrepify.CanBeCasted(x) && Blast.CanBeCasted()
+                        && Decrepify.CanBeCasted(x) && Blast.CanBeCasted() && Blast.CanHit(x)
                         && !UnitExtensions.IsMagicImmune(x) && comboMana);
 
             var blastKillable =
@@ -491,7 +507,7 @@
                     x =>
                         x.IsAlive && x.Team != this.Owner.Team && !x.IsIllusion
                         && x.Health < damageBlast * (1 - x.MagicDamageResist)
-                        && Blast.CanBeCasted() && !UnitExtensions.IsMagicImmune(x)
+                        && Blast.CanBeCasted() && !UnitExtensions.IsMagicImmune(x) && Blast.CanHit(x)
                         && Ensage.SDK.Extensions.EntityExtensions.Distance2D(Owner, x.NetworkPosition) <= 800);
 
             if (decrepifyKillable != null)
@@ -499,7 +515,7 @@
                 Decrepify.UseAbility(decrepifyKillable);
                 await Await.Delay(GetAbilityDelay(decrepifyKillable, Decrepify));
                 Blast.UseAbility(decrepifyKillable);
-                await Await.Delay(GetAbilityDelay(decrepifyKillable, Decrepify));
+                await Await.Delay(GetAbilityDelay(decrepifyKillable, Blast));
             }
 
             if (blastKillable != null)
