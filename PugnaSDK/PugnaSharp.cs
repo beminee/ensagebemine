@@ -53,18 +53,6 @@
             this.context = context;
             this.TargetSelector = context.TargetSelector;
             this.Prediction = context.Prediction;
-
-            var alliedHeroes =
-                EntityManager<Hero>.Entities.Where(
-                        x =>
-                            x.IsValid && !x.IsIllusion && x.IsAlive && x.Team == this.Owner.Team && x != this.Owner &&
-                            !(x is Meepo))
-                    .ToList();
-
-            foreach (var alliedHero in alliedHeroes)
-            {
-                HeroDictionary.Add(alliedHero.Name, true);
-            }
         }
 
 
@@ -567,6 +555,18 @@
             this.Drain = UnitExtensions.GetAbilityById(this.Owner, AbilityId.pugna_life_drain);
 
             this.Context.Inventory.Attach(this);
+
+            var alliedHeroes =
+                EntityManager<Hero>.Entities.Where(
+                        x =>
+                            x.IsValid && !x.IsIllusion && x.IsAlive && x.Team == this.Owner.Team && x != this.Owner &&
+                            !(x is Meepo))
+                    .ToList();
+
+            foreach (var alliedHero in alliedHeroes)
+            {
+                HeroDictionary.Add(alliedHero.Name, true);
+            }
 
             base.OnActivate();
         }
