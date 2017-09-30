@@ -8,11 +8,9 @@
     public class PugnaSharpConfig
     {
         private bool _disposed;
-        public PugnaSharp Pugna;
 
-        public PugnaSharpConfig(PugnaSharp pugna)
+        public PugnaSharpConfig()
         {
-            Pugna = pugna;
 
             var itemDict = new Dictionary<string, bool>
             {
@@ -56,7 +54,7 @@
             this.WardTargets.Item.Tooltip = "Targets in range of ward for usage";
             this.AbilityToggler = this.Menu.Item("Ability Toggler", new AbilityToggler(spellDict));
             this.ItemToggler = this.Menu.Item("Item Toggler", new AbilityToggler(itemDict));
-            this.HealTargetHeroes = this.Menu.Item("Heal Targets", new HeroToggler(pugna.HeroDictionary));
+            this.HealTargetHeroes = this.Menu.Item("Heal Targets", new HeroToggler(new Dictionary<string, bool>(), false, true, false));
         }
 
         public MenuFactory Menu { get; }

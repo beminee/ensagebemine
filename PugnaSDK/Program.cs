@@ -27,7 +27,7 @@
 
         protected override void OnActivate()
         {
-            this.Config = new PugnaSharpConfig(OrbwalkerMode);
+            this.Config = new PugnaSharpConfig();
             this.Config.Key.Item.ValueChanged += this.HotkeyChanged;
 
             this.OrbwalkerMode = new PugnaSharp(this.Config.Key, this.Config, this.context);
