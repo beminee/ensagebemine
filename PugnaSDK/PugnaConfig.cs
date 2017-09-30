@@ -8,9 +8,12 @@
     public class PugnaSharpConfig
     {
         private bool _disposed;
+        public PugnaSharp Pugna;
 
         public PugnaSharpConfig(PugnaSharp pugna)
         {
+            Pugna = pugna;
+
             var itemDict = new Dictionary<string, bool>
             {
                 {"item_bloodthorn", true},
