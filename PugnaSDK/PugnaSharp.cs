@@ -198,9 +198,9 @@
                         }
                     }
                 }
-                catch (Exception e)
+                catch (Exception)
                 {
-                    Log.Debug($"{e}");
+                    // ignore
                 }
             }
 
@@ -485,7 +485,7 @@
                         x.IsAlive && x.Team != this.Owner.Team && !x.IsIllusion
                         && x.Health < damageBlast * (1 - x.MagicDamageResist)
                         && Blast != null && Blast.IsValid && x.Distance2D(this.Owner) <= 900
-                        && Decrepify.CanBeCasted(x) && Blast.CanBeCasted() && Blast.CanHit(x)
+                        && Decrepify.CanBeCasted(x) && Blast.CanBeCasted()
                         && !UnitExtensions.IsMagicImmune(x) && comboMana);
 
             var blastKillable =
@@ -500,8 +500,12 @@
             {
                 Decrepify.UseAbility(decrepifyKillable);
                 await Await.Delay(GetAbilityDelay(decrepifyKillable, Decrepify));
-                Blast.UseAbility(decrepifyKillable);
-                await Await.Delay(GetAbilityDelay(decrepifyKillable, Blast));
+
+                if (Blast.CanHit(decrepifyKillable))
+                {
+                    Blast.UseAbility(decrepifyKillable);
+                    await Await.Delay(GetAbilityDelay(decrepifyKillable, Blast));
+                }
             }
 
             if (blastKillable != null)
