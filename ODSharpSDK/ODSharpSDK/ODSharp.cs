@@ -1,4 +1,4 @@
-// <copyright file="ODSharp.cs" company="Ensage">
+﻿// <copyright file="ODSharp.cs" company="Ensage">
 //    Copyright (c) 2017 Ensage.
 // </copyright>
 
@@ -13,7 +13,6 @@ namespace ODSharpSDK
     using System.Threading;
     using System.Threading.Tasks;
     using System.Windows.Input;
-
     using Ensage;
     using Ensage.Common.Enums;
     using Ensage.Common.Extensions;
@@ -33,14 +32,10 @@ namespace ODSharpSDK
     using Ensage.SDK.Inventory.Metadata;
     using Ensage.SDK.Service;
     using Ensage.SDK.Service.Metadata;
-
     using log4net;
-
     using PlaySharp.Toolkit.Helper.Annotations;
     using PlaySharp.Toolkit.Logging;
-
     using SharpDX;
-
     using AbilityId = Ensage.AbilityId;
     using UnitExtensions = Ensage.SDK.Extensions.UnitExtensions;
 
@@ -104,8 +99,9 @@ namespace ODSharpSDK
 
         public override async Task ExecuteAsync(CancellationToken token)
         {
-
-            var target = this.TargetSelector.Active.GetTargets().FirstOrDefault(x => !x.IsInvulnerable() && x.Distance2D(this.Owner) <= this.Owner.AttackRange * 2);
+            var target =
+                this.TargetSelector.Active.GetTargets()
+                    .FirstOrDefault(x => !x.IsInvulnerable() && x.Distance2D(this.Owner) <= this.Owner.AttackRange * 2);
 
             var silenced = UnitExtensions.IsSilenced(this.Owner);
 
@@ -114,17 +110,17 @@ namespace ODSharpSDK
             var modifier = Ensage.SDK.Extensions.UnitExtensions.HasModifier(this.Owner, HurricanePike.ModifierName);
 
             if ((this.BlinkDagger != null) &&
-            (this.BlinkDagger.Item.IsValid) &&
-            target != null && Owner.Distance2D(target) <= 1200 + sliderValue && !(Owner.Distance2D(target) <= 400) &&
-            this.BlinkDagger.Item.CanBeCasted(target) &&
-            this.Config.ItemToggler.Value.IsEnabled(this.BlinkDagger.Item.Name))
+                (this.BlinkDagger.Item.IsValid) &&
+                target != null && Owner.Distance2D(target) <= 1200 + sliderValue && !(Owner.Distance2D(target) <= 400) &&
+                this.BlinkDagger.Item.CanBeCasted(target) &&
+                this.Config.ItemToggler.Value.IsEnabled(this.BlinkDagger.Item.Name))
             {
                 var l = (this.Owner.Distance2D(target) - sliderValue) / sliderValue;
                 var posA = this.Owner.Position;
                 var posB = target.Position;
                 var x = (posA.X + (l * posB.X)) / (1 + l);
                 var y = (posA.Y + (l * posB.Y)) / (1 + l);
-                var position = new Vector3((int)x, (int)y, posA.Z);
+                var position = new Vector3((int) x, (int) y, posA.Z);
 
                 Log.Debug("Using BlinkDagger");
                 this.BlinkDagger.UseAbility(position);
@@ -135,86 +131,93 @@ namespace ODSharpSDK
             {
                 try
                 {
+                    var targets =
+                        EntityManager<Hero>.Entities.Where(
+                                x =>
+                                    x.IsValid && x.Team != this.Owner.Team && !x.IsIllusion &&
+                                    x.Distance2D(this.Owner) <= 700)
+                            .ToList();
+                    var me = this.Owner as Hero;
 
-                var targets =
-                    EntityManager<Hero>.Entities.Where(
-                            x => x.IsValid && x.Team != this.Owner.Team && !x.IsIllusion && x.Distance2D(this.Owner) <= 700)
-                        .ToList();
-                var me = this.Owner as Hero;
-
-                foreach (var ultiTarget in targets)
-                {
-                    if (this.Config.AbilityToggler.Value.IsEnabled(this.Ulti.Name) && this.Ulti.CanBeCasted(ultiTarget))
+                    foreach (var ultiTarget in targets)
                     {
-
-                        var ultiDamage =
+                        if (this.Config.AbilityToggler.Value.IsEnabled(this.Ulti.Name) &&
+                            this.Ulti.CanBeCasted(ultiTarget))
+                        {
+                            var ultiDamage =
                                 Math.Floor(
                                     this.Ulti.GetAbilitySpecialData("damage_multiplier") *
                                     (me.TotalIntelligence - ultiTarget.TotalIntelligence) *
                                     (1 - ultiTarget.MagicDamageResist));
 
 
-                        if (ultiTarget.Health > ultiDamage)
-                        {
-                            continue;
-                        }
-
-                        var delay = this.GetAbilityDelay(ultiTarget, this.Ulti);
-                        var radius = this.Ulti.GetAbilitySpecialData("radius");
-                        var input =
-                            new PredictionInput(
-                                this.Owner,
-                                ultiTarget,
-                                delay,
-                                float.MaxValue,
-                                700,
-                                radius,
-                                PredictionSkillshotType.SkillshotCircle,
-                                true)
+                            if (ultiTarget.Health > ultiDamage)
                             {
-                                CollisionTypes = CollisionTypes.None
-                            };
+                                continue;
+                            }
 
-                        // Log.Debug($"Owner: {input.Owner.Name}");
-                        // Log.Debug($"Delay: {input.Delay}");
-                        // Log.Debug($"Range: {input.Range}");
-                        // Log.Debug($"Speed: {input.Speed}");
-                        // Log.Debug($"Radius: {input.Radius}");
-                        // Log.Debug($"Type: {input.PredictionSkillshotType}");
-                        var output = this.Prediction.GetPrediction(input);
-                        var amount = output.AoeTargetsHit.Count;
+                            var delay = this.GetAbilityDelay(ultiTarget, this.Ulti);
+                            var radius = this.Ulti.GetAbilitySpecialData("radius");
+                            var input =
+                                new PredictionInput(
+                                    this.Owner,
+                                    ultiTarget,
+                                    delay,
+                                    float.MaxValue,
+                                    700,
+                                    radius,
+                                    PredictionSkillshotType.SkillshotCircle,
+                                    true)
+                                {
+                                    CollisionTypes = CollisionTypes.None
+                                };
 
-                       // Log.Debug($"{output.HitChance}");
+                            // Log.Debug($"Owner: {input.Owner.Name}");
+                            // Log.Debug($"Delay: {input.Delay}");
+                            // Log.Debug($"Range: {input.Range}");
+                            // Log.Debug($"Speed: {input.Speed}");
+                            // Log.Debug($"Radius: {input.Radius}");
+                            // Log.Debug($"Type: {input.PredictionSkillshotType}");
+                            var output = this.Prediction.GetPrediction(input);
+                            var amount = output.AoeTargetsHit.Count;
 
-                        if (output.HitChance >= HitChance.Medium && this.Config.MinimumTargetToUlti.Item.GetValue<int>() >= amount)
-                        {
-                            Log.Debug(
-                                $"Using Ulti on {amount}!");
-                            this.Ulti.UseAbility(output.CastPosition);
-                            await Await.Delay(delay + (int)Game.Ping, token);
+                            // Log.Debug($"{output.HitChance}");
+
+                            if (output.HitChance >= HitChance.Medium &&
+                                this.Config.MinimumTargetToUlti.Item.GetValue<int>() >= amount)
+                            {
+                                Log.Debug(
+                                    $"Using Ulti on {amount}!");
+                                this.Ulti.UseAbility(output.CastPosition);
+                                await Await.Delay(delay + (int) Game.Ping, token);
+                            }
                         }
-
                     }
                 }
+                catch (TaskCanceledException)
+                {
+                    // ignore
                 }
                 catch (Exception e)
                 {
                     Log.Debug($"{e}");
                 }
 
-                if (this.Orb != null && this.Orb.IsValid && this.Config.AbilityToggler.Value.IsEnabled(this.Orb.Name) && this.Orb.CanBeCasted(target) && !this.Orb.IsAutoCastEnabled)
+                if (this.Orb != null && this.Orb.IsValid && this.Config.AbilityToggler.Value.IsEnabled(this.Orb.Name) &&
+                    this.Orb.CanBeCasted(target) && !this.Orb.IsAutoCastEnabled)
                 {
-                    Log.Debug($"Toggling Arcane Orb on because {target != null}");
+                    Log.Debug($"Toggling Arcane Orb on because target is not null");
                     this.Orb.ToggleAutocastAbility();
-                    await Await.Delay(100 + (int)Game.Ping, token);
+                    await Await.Delay(100 + (int) Game.Ping, token);
                 }
 
                 // Toggle off if target is null
-                else if (this.Orb != null && this.Orb.IsValid && this.Config.AbilityToggler.Value.IsEnabled(this.Orb.Name) && target == null && this.Orb.IsAutoCastEnabled)
+                else if (this.Orb != null && this.Orb.IsValid && this.Config.AbilityToggler.Value.IsEnabled(this.Orb.Name) &&
+                         target == null && this.Orb.IsAutoCastEnabled && !modifier)
                 {
                     Log.Debug($"Toggling Arcane Orb off because target is null");
                     this.Orb.ToggleAutocastAbility();
-                    await Await.Delay(100 + (int)Game.Ping, token);
+                    await Await.Delay(100 + (int) Game.Ping, token);
                 }
             }
 
@@ -274,25 +277,27 @@ namespace ODSharpSDK
 
             if (this.HurricanePike != null)
             {
-				if (modifier)
-				{
-					this.Owner.Attack(target);
+                Unit hero = null;
+                if (modifier && hero != null && this.Owner.CanAttack(hero))
+                {
+                    this.Owner.Attack(hero);
                     await Task.Delay(100, token);
                     return;
-				}
-				
-				if ((double)(this.Owner.Health / this.Owner.MaximumHealth) * 100 <= 
-                (double)Config.HurricanePercentage.Item.GetValue<Slider>().Value &&
-                this.HurricanePike.Item.IsValid &&
-                target != null &&
-                this.HurricanePike.Item.CanBeCasted() &&
-                this.Config.ItemToggler.Value.IsEnabled("item_hurricane_pike"))
-				{
-                Log.Debug("Using HurricanePike");
-                this.HurricanePike.UseAbility(target);
-                await Await.Delay(this.GetItemDelay(target), token);
-				return;
-				}
+                }
+
+                if ((double) (this.Owner.Health / this.Owner.MaximumHealth) * 100 <=
+                    (double) Config.HurricanePercentage.Item.GetValue<Slider>().Value &&
+                    this.HurricanePike.Item.IsValid &&
+                    target != null &&
+                    this.HurricanePike.Item.CanBeCasted() &&
+                    this.Config.ItemToggler.Value.IsEnabled("item_hurricane_pike"))
+                {
+                    Log.Debug("Using HurricanePike");
+                    this.HurricanePike.UseAbility(target);
+                    hero = target;
+                    await Await.Delay(this.GetItemDelay(target), token);
+                    return;
+                }
             }
 
             if ((this.ShivasGuard != null) &&
@@ -303,12 +308,11 @@ namespace ODSharpSDK
             {
                 Log.Debug("Using Shivas");
                 this.ShivasGuard.UseAbility();
-                await Await.Delay(20 + (int)Game.Ping, token);
+                await Await.Delay(20 + (int) Game.Ping, token);
             }
 
             if (this.Orbwalker.OrbwalkTo(target))
             {
-                
                 return;
             }
 
@@ -317,22 +321,25 @@ namespace ODSharpSDK
 
         protected int GetAbilityDelay(Unit unit, Ability ability)
         {
-            return (int)(((ability.FindCastPoint() + this.Owner.GetTurnTime(unit)) * 1000.0) + Game.Ping) + 50;
+            return (int) (((ability.FindCastPoint() + this.Owner.GetTurnTime(unit)) * 1000.0) + Game.Ping) + 50;
         }
 
         protected int GetImprisonDamage(Unit unit)
         {
-            return (int)Math.Floor((this.Imprison.GetAbilitySpecialData("damage") * (1 - unit.MagicDamageResist)) - (unit.HealthRegeneration * 5));
+            return
+                (int)
+                Math.Floor((this.Imprison.GetAbilitySpecialData("damage") * (1 - unit.MagicDamageResist)) -
+                           (unit.HealthRegeneration * 5));
         }
 
         protected int GetItemDelay(Unit unit)
         {
-            return (int)((this.Owner.GetTurnTime(unit) * 1000.0) + Game.Ping) + 100;
+            return (int) ((this.Owner.GetTurnTime(unit) * 1000.0) + Game.Ping) + 100;
         }
 
         protected int GetItemDelay(Vector3 pos)
         {
-            return (int)((this.Owner.GetTurnTime(pos) * 1000.0) + Game.Ping) + 100;
+            return (int) ((this.Owner.GetTurnTime(pos) * 1000.0) + Game.Ping) + 100;
         }
 
         protected override void OnActivate()
@@ -359,7 +366,6 @@ namespace ODSharpSDK
 
         public virtual async Task KillStealAsync(CancellationToken args)
         {
-
             if (!Config.KillStealEnabled || Game.IsPaused || !Owner.IsAlive || UnitExtensions.IsChanneling(Owner))
             {
                 return;
@@ -367,15 +373,15 @@ namespace ODSharpSDK
 
             var enemies =
                 EntityManager<Hero>.Entities.Where(
-                                       x =>
-                                           x.IsValid &&
-                                           x.UnitState != UnitState.MagicImmune &&
-                                           x.IsAlive &&
-                                           !x.IsIllusion &&
-                                           x.Team != this.Owner.Team &&
-                                           x.Distance2D(this.Owner) <= this.Imprison.CastRange &&
-                                           this.GetImprisonDamage(x) >= (int)x.Health)
-                                   .ToList();
+                        x =>
+                            x.IsValid &&
+                            x.UnitState != UnitState.MagicImmune &&
+                            x.IsAlive &&
+                            !x.IsIllusion &&
+                            x.Team != this.Owner.Team &&
+                            x.Distance2D(this.Owner) <= this.Imprison.CastRange &&
+                            this.GetImprisonDamage(x) >= (int) x.Health)
+                    .ToList();
 
             if (!enemies.Any())
             {
@@ -384,11 +390,12 @@ namespace ODSharpSDK
 
             foreach (var enemy in enemies)
             {
-                if (enemy.IsValid && this.Config.AbilityToggler.Value.IsEnabled(this.Imprison.Name) && this.Imprison.CanBeCasted())
+                if (enemy.IsValid && this.Config.AbilityToggler.Value.IsEnabled(this.Imprison.Name) &&
+                    this.Imprison.CanBeCasted())
                 {
                     Log.Debug($"Using Imprison because enemy can be ks'ed.");
                     this.Imprison.UseAbility(enemy);
-                    await Await.Delay(this.GetAbilityDelay(enemy, this.Imprison));
+                    await Await.Delay(this.GetAbilityDelay(enemy, this.Imprison), args);
                     return;
                 }
             }

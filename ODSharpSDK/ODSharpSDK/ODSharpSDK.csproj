@@ -4,8 +4,8 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{4D59FEBC-7AEC-428E-B328-8A5F3C229246}</ProjectGuid>
-    <OutputType>Library</OutputType>
+    <ProjectGuid>{7FD2FE81-9138-4122-B40F-A256D7DB6183}</ProjectGuid>
+    <OutputType>Exe</OutputType>
     <RootNamespace>ODSharpSDK</RootNamespace>
     <AssemblyName>ODSharpSDK</AssemblyName>
     <TargetFrameworkVersion>v4.5.2</TargetFrameworkVersion>
@@ -32,54 +32,49 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="clipper_library">
-      <HintPath>C:\Program Files (x86)\Ensage\References\clipper_library.dll</HintPath>
-    </Reference>
     <Reference Include="Ensage">
-      <HintPath>C:\Program Files (x86)\Ensage\References\Ensage.dll</HintPath>
+      <HintPath>..\..\..\..\..\..\..\Program Files (x86)\Ensage\References\Ensage.dll</HintPath>
     </Reference>
     <Reference Include="Ensage.Common">
-      <HintPath>C:\Program Files (x86)\Ensage\References\Ensage.Common.dll</HintPath>
+      <HintPath>..\..\..\..\..\..\..\Program Files (x86)\Ensage\References\Ensage.Common.dll</HintPath>
     </Reference>
-    <Reference Include="Ensage.SDK, Version=1.0.0.0, Culture=neutral, PublicKeyToken=2a0bb906a796e43b, processorArchitecture=AMD64">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>C:\Program Files (x86)\Ensage\References\Ensage.SDK.dll</HintPath>
+    <Reference Include="Ensage.SDK">
+      <HintPath>..\..\..\..\..\..\..\Program Files (x86)\Ensage\References\Ensage.SDK.dll</HintPath>
     </Reference>
     <Reference Include="Newtonsoft.Json">
-      <HintPath>C:\Program Files (x86)\Ensage\References\Newtonsoft.Json.dll</HintPath>
+      <HintPath>..\..\..\..\..\..\..\Program Files (x86)\Ensage\References\Newtonsoft.Json.dll</HintPath>
     </Reference>
     <Reference Include="PlaySharp.Service">
-      <HintPath>C:\Program Files (x86)\Ensage\References\PlaySharp.Service.dll</HintPath>
+      <HintPath>..\..\..\..\..\..\..\Program Files (x86)\Ensage\References\PlaySharp.Service.dll</HintPath>
     </Reference>
     <Reference Include="PlaySharp.Toolkit">
-      <HintPath>C:\Program Files (x86)\Ensage\References\PlaySharp.Toolkit.dll</HintPath>
+      <HintPath>..\..\..\..\..\..\..\Program Files (x86)\Ensage\References\PlaySharp.Toolkit.dll</HintPath>
     </Reference>
     <Reference Include="SharpDX">
-      <HintPath>C:\Program Files (x86)\Ensage\References\SharpDX.dll</HintPath>
+      <HintPath>..\..\..\..\..\..\..\Program Files (x86)\Ensage\References\SharpDX.dll</HintPath>
     </Reference>
     <Reference Include="SharpDX.Direct2D1">
-      <HintPath>C:\Program Files (x86)\Ensage\References\SharpDX.Direct2D1.dll</HintPath>
+      <HintPath>..\..\..\..\..\..\..\Program Files (x86)\Ensage\References\SharpDX.Direct2D1.dll</HintPath>
     </Reference>
     <Reference Include="SharpDX.Direct3D11">
-      <HintPath>C:\Program Files (x86)\Ensage\References\SharpDX.Direct3D11.dll</HintPath>
+      <HintPath>..\..\..\..\..\..\..\Program Files (x86)\Ensage\References\SharpDX.Direct3D11.dll</HintPath>
     </Reference>
     <Reference Include="SharpDX.Direct3D9">
-      <HintPath>C:\Program Files (x86)\Ensage\References\SharpDX.Direct3D9.dll</HintPath>
+      <HintPath>..\..\..\..\..\..\..\Program Files (x86)\Ensage\References\SharpDX.Direct3D9.dll</HintPath>
     </Reference>
     <Reference Include="SharpDX.DXGI">
-      <HintPath>C:\Program Files (x86)\Ensage\References\SharpDX.DXGI.dll</HintPath>
+      <HintPath>..\..\..\..\..\..\..\Program Files (x86)\Ensage\References\SharpDX.DXGI.dll</HintPath>
     </Reference>
     <Reference Include="SharpDX.Mathematics">
-      <HintPath>C:\Program Files (x86)\Ensage\References\SharpDX.Mathematics.dll</HintPath>
+      <HintPath>..\..\..\..\..\..\..\Program Files (x86)\Ensage\References\SharpDX.Mathematics.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Collections.Immutable, Version=1.1.37.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>C:\Program Files (x86)\Ensage\References\System.Collections.Immutable.dll</HintPath>
+      <HintPath>..\..\..\..\..\..\..\Program Files (x86)\Ensage\References\System.Collections.Immutable.dll</HintPath>
     </Reference>
     <Reference Include="System.ComponentModel.Composition" />
     <Reference Include="System.Core" />
-    <Reference Include="System.Drawing" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="Microsoft.CSharp" />
@@ -90,7 +85,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="ODSharp.cs" />
-    <Compile Include="OdSharpConfig.cs" />
+    <Compile Include="ODSharpConfig.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
