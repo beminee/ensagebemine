@@ -289,6 +289,10 @@ namespace ODSharpSDK
                     }
                 }
             }
+            catch (TaskCanceledException)
+            {
+                // ignore
+            }
             catch (Exception e)
             {
                 Log.Error($"{e}");
