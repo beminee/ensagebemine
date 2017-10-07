@@ -110,7 +110,8 @@ namespace ODSharpSDK
 
             var sliderValue = this.Config.UseBlinkPrediction.Item.GetValue<Slider>().Value;
 
-            var modifier = Ensage.SDK.Extensions.UnitExtensions.HasModifier(this.Owner, HurricanePike.ModifierName);
+            var modifier = Ensage.SDK.Extensions.UnitExtensions.HasModifier(this.Owner,
+                "modifier_item_hurricane_pike_range");
 
             if ((this.BlinkDagger != null) &&
                 (this.BlinkDagger.Item.IsValid) &&
@@ -123,7 +124,7 @@ namespace ODSharpSDK
                 var posB = target.Position;
                 var x = (posA.X + (l * posB.X)) / (1 + l);
                 var y = (posA.Y + (l * posB.Y)) / (1 + l);
-                var position = new Vector3((int)x, (int)y, posA.Z);
+                var position = new Vector3((int) x, (int) y, posA.Z);
 
                 Log.Debug("Using BlinkDagger");
                 this.BlinkDagger.UseAbility(position);
@@ -188,7 +189,7 @@ namespace ODSharpSDK
                                 Log.Debug(
                                     $"Using Ulti!");
                                 this.Ulti.UseAbility(output.CastPosition);
-                                await Await.Delay(delay + (int)Game.Ping, token);
+                                await Await.Delay(delay + (int) Game.Ping, token);
                             }
                         }
                     }
@@ -257,31 +258,40 @@ namespace ODSharpSDK
                 await Await.Delay(this.GetItemDelay(target), token);
             }
 
-            if (this.HurricanePike != null)
+            try
             {
-                if (modifier && target != null && target.IsValid && target.IsAlive && this.Owner.CanAttack(target) && this.Orb.Ability.CanBeCasted(target))
+                if (this.HurricanePike != null)
                 {
-                    await this.UseOrb(target, token);
-                    return;
-                }
-                else if (modifier && target != null && target.IsValid && target.IsAlive && this.Owner.CanAttack(target))
-                {
-                    this.Owner.Attack(target);
-                    await Await.Delay(100, token);
-                }
+                    if (modifier && target != null && target.IsValid && target.IsAlive && this.Owner.CanAttack(target) &&
+                        this.Orb.Ability.CanBeCasted(target))
+                    {
+                        await this.UseOrb(target, token);
+                        return;
+                    }
+                    else if (modifier && target != null && target.IsValid && target.IsAlive && this.Owner.CanAttack(target) &&
+                             !this.Orb.Ability.CanBeCasted(target))
+                    {
+                        this.Owner.Attack(target);
+                        await Await.Delay(100, token);
+                    }
 
-                if ((double)(this.Owner.Health / this.Owner.MaximumHealth) * 100 <=
-                    (double)Config.HurricanePercentage.Item.GetValue<Slider>().Value &&
-                    this.HurricanePike.Item.IsValid &&
-                    target != null &&
-                    this.HurricanePike.Item.CanBeCasted() &&
-                    this.Config.ItemToggler.Value.IsEnabled("item_hurricane_pike"))
-                {
-                    Log.Debug("Using HurricanePike");
-                    this.HurricanePike.UseAbility(target);
-                    await Await.Delay(this.GetItemDelay(target), token);
-                    return;
+                    if ((double) (this.Owner.Health / this.Owner.MaximumHealth) * 100 <=
+                        (double) Config.HurricanePercentage.Item.GetValue<Slider>().Value &&
+                        this.HurricanePike.Item.IsValid &&
+                        target != null &&
+                        this.HurricanePike.Item.CanBeCasted() &&
+                        this.Config.ItemToggler.Value.IsEnabled("item_hurricane_pike"))
+                    {
+                        Log.Debug("Using HurricanePike");
+                        this.HurricanePike.UseAbility(target);
+                        await Await.Delay(this.GetItemDelay(target), token);
+                        return;
+                    }
                 }
+            }
+            catch (Exception e)
+            {
+                Log.Error($"{e}");
             }
 
             if ((this.ShivasGuard != null) &&
@@ -292,11 +302,12 @@ namespace ODSharpSDK
             {
                 Log.Debug("Using Shivas");
                 this.ShivasGuard.UseAbility();
-                await Await.Delay(20 + (int)Game.Ping, token);
+                await Await.Delay(20 + (int) Game.Ping, token);
             }
 
 
-            if (this.Orb != null && this.Orb.Ability.IsValid && this.Config.AbilityToggler.Value.IsEnabled(this.Orb.Ability.Name) &&
+            if (this.Orb != null && this.Orb.Ability.IsValid &&
+                this.Config.AbilityToggler.Value.IsEnabled(this.Orb.Ability.Name) &&
                 this.Orb.Ability.CanBeCasted(target))
             {
                 await this.UseOrb(target, token);
@@ -318,7 +329,7 @@ namespace ODSharpSDK
 
         protected int GetAbilityDelay(Unit unit, Ability ability)
         {
-            return (int)(((ability.FindCastPoint() + this.Owner.GetTurnTime(unit)) * 1000.0) + Game.Ping) + 50;
+            return (int) (((ability.FindCastPoint() + this.Owner.GetTurnTime(unit)) * 1000.0) + Game.Ping) + 50;
         }
 
         protected int GetImprisonDamage(Unit unit)
@@ -331,12 +342,12 @@ namespace ODSharpSDK
 
         protected int GetItemDelay(Unit unit)
         {
-            return (int)((this.Owner.GetTurnTime(unit) * 1000.0) + Game.Ping) + 100;
+            return (int) ((this.Owner.GetTurnTime(unit) * 1000.0) + Game.Ping) + 100;
         }
 
         protected int GetItemDelay(Vector3 pos)
         {
-            return (int)((this.Owner.GetTurnTime(pos) * 1000.0) + Game.Ping) + 100;
+            return (int) ((this.Owner.GetTurnTime(pos) * 1000.0) + Game.Ping) + 100;
         }
 
         public async Task UseOrb(Unit Target, CancellationToken token = default(CancellationToken))
@@ -385,7 +396,7 @@ namespace ODSharpSDK
                             !x.IsIllusion &&
                             x.Team != this.Owner.Team &&
                             x.Distance2D(this.Owner) <= this.Imprison.CastRange &&
-                            this.GetImprisonDamage(x) >= (int)x.Health)
+                            this.GetImprisonDamage(x) >= (int) x.Health)
                     .ToList();
 
             if (!enemies.Any())
