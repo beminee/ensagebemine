@@ -4,7 +4,7 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{7FD2FE81-9138-4122-B40F-A256D7DB6183}</ProjectGuid>
+    <ProjectGuid>{E3314C2B-CFC2-4D76-9B41-7645F0BD6C02}</ProjectGuid>
     <OutputType>Library</OutputType>
     <RootNamespace>ODSharpSDK</RootNamespace>
     <AssemblyName>ODSharpSDK</AssemblyName>

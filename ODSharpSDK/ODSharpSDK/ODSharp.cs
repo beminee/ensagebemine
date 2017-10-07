@@ -3,6 +3,7 @@
 // </copyright>
 
 using Ensage.SDK.Abilities;
+using Ensage.SDK.Abilities.npc_dota_hero_obsidian_destroyer;
 
 namespace ODSharpSDK
 {
@@ -44,6 +45,8 @@ namespace ODSharpSDK
     {
         private static readonly ILog Log = AssemblyLogs.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
 
+        public Unit target;
+
         public OdSharpConfig Config { get; }
 
         private readonly IServiceContext context;
@@ -54,11 +57,11 @@ namespace ODSharpSDK
 
         private TaskHandler KillStealHandler { get; set; }
 
-        private Ability Orb { get; set; }
+        public obsidian_destroyer_arcane_orb Orb { get; set; }
 
-        public Ability Ulti { get; set; }
+        public obsidian_destroyer_sanity_eclipse Ulti { get; set; }
 
-        private Ability Imprison { get; set; }
+        public obsidian_destroyer_astral_imprisonment Imprison { get; set; }
 
         public ODSharp(
             Key key,
@@ -99,7 +102,7 @@ namespace ODSharpSDK
 
         public override async Task ExecuteAsync(CancellationToken token)
         {
-            var target =
+            target =
                 this.TargetSelector.Active.GetTargets()
                     .FirstOrDefault(x => !x.IsInvulnerable() && x.Distance2D(this.Owner) <= this.Owner.AttackRange * 2);
 
@@ -120,7 +123,7 @@ namespace ODSharpSDK
                 var posB = target.Position;
                 var x = (posA.X + (l * posB.X)) / (1 + l);
                 var y = (posA.Y + (l * posB.Y)) / (1 + l);
-                var position = new Vector3((int) x, (int) y, posA.Z);
+                var position = new Vector3((int)x, (int)y, posA.Z);
 
                 Log.Debug("Using BlinkDagger");
                 this.BlinkDagger.UseAbility(position);
@@ -141,14 +144,10 @@ namespace ODSharpSDK
 
                     foreach (var ultiTarget in targets)
                     {
-                        if (this.Config.AbilityToggler.Value.IsEnabled(this.Ulti.Name) &&
-                            this.Ulti.CanBeCasted(ultiTarget))
+                        if (this.Config.AbilityToggler.Value.IsEnabled(this.Ulti.Ability.Name) &&
+                            this.Ulti.Ability.CanBeCasted(ultiTarget))
                         {
-                            var ultiDamage =
-                                Math.Floor(
-                                    this.Ulti.GetAbilitySpecialData("damage_multiplier") *
-                                    (me.TotalIntelligence - ultiTarget.TotalIntelligence) *
-                                    (1 - ultiTarget.MagicDamageResist));
+                            var ultiDamage = Ulti.GetDamage(ultiTarget);
 
 
                             if (ultiTarget.Health > ultiDamage)
@@ -157,7 +156,7 @@ namespace ODSharpSDK
                             }
 
                             var delay = this.GetAbilityDelay(ultiTarget, this.Ulti);
-                            var radius = this.Ulti.GetAbilitySpecialData("radius");
+                            var radius = this.Ulti.Ability.GetAbilitySpecialData("radius");
                             var input =
                                 new PredictionInput(
                                     this.Owner,
@@ -187,9 +186,9 @@ namespace ODSharpSDK
                                 this.Config.MinimumTargetToUlti.Item.GetValue<int>() >= amount)
                             {
                                 Log.Debug(
-                                    $"Using Ulti on {amount}!");
+                                    $"Using Ulti!");
                                 this.Ulti.UseAbility(output.CastPosition);
-                                await Await.Delay(delay + (int) Game.Ping, token);
+                                await Await.Delay(delay + (int)Game.Ping, token);
                             }
                         }
                     }
@@ -201,23 +200,6 @@ namespace ODSharpSDK
                 catch (Exception e)
                 {
                     Log.Debug($"{e}");
-                }
-
-                if (this.Orb != null && this.Orb.IsValid && this.Config.AbilityToggler.Value.IsEnabled(this.Orb.Name) &&
-                    this.Orb.CanBeCasted(target) && !this.Orb.IsAutoCastEnabled)
-                {
-                    Log.Debug($"Toggling Arcane Orb on because target is not null");
-                    this.Orb.ToggleAutocastAbility();
-                    await Await.Delay(100 + (int) Game.Ping, token);
-                }
-
-                // Toggle off if target is null
-                else if (this.Orb != null && this.Orb.IsValid && this.Config.AbilityToggler.Value.IsEnabled(this.Orb.Name) &&
-                         target == null && this.Orb.IsAutoCastEnabled && !modifier)
-                {
-                    Log.Debug($"Toggling Arcane Orb off because target is null");
-                    this.Orb.ToggleAutocastAbility();
-                    await Await.Delay(100 + (int) Game.Ping, token);
                 }
             }
 
@@ -277,16 +259,19 @@ namespace ODSharpSDK
 
             if (this.HurricanePike != null)
             {
-                Unit hero = null;
-                if (modifier && hero != null && this.Owner.CanAttack(hero))
+                if (modifier && target != null && target.IsValid && target.IsAlive && this.Owner.CanAttack(target) && this.Orb.Ability.CanBeCasted(target))
                 {
-                    this.Owner.Attack(hero);
-                    await Task.Delay(100, token);
+                    await this.UseOrb(target, token);
                     return;
                 }
+                else if (modifier && target != null && target.IsValid && target.IsAlive && this.Owner.CanAttack(target))
+                {
+                    this.Owner.Attack(target);
+                    await Await.Delay(100, token);
+                }
 
-                if ((double) (this.Owner.Health / this.Owner.MaximumHealth) * 100 <=
-                    (double) Config.HurricanePercentage.Item.GetValue<Slider>().Value &&
+                if ((double)(this.Owner.Health / this.Owner.MaximumHealth) * 100 <=
+                    (double)Config.HurricanePercentage.Item.GetValue<Slider>().Value &&
                     this.HurricanePike.Item.IsValid &&
                     target != null &&
                     this.HurricanePike.Item.CanBeCasted() &&
@@ -294,7 +279,6 @@ namespace ODSharpSDK
                 {
                     Log.Debug("Using HurricanePike");
                     this.HurricanePike.UseAbility(target);
-                    hero = target;
                     await Await.Delay(this.GetItemDelay(target), token);
                     return;
                 }
@@ -308,12 +292,25 @@ namespace ODSharpSDK
             {
                 Log.Debug("Using Shivas");
                 this.ShivasGuard.UseAbility();
-                await Await.Delay(20 + (int) Game.Ping, token);
+                await Await.Delay(20 + (int)Game.Ping, token);
             }
 
-            if (this.Orbwalker.OrbwalkTo(target))
+
+            if (this.Orb != null && this.Orb.Ability.IsValid && this.Config.AbilityToggler.Value.IsEnabled(this.Orb.Ability.Name) &&
+                this.Orb.Ability.CanBeCasted(target))
             {
+                await this.UseOrb(target, token);
                 return;
+            }
+
+            if (this.target != null && target.IsValid &&
+                this.Owner.Distance2D(this.target) <= this.Owner.AttackRange(this.target))
+            {
+                this.Context.Orbwalker.Active.OrbwalkTo(target);
+            }
+            else
+            {
+                this.Context.Orbwalker.Active.OrbwalkTo(null);
             }
 
             await Await.Delay(125, token);
@@ -321,26 +318,34 @@ namespace ODSharpSDK
 
         protected int GetAbilityDelay(Unit unit, Ability ability)
         {
-            return (int) (((ability.FindCastPoint() + this.Owner.GetTurnTime(unit)) * 1000.0) + Game.Ping) + 50;
+            return (int)(((ability.FindCastPoint() + this.Owner.GetTurnTime(unit)) * 1000.0) + Game.Ping) + 50;
         }
 
         protected int GetImprisonDamage(Unit unit)
         {
             return
                 (int)
-                Math.Floor((this.Imprison.GetAbilitySpecialData("damage") * (1 - unit.MagicDamageResist)) -
+                Math.Floor((this.Imprison.Ability.GetAbilitySpecialData("damage") * (1 - unit.MagicDamageResist)) -
                            (unit.HealthRegeneration * 5));
         }
 
         protected int GetItemDelay(Unit unit)
         {
-            return (int) ((this.Owner.GetTurnTime(unit) * 1000.0) + Game.Ping) + 100;
+            return (int)((this.Owner.GetTurnTime(unit) * 1000.0) + Game.Ping) + 100;
         }
 
         protected int GetItemDelay(Vector3 pos)
         {
-            return (int) ((this.Owner.GetTurnTime(pos) * 1000.0) + Game.Ping) + 100;
+            return (int)((this.Owner.GetTurnTime(pos) * 1000.0) + Game.Ping) + 100;
         }
+
+        public async Task UseOrb(Unit Target, CancellationToken token = default(CancellationToken))
+        {
+            this.target = Target;
+            this.Orb.UseAbility(Target);
+            await Await.Delay(this.Orb.GetCastDelay(target), token);
+        }
+
 
         protected override void OnActivate()
         {
@@ -350,9 +355,9 @@ namespace ODSharpSDK
 
             this.context.Inventory.Attach(this);
 
-            this.Imprison = UnitExtensions.GetAbilityById(this.Owner, AbilityId.obsidian_destroyer_astral_imprisonment);
-            this.Orb = UnitExtensions.GetAbilityById(this.Owner, AbilityId.obsidian_destroyer_arcane_orb);
-            this.Ulti = UnitExtensions.GetAbilityById(this.Owner, AbilityId.obsidian_destroyer_sanity_eclipse);
+            this.Imprison = this.Context.AbilityFactory.GetAbility<obsidian_destroyer_astral_imprisonment>();
+            this.Orb = this.Context.AbilityFactory.GetAbility<obsidian_destroyer_arcane_orb>();
+            this.Ulti = this.Context.AbilityFactory.GetAbility<obsidian_destroyer_sanity_eclipse>();
         }
 
         protected override void OnDeactivate()
@@ -380,7 +385,7 @@ namespace ODSharpSDK
                             !x.IsIllusion &&
                             x.Team != this.Owner.Team &&
                             x.Distance2D(this.Owner) <= this.Imprison.CastRange &&
-                            this.GetImprisonDamage(x) >= (int) x.Health)
+                            this.GetImprisonDamage(x) >= (int)x.Health)
                     .ToList();
 
             if (!enemies.Any())
@@ -390,8 +395,8 @@ namespace ODSharpSDK
 
             foreach (var enemy in enemies)
             {
-                if (enemy.IsValid && this.Config.AbilityToggler.Value.IsEnabled(this.Imprison.Name) &&
-                    this.Imprison.CanBeCasted())
+                if (enemy.IsValid && this.Config.AbilityToggler.Value.IsEnabled(this.Imprison.Ability.Name) &&
+                    this.Imprison.Ability.CanBeCasted())
                 {
                     Log.Debug($"Using Imprison because enemy can be ks'ed.");
                     this.Imprison.UseAbility(enemy);
@@ -399,9 +404,7 @@ namespace ODSharpSDK
                     return;
                 }
             }
-
             await Await.Delay(250, args);
-            return;
         }
     }
 }
