@@ -141,7 +141,6 @@ namespace ODSharpSDK
                                     x.IsValid && x.Team != this.Owner.Team && !x.IsIllusion &&
                                     x.Distance2D(this.Owner) <= 700)
                             .ToList();
-                    var me = this.Owner as Hero;
 
                     foreach (var ultiTarget in targets)
                     {
@@ -184,7 +183,7 @@ namespace ODSharpSDK
                             // Log.Debug($"{output.HitChance}");
 
                             if (output.HitChance >= HitChance.Medium &&
-                                this.Config.MinimumTargetToUlti.Item.GetValue<int>() >= amount)
+                                this.Config.MinimumTargetToUlti.Value >= amount)
                             {
                                 Log.Debug(
                                     $"Using Ulti!");
@@ -338,10 +337,14 @@ namespace ODSharpSDK
 
         protected int GetImprisonDamage(Unit unit)
         {
+            var amp = this.Owner.GetSpellAmplification();
+            var red = this.Imprison.Ability.GetDamageReduction(unit, DamageType.Magical);
+            var damage =
+                Ensage.SDK.Helpers.DamageHelpers.GetSpellDamage(this.Imprison.Ability.GetAbilitySpecialData("damage"),
+                    amp, red);
             return
                 (int)
-                Math.Floor((this.Imprison.Ability.GetAbilitySpecialData("damage") * (1 - unit.MagicDamageResist)) -
-                           (unit.HealthRegeneration * 5));
+                Math.Floor(damage - unit.HealthRegeneration * 5);
         }
 
         protected int GetItemDelay(Unit unit)
