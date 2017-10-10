@@ -22,6 +22,7 @@
     using Ensage.SDK.TargetSelector;
     using Ensage.SDK.Abilities.Items;
     using Ensage.SDK.Abilities;
+    using Ensage.SDK.Abilities.Aggregation;
     using Ensage.SDK.Service;
     using log4net;
     using PlaySharp.Toolkit.Logging;
