@@ -454,7 +454,7 @@
             // spell amp
             var me = Context.Owner as Hero;
 
-            var spellAmp = (100.0f + me.TotalIntelligence / 16.0f) / 100.0f;
+            var spellAmp = (100.0f + me.TotalIntelligence / 15.0f) / 100.0f;
 
             var kaya = Owner.GetItemById(AbilityId.item_trident);
             if (kaya != null)

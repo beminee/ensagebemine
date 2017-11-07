@@ -174,13 +174,13 @@
                         if (!Target.IsMoving || Target.MovementSpeed <= 150)
                         {
                             Log.Debug($"Using Wards");
-                            Wards.UseAbility(Target.NetworkPosition);
+                            Wards.UseAbility(Ensage.Common.Prediction.InFront(Target, 10));
                             await Await.Delay(GetAbilityDelay(this.Owner, Wards), token);
                         }
                         else
                         {
                             var targetSpeed = Target.MovementSpeed;
-                            var pos = targetSpeed * Wards.GetCastPoint();
+                            var pos = targetSpeed * (Wards.GetCastPoint() + (Game.Ping / 1000));
                             Log.Debug($"Predicting Wards");
                             Wards.UseAbility(Ensage.Common.Prediction.InFront(Target, pos));
                             await Await.Delay(GetAbilityDelay(this.Owner, Wards), token);
@@ -303,7 +303,7 @@
             {
                 Log.Debug($"Using Shackles!");
                 Shackles.UseAbility(Target);
-                await Await.Delay(GetAbilityDelay(this.Owner, Shackles) + 350, token);
+                await Await.Delay(GetAbilityDelay(this.Owner, Shackles) + 500, token);
             }
 
 
@@ -324,7 +324,7 @@
         {
             var me = Context.Owner as Hero;
 
-            var spellAmp = (100.0f + me.TotalIntelligence / 16.0f) / 100.0f;
+            var spellAmp = (100.0f + me.TotalIntelligence / 15.0f) / 100.0f;
 
             var kaya = Owner.GetItemById(AbilityId.item_trident);
             if (kaya != null)
