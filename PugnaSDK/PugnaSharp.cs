@@ -456,19 +456,10 @@
 
             var spellAmp = (100.0f + me.TotalIntelligence / 16.0f) / 100.0f;
 
-            var aether = Owner.GetItemById(ItemId.item_aether_lens);
-            if (aether != null)
+            var kaya = Owner.GetItemById(AbilityId.item_trident);
+            if (kaya != null)
             {
-                spellAmp += aether.AbilitySpecialData.First(x => x.Name == "spell_amp").Value / 100.0f;
-            }
-
-            var talent =
-                Owner.Spellbook.Spells.FirstOrDefault(
-                    x => x.Level > 0 && x.Name.StartsWith("special_bonus_spell_amplify_"));
-
-            if (talent != null)
-            {
-                spellAmp += talent.AbilitySpecialData.First(x => x.Name == "value").Value / 100.0f;
+                spellAmp += kaya.AbilitySpecialData.First(x => x.Name == "spell_amp").Value / 100.0f;
             }
 
             return spellAmp;
