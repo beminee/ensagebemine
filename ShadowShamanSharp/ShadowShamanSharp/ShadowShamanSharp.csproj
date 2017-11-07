@@ -39,7 +39,7 @@
       <HintPath>C:\Program Files (x86)\Ensage\References\clipper_library.dll</HintPath>
     </Reference>
     <Reference Include="Ensage">
-      <HintPath>..\..\..\..\..\..\..\Program Files (x86)\Ensage\References\Ensage.dll</HintPath>
+      <HintPath>C:\Program Files (x86)\Ensage\References\Ensage.dll</HintPath>
     </Reference>
     <Reference Include="Ensage.Common">
       <HintPath>C:\Program Files (x86)\Ensage\References\Ensage.Common.dll</HintPath>
