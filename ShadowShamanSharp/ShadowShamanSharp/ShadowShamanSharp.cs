@@ -17,6 +17,8 @@
     using Ensage.SDK.TargetSelector;
     using Ensage.SDK.Abilities.Items;
     using Ensage.SDK.Abilities.Aggregation;
+    using Ensage.SDK.Prediction;
+    using Ensage.SDK.Prediction.Collision;
     using Ensage.SDK.Service;
     using log4net;
     using PlaySharp.Toolkit.Logging;
@@ -34,6 +36,8 @@
 
         private ITargetSelectorManager TargetSelector { get; }
 
+        private IPrediction Prediction { get; }
+
         public ShamanConfig Config { get; }
 
         public ShadowShamanSharp(
@@ -45,6 +49,7 @@
             this.Config = config;
             this.context = context;
             this.TargetSelector = context.TargetSelector;
+            this.Prediction = context.Prediction;
         }
 
 
@@ -90,6 +95,9 @@
         [ItemBinding]
         public item_dagon_5 Dagon5 { get; set; }
 
+        [ItemBinding]
+        public item_refresher Refresher { get; set; }
+
         public Dagon Dagon => Dagon1 ?? Dagon2 ?? Dagon3 ?? Dagon4 ?? (Dagon) Dagon5;
 
 
@@ -111,7 +119,7 @@
 
             var sliderValue = this.Config.UseBlinkPrediction.Item.GetValue<Slider>().Value;
 
-            if (!silenced)
+            if (!silenced && UnitExtensions.IsChanneling(this.Owner))
             {
                 try
                 {
@@ -171,19 +179,22 @@
                         !UnitExtensions.IsChanneling(this.Owner) &&
                         this.Config.AbilityToggler.Value.IsEnabled(this.Wards.Name))
                     {
-                        if (!Target.IsMoving || Target.MovementSpeed <= 150)
+                        var delay = Wards.GetCastPoint();
+                        var wardsCastRange = Wards.CastRange;
+
+                        var input = new PredictionInput(this.Owner, Target, delay, float.MaxValue, wardsCastRange, 50,
+                            PredictionSkillshotType.SkillshotCircle)
                         {
-                            Log.Debug($"Using Wards");
-                            Wards.UseAbility(Ensage.Common.Prediction.InFront(Target, 10));
-                            await Await.Delay(GetAbilityDelay(this.Owner, Wards), token);
-                        }
-                        else
+                            CollisionTypes = CollisionTypes.None
+                        };
+
+                        var output = Prediction.GetPrediction(input);
+
+                        if (output.HitChance >= HitChance.Medium)
                         {
-                            var targetSpeed = Target.MovementSpeed;
-                            var pos = targetSpeed * (Wards.GetCastPoint() + (Game.Ping / 1000));
-                            Log.Debug($"Predicting Wards");
-                            Wards.UseAbility(Ensage.Common.Prediction.InFront(Target, pos));
-                            await Await.Delay(GetAbilityDelay(this.Owner, Wards), token);
+                            Log.Debug($"Casting Wards");
+                            this.Wards.UseAbility(output.CastPosition);
+                            await Await.Delay(GetAbilityDelay(output.CastPosition, this.Wards), token);
                         }
                     }
                 }
@@ -303,21 +314,24 @@
             {
                 Log.Debug($"Using Shackles!");
                 Shackles.UseAbility(Target);
-                await Await.Delay(GetAbilityDelay(this.Owner, Shackles) + 500, token);
+                await Await.Delay(GetAbilityDelay(this.Owner, Shackles) + 1000, token);
             }
 
+            if (Refresher != null && Refresher.Item.IsValid && Target != null &&
+                !UnitExtensions.IsChanneling(this.Owner) && this.Refresher.Item.CanBeCasted() &&
+                this.Config.ItemToggler.Value.IsEnabled(Refresher.Item.Name))
+            {
+                Log.Debug($"Using Refresher Orb");
+                Refresher.UseAbility();
+                await Await.Delay(100, token);
+            }
 
             if (Target != null && !Owner.IsValidOrbwalkingTarget(Target) && !UnitExtensions.IsChanneling(this.Owner))
-            {
-                Orbwalker.Move(Game.MousePosition);
-                await Await.Delay(50, token);
-            }
-            else
             {
                 Orbwalker.OrbwalkTo(Target);
             }
 
-            await Await.Delay(50, token);
+            await Await.Delay(100, token);
         }
 
         protected float GetSpellAmp()
