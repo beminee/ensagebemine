@@ -214,8 +214,6 @@
                             if (this.Config.FailSwitch.Value.Equals(true) && (Target.IsRotating() && Target.MovementSpeed >= 300 || Ensage.SDK.Extensions.EntityExtensions.Distance2D(Target, output.CastPosition) >= 200))
                             {
                                 Log.Error($"stopping");
-                                Log.Error(
-                                    $"distance: {Ensage.SDK.Extensions.EntityExtensions.Distance2D(Target, output.CastPosition)}");
                                 this.Owner.Stop();
                                 await Await.Delay(100, token);
                             }
