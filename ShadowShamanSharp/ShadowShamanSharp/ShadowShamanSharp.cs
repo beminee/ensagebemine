@@ -316,7 +316,7 @@
             {
                 Log.Debug($"Using Shackles!");
                 Shackles.UseAbility(Target);
-                await Await.Delay(GetAbilityDelay(this.Target, Shackles) + 5000, token);
+                await Await.Delay(GetAbilityDelay(this.Target, Shackles) + 1000, token);
             }
 
             if (Refresher != null && Refresher.Item.IsValid && Target != null &&
