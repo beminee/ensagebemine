@@ -119,17 +119,19 @@
 
             var sliderValue = this.Config.UseBlinkPrediction.Item.GetValue<Slider>().Value;
 
-            if (!silenced && UnitExtensions.IsChanneling(this.Owner))
+            var isChanneling = UnitExtensions.IsChanneling(this.Owner) ||
+                               UnitExtensions.HasModifier(Target, "modifier_shadow_shaman_shackles");
+
+            if (!silenced)
             {
                 try
                 {
                     if ((this.BlinkDagger != null) &&
                         (this.BlinkDagger.Item.IsValid) &&
                         Target != null && Owner.Distance2D(Target) <= 1200 + sliderValue &&
-                        !(Owner.Distance2D(Target) <= 400) &&
-                        this.BlinkDagger.Item.CanBeCasted(Target) &&
-                        this.Config.ItemToggler.Value.IsEnabled(this.BlinkDagger.Item.Name)
-                        && !UnitExtensions.IsChanneling(Owner))
+                        !(Owner.Distance2D(Target) <= 200) &&
+                        this.BlinkDagger.Item.CanBeCasted() &&
+                        this.Config.ItemToggler.Value.IsEnabled(this.BlinkDagger.Item.Name) && !isChanneling)
                     {
                         var l = (this.Owner.Distance2D(Target) - sliderValue) / sliderValue;
                         var posA = this.Owner.Position;
@@ -144,7 +146,7 @@
                     }
 
                     if (Hex != null && Hex.IsValid && Hex.CanBeCasted(Target) &&
-                        !UnitExtensions.IsChanneling(this.Owner) &&
+                        !isChanneling &&
                         this.Config.AbilityToggler.Value.IsEnabled(this.Hex.Name))
                     {
                         Log.Debug($"Using Hex");
@@ -153,7 +155,7 @@
                     }
 
                     if (Ethershock != null && Ethershock.IsValid && Ethershock.CanBeCasted(Target) &&
-                        !UnitExtensions.IsChanneling(this.Owner) &&
+                        !isChanneling &&
                         this.Config.AbilityToggler.Value.IsEnabled(this.Ethershock.Name))
                     {
                         Log.Debug($"Using Ethershock!");
@@ -176,13 +178,13 @@
                 try
                 {
                     if (Wards != null && Wards.IsValid && Wards.CanBeCasted() &&
-                        !UnitExtensions.IsChanneling(this.Owner) &&
+                        !isChanneling &&
                         this.Config.AbilityToggler.Value.IsEnabled(this.Wards.Name))
                     {
                         var delay = Wards.GetCastPoint();
                         var wardsCastRange = Wards.CastRange;
 
-                        var input = new PredictionInput(this.Owner, Target, delay, float.MaxValue, wardsCastRange, 50,
+                        var input = new PredictionInput(this.Owner, Target, delay, float.MaxValue, wardsCastRange, 30,
                             PredictionSkillshotType.SkillshotCircle)
                         {
                             CollisionTypes = CollisionTypes.None
@@ -210,7 +212,7 @@
 
             if (this.BloodThorn != null &&
                 this.BloodThorn.Item.IsValid &&
-                Target != null && !UnitExtensions.IsChanneling(Owner) &&
+                Target != null && !isChanneling &&
                 this.BloodThorn.Item.CanBeCasted(Target) &&
                 this.Config.ItemToggler.Value.IsEnabled(this.BloodThorn.Item.Name))
             {
@@ -221,7 +223,7 @@
 
             if ((this.SheepStick != null) &&
                 (this.SheepStick.Item.IsValid) &&
-                Target != null && !UnitExtensions.IsChanneling(Owner) &&
+                Target != null && !isChanneling &&
                 this.SheepStick.Item.CanBeCasted(Target) &&
                 this.Config.ItemToggler.Value.IsEnabled("item_sheepstick"))
             {
@@ -232,7 +234,7 @@
 
             if (this.Dagon != null &&
                 this.Dagon.Item.IsValid &&
-                Target != null && !UnitExtensions.IsChanneling(Owner) &&
+                Target != null && !isChanneling &&
                 this.Dagon.Item.CanBeCasted(Target) &&
                 this.Config.ItemToggler.Value.IsEnabled(Dagon5.Item.Name))
             {
@@ -243,7 +245,7 @@
 
             if (this.Orchid != null &&
                 this.Orchid.Item.IsValid &&
-                Target != null && !UnitExtensions.IsChanneling(Owner) &&
+                Target != null && !isChanneling &&
                 this.Orchid.Item.CanBeCasted(Target) &&
                 this.Config.ItemToggler.Value.IsEnabled("item_orchid"))
             {
@@ -254,7 +256,7 @@
 
             if (this.RodofAtos != null &&
                 this.RodofAtos.Item.IsValid &&
-                Target != null && !UnitExtensions.IsChanneling(Owner) &&
+                Target != null && !isChanneling &&
                 this.RodofAtos.Item.CanBeCasted(Target) &&
                 this.Config.ItemToggler.Value.IsEnabled("item_rod_of_atos"))
             {
@@ -265,7 +267,7 @@
 
             if (this.VeilofDiscord != null &&
                 this.VeilofDiscord.Item.IsValid &&
-                Target != null && !UnitExtensions.IsChanneling(Owner) &&
+                Target != null && !isChanneling &&
                 this.VeilofDiscord.Item.CanBeCasted() &&
                 this.Config.ItemToggler.Value.IsEnabled("item_veil_of_discord"))
             {
@@ -276,7 +278,7 @@
 
             if (this.HurricanePike != null &&
                 this.HurricanePike.Item.IsValid &&
-                Target != null && !UnitExtensions.IsChanneling(Owner) &&
+                Target != null && !isChanneling &&
                 this.HurricanePike.Item.CanBeCasted() &&
                 this.Config.ItemToggler.Value.IsEnabled("item_hurricane_pike"))
             {
@@ -287,7 +289,7 @@
 
             if (this.ShivasGuard != null &&
                 this.ShivasGuard.Item.IsValid &&
-                Target != null && !UnitExtensions.IsChanneling(Owner) &&
+                Target != null && !isChanneling &&
                 this.ShivasGuard.Item.CanBeCasted() &&
                 Owner.Distance2D(Target) <= 900 &&
                 this.Config.ItemToggler.Value.IsEnabled("item_shivas_guard"))
@@ -299,7 +301,7 @@
 
             if (this.Mjollnir != null &&
                 this.Mjollnir.Item.IsValid &&
-                Target != null && !UnitExtensions.IsChanneling(Owner) &&
+                Target != null && !isChanneling &&
                 this.Mjollnir.Item.CanBeCasted() &&
                 this.Config.ItemToggler.Value.IsEnabled("item_mjollnir"))
             {
@@ -309,16 +311,16 @@
             }
 
             if (Shackles != null && Shackles.IsValid && Shackles.CanBeCasted(Target) &&
-                !UnitExtensions.IsChanneling(this.Owner) &&
+                !isChanneling && (Wards == null || !Wards.IsValid || !Wards.CanBeCasted() || !this.Config.AbilityToggler.Value.IsEnabled(this.Wards.Name)) &&
                 this.Config.AbilityToggler.Value.IsEnabled(this.Shackles.Name))
             {
                 Log.Debug($"Using Shackles!");
                 Shackles.UseAbility(Target);
-                await Await.Delay(GetAbilityDelay(this.Owner, Shackles) + 1000, token);
+                await Await.Delay(GetAbilityDelay(this.Target, Shackles) + 5000, token);
             }
 
             if (Refresher != null && Refresher.Item.IsValid && Target != null &&
-                !UnitExtensions.IsChanneling(this.Owner) && this.Refresher.Item.CanBeCasted() &&
+                !isChanneling && this.Refresher.Item.CanBeCasted() &&
                 this.Config.ItemToggler.Value.IsEnabled(Refresher.Item.Name))
             {
                 Log.Debug($"Using Refresher Orb");
@@ -326,9 +328,10 @@
                 await Await.Delay(100, token);
             }
 
-            if (Target != null && !Owner.IsValidOrbwalkingTarget(Target) && !UnitExtensions.IsChanneling(this.Owner))
+            if (Target != null && Owner.IsValidOrbwalkingTarget(Target) && !isChanneling)
             {
-                Orbwalker.OrbwalkTo(Target);
+                this.Context.Orbwalker.Active.OrbwalkTo(Target);
+                Log.Debug($"Orbwalking 1");
             }
 
             await Await.Delay(100, token);
