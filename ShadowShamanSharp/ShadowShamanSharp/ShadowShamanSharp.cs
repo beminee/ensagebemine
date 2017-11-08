@@ -98,6 +98,9 @@
         [ItemBinding]
         public item_refresher Refresher { get; set; }
 
+        [ItemBinding]
+        public item_cyclone Euls { get; set; }
+
         public Dagon Dagon => Dagon1 ?? Dagon2 ?? Dagon3 ?? Dagon4 ?? (Dagon) Dagon5;
 
 
@@ -111,6 +114,8 @@
 
         private Unit Target { get; set; }
 
+        private PredictionOutput output { get; set; }
+
         public override async Task ExecuteAsync(CancellationToken token)
         {
             Target = this.TargetSelector.Active.GetTargets().FirstOrDefault(x => !x.IsInvulnerable());
@@ -119,8 +124,7 @@
 
             var sliderValue = this.Config.UseBlinkPrediction.Item.GetValue<Slider>().Value;
 
-            var isChanneling = UnitExtensions.IsChanneling(this.Owner) ||
-                               UnitExtensions.HasModifier(Target, "modifier_shadow_shaman_shackles");
+            var isChanneling = UnitExtensions.IsChanneling(this.Owner);
 
             if (!silenced)
             {
@@ -129,7 +133,7 @@
                     if ((this.BlinkDagger != null) &&
                         (this.BlinkDagger.Item.IsValid) &&
                         Target != null && Owner.Distance2D(Target) <= 1200 + sliderValue &&
-                        !(Owner.Distance2D(Target) <= 200) &&
+                        !(Owner.Distance2D(Target) <= sliderValue) &&
                         this.BlinkDagger.Item.CanBeCasted() &&
                         this.Config.ItemToggler.Value.IsEnabled(this.BlinkDagger.Item.Name) && !isChanneling)
                     {
@@ -142,7 +146,16 @@
 
                         Log.Debug("Using BlinkDagger");
                         this.BlinkDagger.UseAbility(position);
-                        await Await.Delay(this.GetItemDelay(position) + (int) Game.Ping, token);
+                        await Await.Delay(this.GetItemDelay(position), token);
+                    }
+
+                    if ((this.Euls != null) && this.Euls.Item.IsValid && Target != null &&
+                        this.Owner.Distance2D(Target) <= this.Euls.CastRange && this.Euls.Item.CanBeCasted(Target) &&
+                        this.Config.ItemToggler.Value.IsEnabled(this.Euls.Item.Name))
+                    {
+                        Log.Debug($"Using Eul");
+                        this.Euls.UseAbility(this.Target);
+                        await Await.Delay(this.GetItemDelay(Target), token);
                     }
 
                     if (Hex != null && Hex.IsValid && Hex.CanBeCasted(Target) &&
@@ -173,29 +186,39 @@
                 }
             }
 
-            if (!silenced && Target != null)
+            if (!silenced)
             {
                 try
                 {
+                    var invulTargetsToo = this.TargetSelector.Active.GetTargets().FirstOrDefault();
                     if (Wards != null && Wards.IsValid && Wards.CanBeCasted() &&
-                        !isChanneling &&
+                        !isChanneling && invulTargetsToo != null && invulTargetsToo.IsValid &&
                         this.Config.AbilityToggler.Value.IsEnabled(this.Wards.Name))
                     {
                         var delay = Wards.GetCastPoint();
                         var wardsCastRange = Wards.CastRange;
 
-                        var input = new PredictionInput(this.Owner, Target, delay, float.MaxValue, wardsCastRange, 30,
+                        var input = new PredictionInput(this.Owner, invulTargetsToo, delay, float.MaxValue,
+                            wardsCastRange, 30,
                             PredictionSkillshotType.SkillshotCircle)
                         {
                             CollisionTypes = CollisionTypes.None
                         };
 
-                        var output = Prediction.GetPrediction(input);
+                        output = Prediction.GetPrediction(input);
 
                         if (output.HitChance >= HitChance.Medium)
                         {
                             Log.Debug($"Casting Wards");
                             this.Wards.UseAbility(output.CastPosition);
+                            if (this.Config.FailSwitch.Value.Equals(true) && (Target.IsRotating() && Target.MovementSpeed >= 300 || Ensage.SDK.Extensions.EntityExtensions.Distance2D(Target, output.CastPosition) >= 200))
+                            {
+                                Log.Error($"stopping");
+                                Log.Error(
+                                    $"distance: {Ensage.SDK.Extensions.EntityExtensions.Distance2D(Target, output.CastPosition)}");
+                                this.Owner.Stop();
+                                await Await.Delay(100, token);
+                            }
                             await Await.Delay(GetAbilityDelay(output.CastPosition, this.Wards), token);
                         }
                     }
@@ -309,29 +332,41 @@
                 this.Mjollnir.UseAbility(Owner);
                 await Await.Delay(this.GetItemDelay(Target), token);
             }
-
-            if (Shackles != null && Shackles.IsValid && Shackles.CanBeCasted(Target) &&
-                !isChanneling && (Wards == null || !Wards.IsValid || !Wards.CanBeCasted() || !this.Config.AbilityToggler.Value.IsEnabled(this.Wards.Name)) &&
-                this.Config.AbilityToggler.Value.IsEnabled(this.Shackles.Name))
+            try
             {
-                Log.Debug($"Using Shackles!");
-                Shackles.UseAbility(Target);
-                await Await.Delay(GetAbilityDelay(this.Target, Shackles) + 1000, token);
+                if (Shackles != null && Shackles.IsValid && Shackles.CanBeCasted(Target) &&
+                    !isChanneling &&
+                    (Wards == null || !Wards.IsValid || !Wards.CanBeCasted() ||
+                     !this.Config.AbilityToggler.Value.IsEnabled(this.Wards.Name)) && HexSync() &&
+                    this.Config.AbilityToggler.Value.IsEnabled(this.Shackles.Name))
+                {
+                    Log.Debug($"Using Shackles!");
+                    Shackles.UseAbility(Target);
+                    await Await.Delay(GetAbilityDelay(this.Target, Shackles) + 1000, token);
+                }
+            }
+            catch (TaskCanceledException)
+            {
+                // ignore
+            }
+            catch (Exception e)
+            {
+                Log.Error(e);
             }
 
-            if (Refresher != null && Refresher.Item.IsValid && Target != null &&
-                !isChanneling && this.Refresher.Item.CanBeCasted() &&
-                this.Config.ItemToggler.Value.IsEnabled(Refresher.Item.Name))
-            {
-                Log.Debug($"Using Refresher Orb");
-                Refresher.UseAbility();
-                await Await.Delay(100, token);
-            }
+            /*if (Refresher != null && Refresher.Item.IsValid && Target != null &&
+                 !isChanneling && this.Refresher.Item.CanBeCasted() && !this.Wards.CanBeCasted() && !this.Shackles.CanBeCasted() &&
+                 this.Config.ItemToggler.Value.IsEnabled(Refresher.Item.Name))
+             {
+                 Log.Debug($"Using Refresher Orb");
+                 Refresher.UseAbility();
+                 await Await.Delay(100, token);
+             }*/
 
             if (Target != null && Owner.IsValidOrbwalkingTarget(Target) && !isChanneling)
             {
                 this.Context.Orbwalker.Active.OrbwalkTo(Target);
-                Log.Debug($"Orbwalking 1");
+                Log.Debug($"Orbwalking");
             }
 
             await Await.Delay(100, token);
@@ -350,6 +385,17 @@
             }
 
             return spellAmp;
+        }
+
+        public bool HexSync()
+        {
+            if (Target != null && Target.IsValid && UnitExtensions.HasModifier(Target, "modifier_shadow_shaman_voodoo") &&
+                (Target.FindModifier("modifier_shadow_shaman_voodoo").RemainingTime * 1000) - 100 <= 300 ||
+                !Target.IsHexed())
+            {
+                return true;
+            }
+            return false;
         }
 
         public virtual async Task KillStealAsync()

@@ -23,7 +23,8 @@
                 {"item_orchid", true},
                 {"item_rod_of_atos", true},
                 {"item_veil_of_discord", true},
-                {"item_mjollnir", true}
+                {"item_mjollnir", true},
+                {"item_cyclone", true }
             };
 
             var spellDict = new Dictionary<string, bool>
@@ -39,6 +40,8 @@
             this.Key.Item.Tooltip = "Hold this key to start combo mode.";
             this.KillStealEnabled = this.Menu.Item("Killsteal toggle", true);
             this.KillStealEnabled.Item.Tooltip = "Setting this to false will disable killsteal.";
+            this.FailSwitch = this.Menu.Item("Fail Switch", false);
+            this.FailSwitch.Item.Tooltip = "Will stop if can't ward trap";
             this.UseBlinkPrediction = this.Menu.Item("Blink Prediction", new Slider(200, 0, 600));
             this.UseBlinkPrediction.Item.Tooltip = "Will blink to set distance. Set to 0 if you want to disable it.";
             this.AbilityToggler = this.Menu.Item("Ability Toggler", new AbilityToggler(spellDict));
@@ -48,6 +51,8 @@
         public MenuFactory Menu { get; }
 
         public MenuItem<bool> KillStealEnabled { get; }
+
+        public MenuItem<bool> FailSwitch { get; }
 
         public MenuItem<Slider> UseBlinkPrediction { get; }
 
