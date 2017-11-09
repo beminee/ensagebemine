@@ -423,6 +423,19 @@
             }
         }
 
+        public virtual async Task WardsAttack()
+        {
+            var wardsShouldAttack = EntityManager<Unit>.Entities.Where(x => x.Name.Contains("npc_dota_shadow_shaman_ward") && x.CanAttack(Target));
+
+            foreach (var ward in wardsShouldAttack)
+            {
+                if (ward == null || !ward.IsValid || !ward.CanAttack(Target)) continue;
+                ward.Attack(Target);
+                await Await.Delay(150);
+            }
+             
+        }
+
         protected int GetAbilityDelay(Unit unit, Ability ability)
         {
             return (int) (((ability.FindCastPoint() + this.Owner.GetTurnTime(unit)) * 1000.0) + Game.Ping) + 50;
@@ -445,14 +458,14 @@
 
         private void GameDispatcher_OnIngameUpdate(EventArgs args)
         {
-            if (!this.Config.KillStealEnabled.Value)
-            {
-                return;
-            }
-
-            if (!Game.IsPaused && Owner.IsAlive)
+            if (this.Config.KillStealEnabled.Value && !Game.IsPaused && Owner.IsAlive)
             {
                 Await.Block("MyKillstealer", KillStealAsync);
+            }
+
+            if (!Game.IsPaused)
+            {
+                Await.Block("MyWardAttacker", WardsAttack);
             }
         }
 
