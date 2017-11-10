@@ -388,7 +388,7 @@
         public bool HexSync()
         {
             if (Target != null && Target.IsValid && UnitExtensions.HasModifier(Target, "modifier_shadow_shaman_voodoo") &&
-                (Target.FindModifier("modifier_shadow_shaman_voodoo").RemainingTime * 1000) - 100 <= 300 ||
+                (Target.FindModifier("modifier_shadow_shaman_voodoo").RemainingTime * 1000) - 100 <= 600 ||
                 !Target.IsHexed())
             {
                 return true;
