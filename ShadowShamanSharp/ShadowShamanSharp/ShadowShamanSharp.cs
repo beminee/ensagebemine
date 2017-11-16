@@ -381,7 +381,7 @@
             {
                 spellAmp += kaya.AbilitySpecialData.First(x => x.Name == "spell_amp").Value / 100.0f;
             }
-
+            
             return spellAmp;
         }
 
@@ -389,7 +389,7 @@
         {
             if (Target != null && Target.IsValid && UnitExtensions.HasModifier(Target, "modifier_shadow_shaman_voodoo") &&
                 (Target.FindModifier("modifier_shadow_shaman_voodoo").RemainingTime * 1000) - 100 <= 600 ||
-                !Target.IsHexed())
+                !Ensage.SDK.Extensions.UnitExtensions.IsHexed(Target))
             {
                 return true;
             }
