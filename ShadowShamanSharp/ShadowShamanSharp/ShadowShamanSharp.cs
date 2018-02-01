@@ -6,6 +6,8 @@
     using System.Threading;
     using System.Threading.Tasks;
     using System.Windows.Input;
+    using System.ComponentModel;
+    using Ensage.SDK.Handlers;
     using Ensage;
     using Ensage.Common.Extensions;
     using Ensage.Common.Menu;
@@ -39,6 +41,8 @@
         private IPrediction Prediction { get; }
 
         public ShamanConfig Config { get; }
+
+        public TaskHandler WardsHandler { get; private set; }
 
         public ShadowShamanSharp(
             Key key,
@@ -103,6 +107,7 @@
 
         public Dagon Dagon => Dagon1 ?? Dagon2 ?? Dagon3 ?? Dagon4 ?? (Dagon) Dagon5;
 
+        private int WardsRange => this.Owner.HasAghanimsScepter() ? 875 : 650;
 
         private Ability Ethershock { get; set; }
 
@@ -328,7 +333,7 @@
             {
                 Log.Debug("Using Mjollnir");
                 this.Mjollnir.UseAbility(Owner);
-                await Await.Delay(this.GetItemDelay(Target), token);
+                await Await.Delay(this.GetItemDelay(Owner), token);
             }
             try
             {
@@ -365,6 +370,10 @@
             {
                 this.Context.Orbwalker.Active.OrbwalkTo(Target);
                 Log.Debug($"Orbwalking");
+            }
+            else
+            {
+                this.Context.Orbwalker.Active.OrbwalkTo(null);
             }
 
             await Await.Delay(100, token);
@@ -423,15 +432,15 @@
             }
         }
 
-        public virtual async Task WardsAttack()
+        public virtual async Task WardsAttack(CancellationToken token)
         {
-            var wardsShouldAttack = EntityManager<Unit>.Entities.Where(x => x.Name.Contains("npc_dota_shadow_shaman_ward") && x.CanAttack(Target));
+            var wardsShouldAttack = EntityManager<Unit>.Entities.Where(x => x.Name.Contains("npc_dota_shadow_shaman_ward") && x.CanAttack(Target)).ToList();
 
             foreach (var ward in wardsShouldAttack)
             {
-                if (ward == null || !ward.IsValid || !ward.CanAttack(Target)) continue;
+                if (ward == null || Game.IsPaused || !ward.IsValid || !ward.CanAttack(Target) || ward.Distance2D(Target) >= WardsRange) continue;
                 ward.Attack(Target);
-                await Await.Delay(150);
+                await Task.Delay(150, token);
             }
              
         }
@@ -458,20 +467,16 @@
 
         private void GameDispatcher_OnIngameUpdate(EventArgs args)
         {
-            if (this.Config.KillStealEnabled.Value && !Game.IsPaused && Owner.IsAlive)
+            if (this.Config.KillStealEnabled.Value && !Game.IsPaused)
             {
                 Await.Block("MyKillstealer", KillStealAsync);
-            }
-
-            if (!Game.IsPaused)
-            {
-                Await.Block("MyWardAttacker", WardsAttack);
             }
         }
 
         protected override void OnActivate()
         {
             GameDispatcher.OnIngameUpdate += GameDispatcher_OnIngameUpdate;
+            this.WardsHandler = UpdateManager.Run(this.WardsAttack);
             this.Ethershock = UnitExtensions.GetAbilityById(this.Owner, AbilityId.shadow_shaman_ether_shock);
             this.Hex = UnitExtensions.GetAbilityById(this.Owner, AbilityId.shadow_shaman_voodoo);
             this.Shackles = UnitExtensions.GetAbilityById(this.Owner, AbilityId.shadow_shaman_shackles);
@@ -485,6 +490,7 @@
         protected override void OnDeactivate()
         {
             GameDispatcher.OnIngameUpdate -= GameDispatcher_OnIngameUpdate;
+            this.WardsHandler.Cancel();
             base.OnDeactivate();
             this.Context.Inventory.Detach(this);
         }
