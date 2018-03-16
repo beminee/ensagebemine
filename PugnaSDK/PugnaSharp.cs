@@ -336,7 +336,7 @@
                 this.Dagon.Item.IsValid &&
                 Target != null && !UnitExtensions.IsChanneling(Owner) &&
                 this.Dagon.Item.CanBeCasted(Target) &&
-                this.Config.ItemToggler.Value.IsEnabled(Dagon5.Item.Name))
+                this.Config.ItemToggler.Value.IsEnabled("item_dagon_5"))
             {
                 Log.Debug("Using Dagon");
                 this.Dagon.UseAbility(Target);
