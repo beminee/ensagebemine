@@ -512,7 +512,7 @@
                 }
 
             }
-            else if (UnitExtensions.HasModifier(Target, "modifier_pugna_life_drain"))
+            else if (Target != null && UnitExtensions.HasModifier(Target, "modifier_pugna_life_drain"))
             {
                 if (decrepifyKillable != null)
                 {
