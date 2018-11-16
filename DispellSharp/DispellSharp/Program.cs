@@ -66,7 +66,7 @@ namespace DispellSharp
         {
             this.context.Inventory.Detach(this);
 
-            this.Handler = UpdateManager.Run(this.OnUpdate);
+            this.Handler.Cancel();
             this.Config.Dispose();
             base.OnDeactivate();
         }
