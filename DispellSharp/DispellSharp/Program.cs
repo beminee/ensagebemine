@@ -97,8 +97,9 @@ namespace DispellSharp
                 }
 
                 var enemiesAround = EntityManager<Hero>.Entities
-                    .Where(x => x.IsValid && x.IsAlive &&
+                    .Where(x => x.IsValid && x.IsAlive && !x.IsAlly(this.Owner) &&
                                 x.Distance2D(this.Owner) <= this.Nullifier?.CastRange).ToList();
+
                 foreach (var enemy in enemiesAround)
                 {
                     if (enemy != null && !enemy.IsMagicImmune() && Nullifier.CanBeCasted)
@@ -114,7 +115,7 @@ namespace DispellSharp
                             this.Nullifier.UseAbility(enemy);
                             await Task.Delay(Nullifier.GetCastDelay(), token);
                         }
-                        else if (enemy.HasModifier("modifier_item_cyclone") &&
+                        else if (enemy.HasModifier("modifier_eul_cyclone") &&
                                  this.Config.EnemyCleanseToggler.Value.IsEnabled("item_cyclone"))
                         {
                             this.Nullifier.UseAbility(enemy);
