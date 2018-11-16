@@ -1,105 +1,187 @@
-﻿namespace DispellSharp
+﻿using System.Collections.Generic;
+using System.ComponentModel.Composition;
+using System.Reflection;
+using System.Threading;
+using System.Threading.Tasks;
+using Ensage.SDK.Abilities.Aggregation;
+using Ensage.SDK.Abilities.Items;
+using Ensage.SDK.Extensions;
+using Ensage.SDK.Handlers;
+using Ensage.SDK.Helpers;
+using Ensage.SDK.Inventory.Metadata;
+using Ensage.SDK.Menu;
+using Ensage.SDK.Service.Metadata;
+using Ensage.SDK.TargetSelector;
+using log4net;
+using PlaySharp.Toolkit.Helper.Annotations;
+using PlaySharp.Toolkit.Logging;
+
+namespace DispellSharp
 {
     using System;
     using System.Linq;
-
+    using Ensage.SDK.Service;
     using Ensage;
     using Ensage.Common;
     using Ensage.Common.Extensions;
     using Ensage.Common.Menu;
 
-    internal class Program
+    [PublicAPI]
+    [ExportPlugin("DispellSharp", StartupMode.Auto, "beminee", "2.0.0.0", "Global Dispell Assembly")]
+    public class Program : Plugin
     {
-        #region Static Fields
+        private readonly IServiceContext context;
 
-        private static readonly string[] EnemyCleans =
-            {
-                "modifier_ghost_state", "modifier_item_ethereal_blade_ethereal",
-                "modifier_omninight_guardian_angel"
-            };
+        private Unit Owner;
 
-        private static readonly string[] OwnCleans =
-            {
-                "modifier_item_dustofappearance",
-                "modifier_orchid_malevolence_debuff",
-                "modifier_bloodthorn_debuff",
-                "modifier_skywrath_mage_ancient_seal"
-            };
+        public TaskHandler Handler { get; private set; }
 
-        private static MenuItem EnabledItem;
+        private static readonly ILog Log = AssemblyLogs.GetLogger(MethodBase.GetCurrentMethod().DeclaringType);
 
-        private static bool loaded;
+        [ItemBinding]
+        private item_manta Manta { get; set; }
+        [ItemBinding]
+        private item_nullifier Nullifier { get; set; }
 
-        private static Menu Menu;
-
-        #endregion
-
-        #region Public Methods and Operators
-
-        public static void Game_OnUpdate(EventArgs args)
+        [ImportingConstructor]
+        public Program(
+            [Import] IServiceContext context)
         {
-            if (!loaded || !Game.IsInGame || Game.IsPaused || Game.IsWatchingGame || !EnabledItem.GetValue<bool>()) return;
+            this.context = context;
+            this.Owner = context.Owner;
+        }
 
-            var me = ObjectManager.LocalHero;
-            if (me == null) return;
+        public DispellSharpConfig Config { get; private set; }
 
-            var manta = me.FindItem("item_manta");
+        protected override void OnActivate()
+        {
+            this.context.Inventory.Attach(this);
 
-            var diff = me.Inventory.Items.FirstOrDefault(item => item.Name.Contains("item_diffusal_blade"));
+            this.Config = new DispellSharpConfig();
+            this.Handler = UpdateManager.Run(this.OnUpdate);
+            base.OnActivate();
+        }
 
-            if (diff != null && Utils.SleepCheck("diff") && !me.IsChanneling() && me.CanAttack()
-                && diff.CurrentCharges > 0 && diff.Cooldown <= 0)
+        protected override void OnDeactivate()
+        {
+            this.context.Inventory.Detach(this);
+
+            this.Handler = UpdateManager.Run(this.OnUpdate);
+            this.Config.Dispose();
+            base.OnDeactivate();
+        }
+
+        private async Task OnUpdate(CancellationToken token)
+        {
+            if (Game.IsPaused || !this.Owner.IsAlive || this.Owner.IsMuted() || !this.Owner.CanUseItems())
             {
-                var enemies =
-                    ObjectManager.GetEntitiesParallel<Hero>()
-                        .Where(
-                            y =>
-                                y.Team != me.Team && y.IsAlive && y.IsVisible && !y.IsIllusion
-                                && me.Distance2D(y) < 500 && y.HasModifiers(EnemyCleans, false))
-                        .ToList();
-
-                foreach (var enemy in enemies)
-                {
-                    diff.UseAbility(enemy);
-                    Utils.Sleep(200, "diff");
-                    return;
-                }
+                await Task.Delay(250, token);
+                return;
             }
 
-            if (me.HasModifiers(OwnCleans, false))
+            try
             {
-                if (manta != null && Utils.SleepCheck("manta") && manta.Cooldown <= 0 && !me.IsChanneling() )
+                if (Manta != null && Manta.CanBeCasted &&
+                    (this.Owner.IsSilenced() || this.Owner.HasModifier("modifier_silencer_last_word")) &&
+                    this.Config.MantaSilences.Value)
                 {
-                    manta.UseAbility();
-                    Utils.Sleep(200, "manta");
+                    Manta.UseAbility();
+                    await Task.Delay(Manta.GetCastDelay(), token);
+                }
+
+                if (Manta != null && Manta.CanBeCasted && this.Owner.HasModifier("modifier_item_dustofappearance") &&
+                    this.Config.MantaDust.Value)
+                {
+                    Manta.UseAbility();
+                    await Task.Delay(Manta.GetCastDelay(), token);
+                }
+
+                var enemiesAround = EntityManager<Hero>.Entities
+                    .Where(x => x.IsValid && x.IsAlive &&
+                                x.Distance2D(this.Owner) <= this.Nullifier?.CastRange).ToList();
+                foreach (var enemy in enemiesAround)
+                {
+                    if (enemy != null && !enemy.IsMagicImmune() && Nullifier.CanBeCasted)
+                    {
+                        if (enemy.IsEthereal() && this.Config.EnemyCleanseToggler.Value.IsEnabled("item_ghost"))
+                        {
+                            this.Nullifier.UseAbility(enemy);
+                            await Task.Delay(Nullifier.GetCastDelay(), token);
+                        }
+                        else if (enemy.HasModifier("modifier_omninight_guardian_angel") &&
+                                 this.Config.EnemyCleanseToggler.Value.IsEnabled("omniknight_guardian_angel"))
+                        {
+                            this.Nullifier.UseAbility(enemy);
+                            await Task.Delay(Nullifier.GetCastDelay(), token);
+                        }
+                        else if (enemy.HasModifier("modifier_item_cyclone") &&
+                                 this.Config.EnemyCleanseToggler.Value.IsEnabled("item_cyclone"))
+                        {
+                            this.Nullifier.UseAbility(enemy);
+                            await Task.Delay(Nullifier.GetCastDelay(), token);
+                        }
+                    }
                 }
             }
+            catch (TaskCanceledException)
+            {
+                // ignore
+            }
+            catch (Exception e)
+            {
+                Log.Debug($"Exception: {e}");
+            }
         }
+    }
 
-        #endregion
+    public class DispellSharpConfig : IDisposable
+    {
+        private bool _disposed;
 
-        #region Methods
+        public MenuFactory Menu { get; }
 
-        private static void Events_OnLoad(object sender, EventArgs e)
+        public MenuItem<bool> MantaSilences { get; set; }
+        public MenuItem<bool> MantaDust { get; set; }
+
+        public MenuItem<AbilityToggler> EnemyCleanseToggler { get; set; }
+
+        public DispellSharpConfig()
         {
-            if (loaded) return;
-            loaded = true;
+            var enemyCleanse = new Dictionary<string, bool>
+            {
+                {"item_ghost", true},
+                {"omniknight_guardian_angel", true},
+                {"item_cyclone", true}
+            };
 
-            Menu = new Menu("DispellSharp", "dispellsharp", true, "item_manta", true);
-            var options = new Menu("Options", "opt");
-            EnabledItem = new MenuItem("enable", "Active?").SetValue(true);
-            options.AddItem(EnabledItem);
-            Menu.AddSubMenu(options);
-            Menu.AddToMainMenu();
+            this.Menu = MenuFactory.Create("DispellSharp");
+            this.MantaSilences = this.Menu.Item("Dispell Silence with Manta", true);
+            this.MantaSilences.Item.Tooltip =
+                "Setting this to false will disable dispelling silence effects with Manta.";
+            this.MantaDust = this.Menu.Item("Dispell Dust with Manta", true);
+            this.MantaDust.Item.Tooltip = "Setting this to false will disable dispelling dust effect with Manta.";
+            this.EnemyCleanseToggler = this.Menu.Item("Enemy Cleanse Toggler", new AbilityToggler(enemyCleanse));
         }
 
-        private static void Main()
+        public void Dispose()
         {
-            Events.OnLoad += Events_OnLoad;
-            Game.OnUpdate += Game_OnUpdate;
-            Console.WriteLine("DispellSharp Loaded");
+            this.Dispose(true);
+            GC.SuppressFinalize(this);
         }
 
-        #endregion
+        protected virtual void Dispose(bool disposing)
+        {
+            if (this._disposed)
+            {
+                return;
+            }
+
+            if (disposing)
+            {
+                this.Menu.Dispose();
+            }
+
+            this._disposed = true;
+        }
     }
 }
