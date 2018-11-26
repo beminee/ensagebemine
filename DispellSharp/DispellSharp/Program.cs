@@ -83,15 +83,13 @@ namespace DispellSharp
 
             try
             {
-                if (Manta != null && Manta.CanBeCasted &&
-                    (this.Owner.IsSilenced() || this.Owner.HasModifier("modifier_silencer_last_word")) &&
+                if (Manta != null && Manta.CanBeCasted && IsSilenced &&
                     this.Config.Silences.Value)
                 {
                     Manta.UseAbility();
                     await Task.Delay(Manta.GetCastDelay(), token);
                 }
-                else if (LotusOrb != null && LotusOrb.CanBeCasted &&
-                         (this.Owner.IsSilenced() || this.Owner.HasModifier("modifier_silencer_last_word")) &&
+                else if (LotusOrb != null && LotusOrb.CanBeCasted && IsSilenced &&
                          this.Config.Silences.Value)
                 {
                     LotusOrb.UseAbility(this.Owner);
@@ -153,6 +151,16 @@ namespace DispellSharp
             catch (Exception e)
             {
                 Log.Debug($"Exception: {e}");
+            }
+        }
+
+        private bool IsSilenced
+        {
+            get
+            {
+                return (this.Owner.IsSilenced() || 
+                        this.Owner.HasModifier("modifier_silencer_last_word")) &&
+                       !this.Owner.HasModifier("modifier_night_stalker_crippling_fear_aura");
             }
         }
     }
