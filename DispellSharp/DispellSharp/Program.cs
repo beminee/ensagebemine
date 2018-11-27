@@ -45,6 +45,14 @@ namespace DispellSharp
         [ItemBinding]
         private item_lotus_orb LotusOrb { get; set; }
 
+        private readonly HashSet<string> ignoreSilence = new HashSet<string>
+        {
+            "modifier_night_stalker_crippling_fear",
+            "modifier_riki_smoke_screen",
+            "modifier_disruptor_static_storm",
+            "modifier_viper_nethertoxin"
+        };
+
         [ImportingConstructor]
         public Program(
             [Import] IServiceContext context)
@@ -61,13 +69,16 @@ namespace DispellSharp
 
             this.Config = new DispellSharpConfig();
             this.Handler = UpdateManager.Run(this.OnUpdate);
+            Unit.OnModifierAdded += UnitOnModifierAdded;
+            Unit.OnModifierRemoved += UnitOnModifierRemoved;
             base.OnActivate();
         }
 
         protected override void OnDeactivate()
         {
             this.context.Inventory.Detach(this);
-
+            Unit.OnModifierAdded -= UnitOnModifierAdded;
+            Unit.OnModifierRemoved -= UnitOnModifierRemoved;
             this.Handler.Cancel();
             this.Config.Dispose();
             base.OnDeactivate();
@@ -154,15 +165,67 @@ namespace DispellSharp
             }
         }
 
-        private bool IsSilenced
+        private bool IsValid(Entity sender, Modifier modifier)
         {
-            get
+            if (sender?.IsValid != true)
             {
-                return (this.Owner.IsSilenced() || 
-                        this.Owner.HasModifier("modifier_silencer_last_word")) &&
-                       !this.Owner.HasModifier("modifier_night_stalker_crippling_fear_aura");
+                return false;
+            }
+
+            if (sender != this.Owner)
+            {
+                return false;
+            }
+
+            if (modifier?.IsValid != true)
+            {
+                return false;
+            }
+
+            if (this.ignoreSilence.Contains(modifier.Name))
+            {
+                return false;
+            }
+
+            return true;
+        }
+
+        private async void UnitOnModifierAdded(Unit sender, ModifierChangedEventArgs args)
+        {
+            await Task.Delay(1);
+            var modifier = args.Modifier;
+
+            if (!this.IsValid(sender, modifier))
+            {
+                return;
+            }
+
+            if ((sender.UnitState == UnitState.Silenced) || modifier.Name == "modifier_silencer_last_word")
+            {
+                IsSilenced = true;
+            }
+            else
+            {
+                IsSilenced = false;
             }
         }
+
+        private void UnitOnModifierRemoved(Unit sender, ModifierChangedEventArgs args)
+        {
+            var modifier = args.Modifier;
+
+            if (!this.IsValid(sender, modifier))
+            {
+                return;
+            }
+
+            if (IsSilenced && sender.UnitState != UnitState.Silenced)
+            {
+                IsSilenced = false;
+            }
+        }
+
+        private bool IsSilenced { get; set; }
     }
 
     public class DispellSharpConfig : IDisposable
