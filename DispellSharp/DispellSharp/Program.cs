@@ -50,7 +50,8 @@ namespace DispellSharp
             "modifier_night_stalker_crippling_fear",
             "modifier_riki_smoke_screen",
             "modifier_disruptor_static_storm",
-            "modifier_viper_nethertoxin"
+            "modifier_viper_nethertoxin",
+            "modifier_item_mask_of_madness_berserk"
         };
 
         [ImportingConstructor]
